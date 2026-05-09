@@ -1,0 +1,112 @@
+{
+  "theme": "Light",
+  "archetype": "Archetype 6: Vibrant Play (Youth Coaching & Education) adapted for Indian Heritage",
+  "colors": {
+    "primary": {
+      "name": "Saffron",
+      "hex": "#FF9933",
+      "tailwind": "bg-[#FF9933]",
+      "text": "text-[#FF9933]"
+    },
+    "secondary": {
+      "name": "India Green",
+      "hex": "#138808",
+      "tailwind": "bg-[#138808]",
+      "text": "text-[#138808]"
+    },
+    "accent": {
+      "name": "Warm Gold",
+      "hex": "#F4C430",
+      "tailwind": "bg-[#F4C430]",
+      "text": "text-[#F4C430]"
+    },
+    "complementary": {
+      "deep_navy": "#1A365D",
+      "rich_maroon": "#7B1FA2"
+    },
+    "background": {
+      "name": "Storybook Cream",
+      "hex": "#FDFBF7",
+      "tailwind": "bg-[#FDFBF7]"
+    },
+    "surface": {
+      "name": "White",
+      "hex": "#FFFFFF",
+      "tailwind": "bg-white"
+    },
+    "text": {
+      "primary": "#1A202C",
+      "secondary": "#4A5568",
+      "muted": "#718096"
+    }
+  },
+  "typography": {
+    "font_families": {
+      "heading": "Fredoka, Nunito (Playful, round, bold)",
+      "body": "Quicksand, Nunito (Readable, friendly, warm)"
+    },
+    "scale": {
+      "h1": "text-4xl md:text-5xl font-black tracking-tight text-[#1A365D]",
+      "h2": "text-2xl md:text-3xl font-bold tracking-tight text-[#1A365D]",
+      "h3": "text-xl font-bold text-[#1A202C]",
+      "body": "text-base leading-relaxed text-[#4A5568]",
+      "small": "text-sm font-medium text-[#4A5568]",
+      "tiny_label": "text-xs font-bold uppercase tracking-[0.1em] text-[#718096]"
+    }
+  },
+  "layout_and_spacing": {
+    "spacing_scale": "p-4, p-6, p-8 (Generous padding for kid-friendly touch targets)",
+    "container_radius": "rounded-[24px] or rounded-[32px] (Soft, playful edges)",
+    "button_radius": "rounded-full",
+    "card_style": "Flat backgrounds, 2px solid border (border-slate-200), solid offset shadow (e.g., 4px 4px 0px rgba(0,0,0,0.1)) for a tactile 'Neo-Brutalist/Storybook' feel."
+  },
+  "components": {
+    "buttons": "Large touch targets (min-h-[56px]), highly saturated colors (Saffron or Green), rounded-full, explicit press states.",
+    "cards": "White or Cream background, rounded-[24px], bold 2px border in a lighter tint of the accent or primary color. Inner padding p-6. Avoid generic centered text; use asymmetric 'bento' layouts for story cards.",
+    "bottom_tab_nav": "Fixed bottom, high contrast icons, solid white background with a subtle top border, Saffron color for active tab indicator.",
+    "chat_bubbles": "Azaadi's bubbles: Warm gold/cream background with deep navy text. Kid's bubbles: Saffron background with white text. Rounded-[20px] with one sharp corner indicating direction.",
+    "progress_bar": "Thick (h-4 or h-6), rounded-full, vibrant animated fill (Saffron or Green)."
+  },
+  "animations": {
+    "interactions": "Bouncy scale effects on buttons. Smooth page transitions. No complex 3D rendering required, keep it flat and responsive.",
+    "feedback": "Particle burst or scale-in effects on quiz completion/level up."
+  },
+  "assets": {
+    "icons": "lucide-react or @phosphor-icons/react (Duotone style for storybook feel).",
+    "images": [
+      {
+        "category": "mascot_azaadi",
+        "url": "https://images.unsplash.com/photo-1532562066470-f6f5f6d47924?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2Mzl8MHwxfHNlYXJjaHwxfHxjdXRlJTIwb3dsfGVufDB8fHx8MTc3ODMxMTc0OXww&ixlib=rb-4.1.0&q=85",
+        "description": "Azaadi the Owl Companion (Use as placeholder for mascot portrait)"
+      },
+      {
+        "category": "mascot_alt",
+        "url": "https://images.unsplash.com/photo-1707157188951-65b45cbfa6d9?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2Mzl8MHwxfHNlYXJjaHwyfHxjdXRlJTIwb3dsfGVufDB8fHx8MTc3ODMxMTc0OXww&ixlib=rb-4.1.0&q=85",
+        "description": "Two owls sitting on branch (Alternative Azaadi illustration for chat background)"
+      },
+      {
+        "category": "background_historical",
+        "url": "https://images.unsplash.com/photo-1651037067127-383b9e3cab36?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNzl8MHwxfHNlYXJjaHwzfHxpbmRpYW4lMjBoaXN0b3J5JTIwZm9ydHxlbnwwfHx8fDE3NzgzMTE3NDl8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Historical Indian fort (Use for story backgrounds and library header)"
+      },
+      {
+        "category": "background_magical",
+        "url": "https://images.unsplash.com/photo-1652213053758-97d44ca7d591?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MjJ8MHwxfHNlYXJjaHwxfHxzdG9yeWJvb2slMjBtYWdpY2FsfGVufDB8fHx8MTc3ODMxMTc1MHww&ixlib=rb-4.1.0&q=85",
+        "description": "Magical castle (Use for onboarding or level up screens)"
+      },
+      {
+        "category": "badge_gold",
+        "url": "https://images.unsplash.com/photo-1760996888608-6a1a5651ccd0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDF8MHwxfHNlYXJjaHwzfHxnb2xkZW4lMjBtZWRhbHxlbnwwfHx8fDE3NzgzMTE3NDl8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Gold medal for XP/Badges placeholder in Profile Screen"
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Context: This is an Expo React Native Mobile App, NOT a web app. Translate these Tailwind-like utility descriptions into React Native styles (e.g., 'p-6' -> { padding: 24 }, 'rounded-[24px]' -> { borderRadius: 24 }). If using NativeWind, use valid Tailwind classes.",
+    "Testing: All interactive and key informational elements MUST include a 'testID' attribute (e.g., testID='login-button').",
+    "Aesthetics: Avoid generic centered layouts and 'AI slop' (purple gradients). Use playful asymmetry, 'bento' grid-like layouts for story cards, and thick geometric borders.",
+    "Navigation: Implement a Bottom Tab Navigation (Home, Library, Azaadi, Profile).",
+    "Story Reader: Integrate TTS logic and place a prominent, kid-friendly 'Play' button. Include a 'Take Quiz' CTA at the end.",
+    "Use standard React Native components (<View>, <Text>, <TouchableOpacity>) to build custom storybook-style cards rather than relying on standard pre-built card libraries that look too 'corporate'."
+  ]
+}
