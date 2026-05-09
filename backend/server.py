@@ -8,6 +8,7 @@ from datetime import datetime, timezone, timedelta, date
 from pathlib import Path
 from typing import List, Optional
 
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, APIRouter, HTTPException, Depends, Header
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -28,7 +29,13 @@ JWT_ALG = "HS256"
 client = AsyncIOMotorClient(MONGO_URL)
 db = client[DB_NAME]
 
-app = FastAPI(title="Azaadi Tales API")
+@asynccontextmanager
+async def lifespan(app_: FastAPI):
+    yield
+    client.close()
+
+
+app = FastAPI(title="Azaadi Tales API", lifespan=lifespan)
 api = APIRouter(prefix="/api")
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")

@@ -16,10 +16,7 @@ export const C = {
 };
 
 export const SHADOW = {
-  shadowColor: "#1A365D",
-  shadowOffset: { width: 4, height: 4 },
-  shadowOpacity: 0.18,
-  shadowRadius: 0,
+  boxShadow: "4px 4px 0px rgba(26, 54, 93, 0.18)",
   elevation: 6,
 };
 

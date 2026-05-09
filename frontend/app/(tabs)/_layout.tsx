@@ -24,6 +24,7 @@ export default function TabsLayout() {
         name="index"
         options={{
           title: "Home",
+          tabBarButtonTestID: "tab-home",
           tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
         }}
       />
@@ -31,6 +32,7 @@ export default function TabsLayout() {
         name="library"
         options={{
           title: "Library",
+          tabBarButtonTestID: "tab-library",
           tabBarIcon: ({ color, size }) => <Ionicons name="library" size={size} color={color} />,
         }}
       />
@@ -38,6 +40,7 @@ export default function TabsLayout() {
         name="azaadi"
         options={{
           title: "Azaadi",
+          tabBarButtonTestID: "tab-azaadi",
           tabBarIcon: ({ color, size }) => <Ionicons name="chatbubbles" size={size} color={color} />,
         }}
       />
@@ -45,6 +48,7 @@ export default function TabsLayout() {
         name="profile"
         options={{
           title: "Profile",
+          tabBarButtonTestID: "tab-profile",
           tabBarIcon: ({ color, size }) => <Ionicons name="person-circle" size={size} color={color} />,
         }}
       />
