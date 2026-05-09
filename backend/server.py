@@ -16,6 +16,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field
 
 from stories_seed import STORIES, BADGES, LEVELS, get_level_for_xp
+from hunts_seed import HUNTS
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / ".env")
@@ -71,6 +72,11 @@ class JournalCreateReq(BaseModel):
 
 class ReactReq(BaseModel):
     emoji: str  # 🔥 💡 🌟
+
+
+class HuntAnswerReq(BaseModel):
+    clue_id: str
+    answer_id: str  # the hero story_id the kid tapped
 
 
 class LoginReq(BaseModel):
@@ -658,6 +664,163 @@ async def parent_moderate(post_id: str, req: ModerateActionReq, user=Depends(get
     return {"ok": True, "status": new_status}
 
 
+
+
+# ---------- Treasure Hunts ----------
+def _hero_card(story_id: str) -> dict:
+    """Build a small hero card from a story_id (name + color + initials emoji)."""
+    s = next((x for x in STORIES if x["id"] == story_id), None)
+    if not s:
+        return {"id": story_id, "name": story_id, "color": "#888"}
+    return {
+        "id": s["id"],
+        "name": s["name"],
+        "color": s["color"],
+        "tagline_en": s.get("tagline_en", ""),
+        "tagline_hi": s.get("tagline_hi", ""),
+        "era": s.get("era", ""),
+    }
+
+
+def _public_clue(clue: dict) -> dict:
+    return {
+        "id": clue["id"],
+        "clue_en": clue["clue_en"],
+        "clue_hi": clue["clue_hi"],
+        "options": [_hero_card(sid) for sid in clue["options"]],
+        "hint_en": clue.get("hint_en", ""),
+        "hint_hi": clue.get("hint_hi", ""),
+    }
+
+
+async def _get_hunt_progress(user_id: str, hunt_id: str) -> dict:
+    """Return progress doc {solved_clues: [...], completed: bool}. Creates if missing."""
+    doc = await db.hunt_progress.find_one({"user_id": user_id, "hunt_id": hunt_id})
+    if not doc:
+        return {"user_id": user_id, "hunt_id": hunt_id, "solved_clues": [], "completed": False, "wrong_attempts": 0}
+    doc.pop("_id", None)
+    return doc
+
+
+@api.get("/hunts")
+async def list_hunts(user=Depends(get_current_user)):
+    """Returns all hunts with this kid's progress summary."""
+    out = []
+    for h in HUNTS:
+        prog = await _get_hunt_progress(user["id"], h["id"])
+        total = len(h["clues"])
+        solved = len(prog.get("solved_clues", []))
+        out.append({
+            "id": h["id"],
+            "title_en": h["title_en"],
+            "title_hi": h["title_hi"],
+            "tagline_en": h["tagline_en"],
+            "tagline_hi": h["tagline_hi"],
+            "icon": h["icon"],
+            "color": h["color"],
+            "badge_id": h["badge_id"],
+            "xp_reward": h["xp_reward"],
+            "total_clues": total,
+            "solved_clues": solved,
+            "completed": prog.get("completed", False),
+            "percent": round(solved * 100 / total) if total else 0,
+        })
+    return out
+
+
+@api.get("/hunts/{hunt_id}")
+async def get_hunt(hunt_id: str, user=Depends(get_current_user)):
+    """Returns full hunt: all clues + 4 hero options each + this kid's progress.
+    Answers are NOT exposed; client submits each answer to /hunts/{id}/answer."""
+    hunt = next((h for h in HUNTS if h["id"] == hunt_id), None)
+    if not hunt:
+        raise HTTPException(404, "Hunt not found")
+    prog = await _get_hunt_progress(user["id"], hunt_id)
+    clues = [_public_clue(c) for c in hunt["clues"]]
+    return {
+        "id": hunt["id"],
+        "title_en": hunt["title_en"],
+        "title_hi": hunt["title_hi"],
+        "tagline_en": hunt["tagline_en"],
+        "tagline_hi": hunt["tagline_hi"],
+        "icon": hunt["icon"],
+        "color": hunt["color"],
+        "badge_id": hunt["badge_id"],
+        "xp_reward": hunt["xp_reward"],
+        "clues": clues,
+        "solved_clues": prog.get("solved_clues", []),
+        "completed": prog.get("completed", False),
+    }
+
+
+@api.post("/hunts/{hunt_id}/answer")
+async def answer_hunt_clue(hunt_id: str, req: HuntAnswerReq, user=Depends(get_current_user)):
+    """Validate the kid's tap-the-hero answer for one clue."""
+    hunt = next((h for h in HUNTS if h["id"] == hunt_id), None)
+    if not hunt:
+        raise HTTPException(404, "Hunt not found")
+    clue = next((c for c in hunt["clues"] if c["id"] == req.clue_id), None)
+    if not clue:
+        raise HTTPException(404, "Clue not found")
+
+    is_correct = (req.answer_id == clue["answer_id"])
+    correct_hero = _hero_card(clue["answer_id"])
+
+    prog = await _get_hunt_progress(user["id"], hunt_id)
+    solved = list(prog.get("solved_clues", []))
+    wrong_attempts = int(prog.get("wrong_attempts", 0))
+    awarded_clue_xp = 0
+    just_completed = False
+    badge_awarded = None
+    bonus_xp = 0
+
+    if is_correct and req.clue_id not in solved:
+        solved.append(req.clue_id)
+        awarded_clue_xp = 5  # small XP per clue
+        await db.users.update_one({"id": user["id"]}, {"$inc": {"xp": awarded_clue_xp}})
+
+    if not is_correct:
+        wrong_attempts += 1
+
+    completed_now = (len(solved) == len(hunt["clues"]))
+    if completed_now and not prog.get("completed", False):
+        just_completed = True
+        bonus_xp = int(hunt.get("xp_reward", 0))
+        await db.users.update_one({"id": user["id"]}, {"$inc": {"xp": bonus_xp}})
+        # Award badge
+        u = await db.users.find_one({"id": user["id"]}, {"_id": 0})
+        b = set(u.get("badges", []))
+        if hunt["badge_id"] not in b:
+            b.add(hunt["badge_id"])
+            await db.users.update_one({"id": user["id"]}, {"$set": {"badges": list(b)}})
+            badge_awarded = hunt["badge_id"]
+
+    await db.hunt_progress.update_one(
+        {"user_id": user["id"], "hunt_id": hunt_id},
+        {"$set": {
+            "user_id": user["id"],
+            "hunt_id": hunt_id,
+            "solved_clues": solved,
+            "completed": completed_now or prog.get("completed", False),
+            "wrong_attempts": wrong_attempts,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }},
+        upsert=True,
+    )
+    await update_streak(user)
+    await maybe_award_badges(user["id"])
+
+    fresh = await db.users.find_one({"id": user["id"]}, {"_id": 0, "password_hash": 0})
+    return {
+        "correct": is_correct,
+        "correct_hero": correct_hero,
+        "solved_clues": solved,
+        "completed": completed_now,
+        "just_completed": just_completed,
+        "xp_awarded": awarded_clue_xp + bonus_xp,
+        "badge_awarded": badge_awarded,
+        "user": serialize_user(fresh).model_dump(),
+    }
 
 
 app.include_router(api)

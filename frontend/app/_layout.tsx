@@ -14,6 +14,8 @@ export default function RootLayout() {
         <Stack.Screen name="quiz/[id]" />
         <Stack.Screen name="parent/index" />
         <Stack.Screen name="journal/new" />
+        <Stack.Screen name="hunts/index" />
+        <Stack.Screen name="hunts/[id]" />
       </Stack>
     </SafeAreaProvider>
   );

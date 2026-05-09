@@ -102,6 +102,22 @@ export default function Home() {
           </TouchableOpacity>
         )}
 
+        <TouchableOpacity
+          testID="hunts-banner"
+          activeOpacity={0.85}
+          onPress={() => router.push("/hunts" as any)}
+          style={styles.huntsBanner}
+        >
+          <View style={styles.huntsIconWrap}>
+            <Ionicons name="map" size={26} color={C.gold} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.huntsTag}>NEW! TREASURE HUNTS 🏆</Text>
+            <Text style={styles.huntsTitle}>Solve clues. Tap the right hero. Earn badges.</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={22} color={C.white} />
+        </TouchableOpacity>
+
         <Text style={styles.sectionTitle}>Brave Hearts to Meet</Text>
         {stories.slice(1).map((s) => (
           <TouchableOpacity
@@ -187,6 +203,18 @@ const styles = StyleSheet.create({
   },
   featuredCtaTxt: { color: C.navy, fontWeight: "900", fontSize: 13 },
   sectionTitle: { fontSize: 18, fontWeight: "900", color: C.navy, marginBottom: 12 },
+  huntsBanner: {
+    flexDirection: "row", alignItems: "center", gap: 14,
+    backgroundColor: C.navy, padding: 16, borderRadius: 22,
+    borderWidth: 2, borderColor: C.navy, marginBottom: 22, ...SHADOW,
+  },
+  huntsIconWrap: {
+    width: 48, height: 48, borderRadius: 24,
+    backgroundColor: "#FFFFFF22", justifyContent: "center", alignItems: "center",
+    borderWidth: 2, borderColor: C.gold,
+  },
+  huntsTag: { color: C.gold, fontWeight: "900", fontSize: 11, letterSpacing: 1, marginBottom: 2 },
+  huntsTitle: { color: C.white, fontSize: 14, fontWeight: "800", lineHeight: 18 },
   storyRow: {
     flexDirection: "row", alignItems: "center", gap: 14,
     backgroundColor: C.white, padding: 14, borderRadius: 18,

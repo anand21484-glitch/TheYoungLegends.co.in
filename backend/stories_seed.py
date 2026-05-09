@@ -1,5 +1,7 @@
 """Seed data for freedom fighter stories with extended English + Hindi versions, lessons, and quizzes."""
 
+# Will be extended at the end of the file with regional heroes (north/east/west/south/tribal).
+
 STORIES = [
     {
         "id": "bhagat-singh",
@@ -437,3 +439,41 @@ def get_level_for_xp(xp: int):
         if xp >= lvl["min_xp"]:
             current = lvl
     return current
+
+
+# ==========================================================
+# Extend STORIES with regional heroes (north, east, more)
+# ==========================================================
+try:
+    from stories_seed_north import NORTH_STORIES
+    STORIES.extend(NORTH_STORIES)
+except Exception as _e:
+    pass
+
+try:
+    from stories_seed_east import EAST_STORIES
+    STORIES.extend(EAST_STORIES)
+except Exception as _e:
+    pass
+
+try:
+    from stories_seed_more import MORE_STORIES
+    STORIES.extend(MORE_STORIES)
+except Exception as _e:
+    pass
+
+
+# ==========================================================
+# Hunt-related badges
+# ==========================================================
+BADGES.extend([
+    {"id": "hunt_1857", "name": "1857 Detective", "icon": "flame", "desc": "Solve the Great Revolt hunt"},
+    {"id": "hunt_women", "name": "Veerangana", "icon": "rose", "desc": "Solve the Women Warriors hunt"},
+    {"id": "hunt_youth", "name": "Young Tiger", "icon": "flash", "desc": "Solve the Young Revolutionaries hunt"},
+])
+
+# Update "all_stories" badge description to reflect new total
+for _b in BADGES:
+    if _b.get("id") == "all_stories":
+        _b["desc"] = f"Read all {len(STORIES)} stories"
+        break
