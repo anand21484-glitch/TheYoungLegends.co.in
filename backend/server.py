@@ -49,6 +49,28 @@ class SignupReq(BaseModel):
     age: int = 8
     avatar: str = "owl"
     language: str = "en"
+    role: str = "kid"  # "kid" or "parent"
+
+
+class LinkChildReq(BaseModel):
+    child_username: str
+
+
+class SetGoalReq(BaseModel):
+    daily_goal: int = 1
+
+
+class ModerateActionReq(BaseModel):
+    action: str  # "approve" or "reject"
+
+
+class JournalCreateReq(BaseModel):
+    text: str
+    story_id: Optional[str] = None
+
+
+class ReactReq(BaseModel):
+    emoji: str  # 🔥 💡 🌟
 
 
 class LoginReq(BaseModel):
@@ -84,6 +106,9 @@ class UserOut(BaseModel):
     completed_stories: List[str]
     streak: int
     quizzes_taken: int
+    role: str = "kid"
+    parent_id: Optional[str] = None
+    daily_goal: int = 1
 
 
 # ---------- Auth helpers ----------
@@ -133,6 +158,9 @@ def serialize_user(u: dict) -> UserOut:
         completed_stories=u.get("completed_stories", []),
         streak=u.get("streak", 0),
         quizzes_taken=u.get("quizzes_taken", 0),
+        role=u.get("role", "kid"),
+        parent_id=u.get("parent_id"),
+        daily_goal=u.get("daily_goal", 1),
     )
 
 
@@ -217,6 +245,9 @@ async def signup(req: SignupReq):
         "quizzes_taken": 0,
         "perfect_quizzes": 0,
         "chatted": False,
+        "role": req.role if req.role in ("kid", "parent") else "kid",
+        "parent_id": None,
+        "daily_goal": 1,
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await db.users.insert_one(dict(user_doc))
@@ -417,6 +448,216 @@ async def all_badges():
 @api.get("/levels")
 async def all_levels():
     return LEVELS
+
+
+# ---------- Parent Dashboard ----------
+def require_parent(user: dict):
+    if user.get("role") != "parent":
+        raise HTTPException(403, "Parents only")
+
+
+def require_kid(user: dict):
+    if user.get("role", "kid") != "kid":
+        raise HTTPException(403, "Kids only")
+
+
+async def _serialize_kid_for_parent(kid: dict) -> dict:
+    base = serialize_user(kid).model_dump()
+    base["last_active"] = kid.get("last_active")
+    return base
+
+
+@api.get("/parent/children")
+async def list_children(user=Depends(get_current_user)):
+    require_parent(user)
+    kids = await db.users.find({"parent_id": user["id"]}, {"_id": 0, "password_hash": 0}).to_list(50)
+    return [await _serialize_kid_for_parent(k) for k in kids]
+
+
+@api.post("/parent/link-child")
+async def link_child(req: LinkChildReq, user=Depends(get_current_user)):
+    require_parent(user)
+    uname = req.child_username.strip().lower()
+    kid = await db.users.find_one({"username": uname})
+    if not kid:
+        raise HTTPException(404, "No kid found with that username")
+    if kid.get("role", "kid") != "kid":
+        raise HTTPException(400, "That account is not a kid account")
+    if kid.get("parent_id") and kid.get("parent_id") != user["id"]:
+        raise HTTPException(400, "Kid is already linked to another parent")
+    await db.users.update_one({"id": kid["id"]}, {"$set": {"parent_id": user["id"]}})
+    fresh = await db.users.find_one({"id": kid["id"]}, {"_id": 0, "password_hash": 0})
+    return {"ok": True, "child": await _serialize_kid_for_parent(fresh)}
+
+
+@api.post("/parent/child/{kid_id}/goal")
+async def set_child_goal(kid_id: str, req: SetGoalReq, user=Depends(get_current_user)):
+    require_parent(user)
+    kid = await db.users.find_one({"id": kid_id})
+    if not kid or kid.get("parent_id") != user["id"]:
+        raise HTTPException(404, "Child not found")
+    goal = max(1, min(10, req.daily_goal))
+    await db.users.update_one({"id": kid_id}, {"$set": {"daily_goal": goal}})
+    return {"ok": True, "daily_goal": goal}
+
+
+@api.get("/parent/child/{kid_id}/progress")
+async def child_progress(kid_id: str, user=Depends(get_current_user)):
+    require_parent(user)
+    kid = await db.users.find_one({"id": kid_id}, {"_id": 0, "password_hash": 0})
+    if not kid or kid.get("parent_id") != user["id"]:
+        raise HTTPException(404, "Child not found")
+    posts = await db.journal.count_documents({"author_id": kid_id})
+    chats = await db.chat_messages.count_documents({"user_id": kid_id})
+    return {
+        "child": await _serialize_kid_for_parent(kid),
+        "posts_written": posts,
+        "azaadi_chats": chats,
+    }
+
+
+# ---------- Community Freedom Journal ----------
+async def _moderate_post(text: str) -> dict:
+    """Use Claude to decide if the kid post is safe/appropriate. Returns {safe: bool, reason: str}."""
+    from emergentintegrations.llm.chat import LlmChat, UserMessage
+    sys_msg = (
+        "You moderate posts written by Indian children aged 5-14 in a school-safe app called Azaadi Tales. "
+        "Reply ONLY with one word followed by a short reason. "
+        "If the post contains personal info (full names, phone, address, school name), violence, hate speech, bullying, "
+        "profanity, or anything not appropriate for kids, reply: UNSAFE: <short reason in 6 words or less>. "
+        "If the post is safe, encouraging, or simply childish/silly, reply: SAFE: <2-4 word reason>. "
+        "If unsure, default to UNSAFE."
+    )
+    chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"mod-{uuid.uuid4()}", system_message=sys_msg).with_model(
+        "anthropic", "claude-sonnet-4-5-20250929"
+    )
+    try:
+        reply = await chat.send_message(UserMessage(text=f"Post to moderate:\n\"\"\"\n{text}\n\"\"\""))
+        reply_clean = reply.strip().upper()
+        if reply_clean.startswith("SAFE"):
+            return {"safe": True, "reason": reply.split(":", 1)[1].strip() if ":" in reply else "Looks good"}
+        return {"safe": False, "reason": reply.split(":", 1)[1].strip() if ":" in reply else "Not appropriate"}
+    except Exception as e:
+        log.exception("Moderation error")
+        return {"safe": False, "reason": f"Moderation unavailable"}
+
+
+def _serialize_post(p: dict) -> dict:
+    out = dict(p)
+    out.pop("_id", None)
+    out["reactions_count"] = {emoji: len(uids) for emoji, uids in (p.get("reactions") or {}).items()}
+    out.pop("reactions", None)
+    return out
+
+
+@api.post("/journal")
+async def create_journal_post(req: JournalCreateReq, user=Depends(get_current_user)):
+    require_kid(user)
+    text = req.text.strip()
+    if len(text) < 5 or len(text) > 800:
+        raise HTTPException(400, "Reflection should be 5-800 characters")
+
+    mod = await _moderate_post(text)
+    if not mod["safe"]:
+        return {
+            "ok": False,
+            "status": "rejected",
+            "reason": mod["reason"],
+            "message": "Azaadi gently asked you to rewrite this 🦉",
+        }
+
+    has_parent = bool(user.get("parent_id"))
+    status = "pending" if has_parent else "approved"
+    post_doc = {
+        "id": str(uuid.uuid4()),
+        "author_id": user["id"],
+        "author_username": user["username"],
+        "author_avatar": user.get("avatar", "🦉"),
+        "story_id": req.story_id,
+        "text": text,
+        "status": status,
+        "moderation_reason": mod["reason"],
+        "reactions": {"🔥": [], "💡": [], "🌟": []},
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "approved_at": datetime.now(timezone.utc).isoformat() if status == "approved" else None,
+    }
+    await db.journal.insert_one(dict(post_doc))
+    return {"ok": True, "status": status, "post": _serialize_post(post_doc)}
+
+
+@api.get("/journal/feed")
+async def journal_feed(user=Depends(get_current_user)):
+    posts = (
+        await db.journal.find({"status": "approved"}, {"_id": 0})
+        .sort("approved_at", -1)
+        .to_list(100)
+    )
+    out = []
+    for p in posts:
+        s = _serialize_post(p)
+        s["mine"] = p["author_id"] == user["id"]
+        out.append(s)
+    return out
+
+
+@api.get("/journal/mine")
+async def my_journal(user=Depends(get_current_user)):
+    posts = (
+        await db.journal.find({"author_id": user["id"]}, {"_id": 0})
+        .sort("created_at", -1)
+        .to_list(100)
+    )
+    return [_serialize_post(p) for p in posts]
+
+
+@api.post("/journal/{post_id}/react")
+async def react_to_post(post_id: str, req: ReactReq, user=Depends(get_current_user)):
+    if req.emoji not in ("🔥", "💡", "🌟"):
+        raise HTTPException(400, "Invalid reaction")
+    post = await db.journal.find_one({"id": post_id})
+    if not post or post.get("status") != "approved":
+        raise HTTPException(404, "Post not found")
+    reactions = post.get("reactions") or {"🔥": [], "💡": [], "🌟": []}
+    uids = list(reactions.get(req.emoji, []))
+    if user["id"] in uids:
+        uids.remove(user["id"])  # toggle off
+    else:
+        uids.append(user["id"])
+    reactions[req.emoji] = uids
+    await db.journal.update_one({"id": post_id}, {"$set": {"reactions": reactions}})
+    return {"ok": True, "counts": {e: len(v) for e, v in reactions.items()}}
+
+
+@api.get("/parent/pending-posts")
+async def pending_posts(user=Depends(get_current_user)):
+    require_parent(user)
+    kids = await db.users.find({"parent_id": user["id"]}, {"id": 1, "_id": 0}).to_list(50)
+    kid_ids = [k["id"] for k in kids]
+    posts = (
+        await db.journal.find({"author_id": {"$in": kid_ids}, "status": "pending"}, {"_id": 0})
+        .sort("created_at", -1)
+        .to_list(100)
+    )
+    return [_serialize_post(p) for p in posts]
+
+
+@api.post("/parent/posts/{post_id}/moderate")
+async def parent_moderate(post_id: str, req: ModerateActionReq, user=Depends(get_current_user)):
+    require_parent(user)
+    post = await db.journal.find_one({"id": post_id})
+    if not post:
+        raise HTTPException(404, "Post not found")
+    kid = await db.users.find_one({"id": post["author_id"]})
+    if not kid or kid.get("parent_id") != user["id"]:
+        raise HTTPException(403, "Not your child's post")
+    new_status = "approved" if req.action == "approve" else "rejected"
+    update = {"status": new_status}
+    if new_status == "approved":
+        update["approved_at"] = datetime.now(timezone.utc).isoformat()
+    await db.journal.update_one({"id": post_id}, {"$set": update})
+    return {"ok": True, "status": new_status}
+
+
 
 
 app.include_router(api)

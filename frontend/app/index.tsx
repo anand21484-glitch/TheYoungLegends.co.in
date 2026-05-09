@@ -10,8 +10,11 @@ export default function Index() {
   useEffect(() => {
     (async () => {
       const t = await getStoredToken();
+      const userRaw = await import("@react-native-async-storage/async-storage").then(m => m.default.getItem("user"));
+      const u = userRaw ? JSON.parse(userRaw) : null;
       setTimeout(() => {
-        if (t) router.replace("/(tabs)");
+        if (t && u?.role === "parent") router.replace("/parent" as any);
+        else if (t) router.replace("/(tabs)");
         else router.replace("/auth");
       }, 600);
     })();

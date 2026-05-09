@@ -13,6 +13,7 @@ const AVATARS = ["🦉", "🦁", "🐯", "🐘", "🦚", "🦅"];
 export default function Auth() {
   const router = useRouter();
   const [mode, setMode] = useState<"login" | "signup">("signup");
+  const [role, setRole] = useState<"kid" | "parent">("kid");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [age, setAge] = useState(8);
@@ -30,13 +31,17 @@ export default function Auth() {
       const path = mode === "signup" ? "/auth/signup" : "/auth/login";
       const body: any = { username: username.trim(), password };
       if (mode === "signup") {
-        body.age = age;
-        body.avatar = avatar;
-        body.language = language;
+        body.role = role;
+        if (role === "kid") {
+          body.age = age;
+          body.avatar = avatar;
+          body.language = language;
+        }
       }
       const { data } = await API.post(path, body);
       await saveAuth(data.token, data.user);
-      router.replace("/(tabs)");
+      if (data.user.role === "parent") router.replace("/parent" as any);
+      else router.replace("/(tabs)");
     } catch (e: any) {
       Alert.alert("Hoot!", e?.response?.data?.detail || "Something went wrong");
     } finally {
@@ -44,15 +49,19 @@ export default function Auth() {
     }
   };
 
+  const isParent = role === "parent";
+
   return (
     <SafeAreaView style={styles.c} edges={["top", "bottom"]}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <View style={styles.header}>
-            <Text style={styles.flag}>🦉</Text>
+            <Text style={styles.flag}>{isParent ? "👨‍👩‍👧" : "🦉"}</Text>
             <Text style={styles.title} testID="auth-title">Azaadi Tales</Text>
             <Text style={styles.subtitle}>
-              {mode === "signup" ? "Begin your freedom story!" : "Welcome back, brave heart!"}
+              {mode === "signup"
+                ? (isParent ? "Welcome, parent! Track your child's journey." : "Begin your freedom story!")
+                : "Welcome back, brave heart!"}
             </Text>
           </View>
 
@@ -73,13 +82,34 @@ export default function Auth() {
             </TouchableOpacity>
           </View>
 
+          {mode === "signup" && (
+            <View style={styles.roleRow}>
+              <TouchableOpacity
+                testID="role-kid"
+                style={[styles.roleBtn, role === "kid" && styles.roleBtnActive]}
+                onPress={() => setRole("kid")}
+              >
+                <Text style={styles.roleEmoji}>🦉</Text>
+                <Text style={[styles.roleTxt, role === "kid" && styles.roleTxtActive]}>I&apos;m a Kid</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                testID="role-parent"
+                style={[styles.roleBtn, role === "parent" && styles.roleBtnActive]}
+                onPress={() => setRole("parent")}
+              >
+                <Text style={styles.roleEmoji}>👨‍👩‍👧</Text>
+                <Text style={[styles.roleTxt, role === "parent" && styles.roleTxtActive]}>I&apos;m a Parent</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
           <View style={styles.card}>
             <Text style={styles.label}>Username</Text>
             <TextInput
               testID="input-username"
               value={username}
               onChangeText={setUsername}
-              placeholder="e.g. brave_tiger"
+              placeholder={isParent ? "e.g. mom_priya" : "e.g. brave_tiger"}
               placeholderTextColor={C.textMuted}
               autoCapitalize="none"
               style={styles.input}
@@ -95,7 +125,7 @@ export default function Auth() {
               style={styles.input}
             />
 
-            {mode === "signup" && (
+            {mode === "signup" && role === "kid" && (
               <>
                 <Text style={styles.label}>Age</Text>
                 <View style={styles.row}>
@@ -168,7 +198,7 @@ const styles = StyleSheet.create({
   header: { alignItems: "center", marginVertical: 16 },
   flag: { fontSize: 64 },
   title: { fontSize: 36, fontWeight: "900", color: C.navy, letterSpacing: -1 },
-  subtitle: { fontSize: 15, fontWeight: "600", color: C.textSecondary, marginTop: 4 },
+  subtitle: { fontSize: 15, fontWeight: "600", color: C.textSecondary, marginTop: 4, textAlign: "center" },
   tabs: { flexDirection: "row", gap: 12, marginVertical: 16 },
   tab: {
     flex: 1, paddingVertical: 14, borderRadius: 999, borderWidth: 2,
@@ -177,6 +207,15 @@ const styles = StyleSheet.create({
   tabActive: { backgroundColor: C.saffron },
   tabTxt: { fontSize: 15, fontWeight: "800", color: C.navy },
   tabTxtActive: { color: C.white },
+  roleRow: { flexDirection: "row", gap: 12, marginBottom: 14 },
+  roleBtn: {
+    flex: 1, paddingVertical: 16, borderRadius: 18, borderWidth: 2,
+    borderColor: C.navy, backgroundColor: C.white, alignItems: "center", gap: 4,
+  },
+  roleBtnActive: { backgroundColor: C.gold },
+  roleEmoji: { fontSize: 28 },
+  roleTxt: { fontSize: 13, fontWeight: "900", color: C.navy },
+  roleTxtActive: { color: C.navy },
   card: {
     backgroundColor: C.white, borderRadius: 24, padding: 20, borderWidth: 2,
     borderColor: C.navy, ...SHADOW,
