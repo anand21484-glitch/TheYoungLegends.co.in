@@ -278,6 +278,8 @@ async def get_story(story_id: str):
         "color": s["color"],
         "story_en": s["story_en"],
         "story_hi": s["story_hi"],
+        "lessons_en": s.get("lessons_en", []),
+        "lessons_hi": s.get("lessons_hi", []),
     }
 
 

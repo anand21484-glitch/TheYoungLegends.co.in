@@ -9,13 +9,15 @@ import * as Speech from "expo-speech";
 import { API } from "../../src/api";
 import { C, SHADOW } from "../../src/theme";
 
+type Mode = "idle" | "story" | "lessons";
+
 export default function StoryReader() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const [story, setStory] = useState<any>(null);
   const [user, setUser] = useState<any>(null);
   const [lang, setLang] = useState<"en" | "hi">("en");
-  const [speaking, setSpeaking] = useState(false);
+  const [speakMode, setSpeakMode] = useState<Mode>("idle");
   const [completed, setCompleted] = useState(false);
 
   useEffect(() => {
@@ -30,30 +32,45 @@ export default function StoryReader() {
     return () => { Speech.stop(); };
   }, [id]);
 
-  const toggleSpeak = () => {
-    if (speaking) {
+  const speak = (mode: "story" | "lessons") => {
+    if (speakMode === mode) {
       Speech.stop();
-      setSpeaking(false);
+      setSpeakMode("idle");
       return;
     }
-    const text = lang === "hi" ? story.story_hi : story.story_en;
-    setSpeaking(true);
+    Speech.stop();
+    let text = "";
+    if (mode === "story") {
+      text = lang === "hi" ? story.story_hi : story.story_en;
+    } else {
+      const lessons = lang === "hi" ? story.lessons_hi : story.lessons_en;
+      const intro = lang === "hi" ? "मैंने क्या सीखा। " : "What I Learned. ";
+      text = intro + lessons.map((l: string, i: number) => `${i + 1}. ${l}`).join(" ");
+    }
+    setSpeakMode(mode);
     Speech.speak(text, {
       language: lang === "hi" ? "hi-IN" : "en-IN",
       rate: 0.9,
       pitch: 1.0,
-      onDone: () => setSpeaking(false),
-      onStopped: () => setSpeaking(false),
-      onError: () => setSpeaking(false),
+      onDone: () => setSpeakMode("idle"),
+      onStopped: () => setSpeakMode("idle"),
+      onError: () => setSpeakMode("idle"),
     });
   };
 
   const finishStory = async () => {
     try {
       Speech.stop();
+      setSpeakMode("idle");
       await API.post("/stories/complete", { story_id: id });
       setCompleted(true);
     } catch {}
+  };
+
+  const switchLang = (newLang: "en" | "hi") => {
+    Speech.stop();
+    setSpeakMode("idle");
+    setLang(newLang);
   };
 
   if (!story) {
@@ -63,6 +80,8 @@ export default function StoryReader() {
       </View>
     );
   }
+
+  const lessons: string[] = lang === "hi" ? story.lessons_hi : story.lessons_en;
 
   return (
     <SafeAreaView style={styles.c} edges={["top"]}>
@@ -74,14 +93,14 @@ export default function StoryReader() {
           <TouchableOpacity
             testID="story-lang-en"
             style={[styles.langBtn, lang === "en" && styles.langActive]}
-            onPress={() => { Speech.stop(); setSpeaking(false); setLang("en"); }}
+            onPress={() => switchLang("en")}
           >
             <Text style={[styles.langTxt, lang === "en" && { color: C.white }]}>EN</Text>
           </TouchableOpacity>
           <TouchableOpacity
             testID="story-lang-hi"
             style={[styles.langBtn, lang === "hi" && styles.langActive]}
-            onPress={() => { Speech.stop(); setSpeaking(false); setLang("hi"); }}
+            onPress={() => switchLang("hi")}
           >
             <Text style={[styles.langTxt, lang === "hi" && { color: C.white }]}>हिं</Text>
           </TouchableOpacity>
@@ -94,9 +113,13 @@ export default function StoryReader() {
           <Text style={styles.heroName}>{story.name}</Text>
           <Text style={styles.heroTitle}>{lang === "hi" ? story.title_hi : story.title_en}</Text>
 
-          <TouchableOpacity testID="tts-btn" style={styles.ttsBtn} onPress={toggleSpeak}>
-            <Ionicons name={speaking ? "stop" : "play"} size={20} color={C.navy} />
-            <Text style={styles.ttsTxt}>{speaking ? "Stop Reading" : "Listen Aloud"}</Text>
+          <TouchableOpacity testID="tts-btn" style={styles.ttsBtn} onPress={() => speak("story")}>
+            <Ionicons name={speakMode === "story" ? "stop" : "play"} size={20} color={C.navy} />
+            <Text style={styles.ttsTxt}>
+              {speakMode === "story"
+                ? (lang === "hi" ? "रोकें" : "Stop Reading")
+                : (lang === "hi" ? "सुनें" : "Listen Aloud")}
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -104,24 +127,93 @@ export default function StoryReader() {
           {lang === "hi" ? story.story_hi : story.story_en}
         </Text>
 
+        {/* Inline What I Learned card */}
+        {lessons && lessons.length > 0 && (
+          <View style={styles.lessonsCard} testID="lessons-card">
+            <View style={styles.lessonsHeader}>
+              <View style={styles.lessonsTitleRow}>
+                <Ionicons name="bulb" size={22} color={C.saffron} />
+                <Text style={styles.lessonsTitle}>
+                  {lang === "hi" ? "मैंने क्या सीखा" : "What I Learned"}
+                </Text>
+              </View>
+              <TouchableOpacity
+                testID="lessons-tts-btn"
+                style={[styles.miniPlay, speakMode === "lessons" && { backgroundColor: C.green }]}
+                onPress={() => speak("lessons")}
+              >
+                <Ionicons
+                  name={speakMode === "lessons" ? "stop" : "play"}
+                  size={16}
+                  color={C.white}
+                />
+                <Text style={styles.miniPlayTxt}>
+                  {speakMode === "lessons"
+                    ? (lang === "hi" ? "रोकें" : "Stop")
+                    : (lang === "hi" ? "सुनें" : "Listen")}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.lessonsSubtitle}>
+              {lang === "hi"
+                ? "रोज़मर्रा की ज़िंदगी में अपनाओ"
+                : "Bring these into your daily life"}
+            </Text>
+            {lessons.map((l, i) => (
+              <View key={i} style={styles.lessonRow} testID={`lesson-${i}`}>
+                <View style={styles.lessonNum}>
+                  <Text style={styles.lessonNumTxt}>{i + 1}</Text>
+                </View>
+                <Text style={styles.lessonTxt}>{l}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+
         {!completed ? (
           <TouchableOpacity testID="finish-btn" style={styles.finishBtn} onPress={finishStory}>
             <Ionicons name="checkmark-circle" size={22} color={C.white} />
-            <Text style={styles.finishTxt}>I Finished Reading! +20 XP</Text>
+            <Text style={styles.finishTxt}>
+              {lang === "hi" ? "मैंने पढ़ लिया! +20 XP" : "I Finished Reading! +20 XP"}
+            </Text>
           </TouchableOpacity>
         ) : (
-          <View style={styles.celebrate} testID="celebrate-box">
-            <Text style={{ fontSize: 44 }}>🎉</Text>
-            <Text style={styles.celTitle}>Wonderful!</Text>
-            <Text style={styles.celSub}>You earned 20 XP. Now test your memory!</Text>
+          <>
+            <View style={styles.celebrate} testID="celebrate-box">
+              <Text style={{ fontSize: 44 }}>🎉</Text>
+              <Text style={styles.celTitle}>
+                {lang === "hi" ? "बहुत बढ़िया!" : "Wonderful!"}
+              </Text>
+              <Text style={styles.celSub}>
+                {lang === "hi"
+                  ? "तुमने 20 XP कमाए। याद रखो अपनी सीखें — अब क्विज़ का समय!"
+                  : "You earned 20 XP. Keep these lessons close — now test your memory!"}
+              </Text>
+            </View>
+
+            {/* Highlighted lessons recap */}
+            <View style={styles.recapCard} testID="recap-card">
+              <Text style={styles.recapTitle}>
+                ✨ {lang === "hi" ? "आज की मेरी प्रेरणाएँ" : "My Takeaways Today"}
+              </Text>
+              {lessons.slice(0, 3).map((l, i) => (
+                <View key={i} style={styles.recapRow}>
+                  <Ionicons name="sparkles" size={14} color={C.gold} style={{ marginTop: 4 }} />
+                  <Text style={styles.recapTxt}>{l}</Text>
+                </View>
+              ))}
+            </View>
+
             <TouchableOpacity
               testID="quiz-cta"
               style={styles.quizCta}
               onPress={() => router.replace(`/quiz/${id}` as any)}
             >
-              <Text style={styles.quizCtaTxt}>Take the Quiz 🎯</Text>
+              <Text style={styles.quizCtaTxt}>
+                {lang === "hi" ? "क्विज़ खेलें 🎯" : "Take the Quiz 🎯"}
+              </Text>
             </TouchableOpacity>
-          </View>
+          </>
         )}
       </ScrollView>
     </SafeAreaView>
@@ -164,6 +256,34 @@ const styles = StyleSheet.create({
     backgroundColor: C.white, padding: 20, borderRadius: 20,
     borderWidth: 2, borderColor: C.navy, ...SHADOW,
   },
+  lessonsCard: {
+    backgroundColor: "#FFF8E7",
+    borderRadius: 20, padding: 18, marginTop: 18,
+    borderWidth: 2, borderColor: C.navy, ...SHADOW,
+  },
+  lessonsHeader: {
+    flexDirection: "row", justifyContent: "space-between", alignItems: "center",
+  },
+  lessonsTitleRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+  lessonsTitle: { fontSize: 18, fontWeight: "900", color: C.navy },
+  lessonsSubtitle: { fontSize: 12, color: C.textSecondary, fontWeight: "700", marginTop: 4, marginBottom: 12 },
+  miniPlay: {
+    flexDirection: "row", alignItems: "center", gap: 4,
+    backgroundColor: C.saffron, paddingHorizontal: 10, paddingVertical: 6,
+    borderRadius: 999, borderWidth: 2, borderColor: C.navy,
+  },
+  miniPlayTxt: { color: C.white, fontWeight: "900", fontSize: 12 },
+  lessonRow: {
+    flexDirection: "row", gap: 12, marginTop: 12,
+    backgroundColor: C.white, padding: 12, borderRadius: 14,
+    borderWidth: 1, borderColor: "#E5C97A",
+  },
+  lessonNum: {
+    width: 28, height: 28, borderRadius: 14, backgroundColor: C.saffron,
+    alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: C.navy,
+  },
+  lessonNumTxt: { color: C.white, fontWeight: "900", fontSize: 13 },
+  lessonTxt: { flex: 1, fontSize: 14, color: C.text, lineHeight: 20, fontWeight: "600" },
   finishBtn: {
     flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 8,
     backgroundColor: C.green, padding: 18, borderRadius: 999,
@@ -175,10 +295,17 @@ const styles = StyleSheet.create({
     borderWidth: 2, borderColor: C.navy, marginTop: 22, ...SHADOW,
   },
   celTitle: { fontSize: 26, fontWeight: "900", color: C.navy, marginTop: 4 },
-  celSub: { fontSize: 14, color: C.textSecondary, fontWeight: "600", textAlign: "center", marginTop: 4 },
+  celSub: { fontSize: 14, color: C.textSecondary, fontWeight: "600", textAlign: "center", marginTop: 4, lineHeight: 20 },
+  recapCard: {
+    backgroundColor: C.navy, borderRadius: 20, padding: 18, marginTop: 14,
+    borderWidth: 2, borderColor: C.navy, ...SHADOW,
+  },
+  recapTitle: { color: C.gold, fontSize: 15, fontWeight: "900", marginBottom: 10, letterSpacing: 0.5 },
+  recapRow: { flexDirection: "row", gap: 8, marginTop: 8 },
+  recapTxt: { flex: 1, color: C.white, fontSize: 13, fontWeight: "600", lineHeight: 19 },
   quizCta: {
-    backgroundColor: C.saffron, paddingHorizontal: 20, paddingVertical: 14,
-    borderRadius: 999, marginTop: 16, borderWidth: 2, borderColor: C.navy,
+    backgroundColor: C.saffron, padding: 18, borderRadius: 999, alignItems: "center",
+    marginTop: 14, borderWidth: 2, borderColor: C.navy, ...SHADOW,
   },
   quizCtaTxt: { color: C.white, fontWeight: "900", fontSize: 16 },
 });
