@@ -49,6 +49,22 @@ export default function Library() {
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 18, paddingBottom: 40 }} testID="library-scroll">
+        <TouchableOpacity
+          testID="library-timeline-cta"
+          activeOpacity={0.85}
+          onPress={() => router.push("/timeline" as any)}
+          style={styles.timelineCta}
+        >
+          <View style={styles.timelineIconWrap}>
+            <Ionicons name="time" size={26} color={C.gold} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.timelineTag}>INTERACTIVE TIMELINE 🕰️</Text>
+            <Text style={styles.timelineTitle}>Walk through 250 years of Indian courage</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={22} color={C.white} />
+        </TouchableOpacity>
+
         {stories.map((s, idx) => {
           const done = user?.completed_stories?.includes(s.id);
           const isLeft = idx % 2 === 0;
@@ -127,4 +143,16 @@ const styles = StyleSheet.create({
     borderRadius: 999, marginTop: 14, borderWidth: 2, borderColor: C.navy,
   },
   cardCtaTxt: { color: C.navy, fontWeight: "900", fontSize: 13 },
+  timelineCta: {
+    flexDirection: "row", alignItems: "center", gap: 14,
+    backgroundColor: C.navy, padding: 16, borderRadius: 22,
+    borderWidth: 2, borderColor: C.navy, marginBottom: 18, ...SHADOW,
+  },
+  timelineIconWrap: {
+    width: 48, height: 48, borderRadius: 24,
+    backgroundColor: "#FFFFFF22", justifyContent: "center", alignItems: "center",
+    borderWidth: 2, borderColor: C.gold,
+  },
+  timelineTag: { color: C.gold, fontWeight: "900", fontSize: 11, letterSpacing: 1, marginBottom: 2 },
+  timelineTitle: { color: C.white, fontSize: 14, fontWeight: "800", lineHeight: 18 },
 });

@@ -222,6 +222,26 @@ frontend:
               auto-advances to next clue. Progress header updates "Clue 2/5 • 1 solved".
             - Hint button reveals contextual hint per clue.
 
+  - task: "Interactive Freedom Timeline (1700s → 1947)"
+    implemented: true
+    working: "NA"
+    file: "frontend/app/timeline.tsx, frontend/app/(tabs)/library.tsx, frontend/app/_layout.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: |
+            New /timeline route. Pulls all 30 stories from /api/stories, parses start year from
+            `era` field, groups into 5 eras (Early Resistance, 1857 First War, Awakening & Revolution,
+            Gandhi Era, Final March to Freedom). Each era shows colored badge header, then a vertical
+            timeline track with year dots and per-hero cards (color-coded left border, tagline, "Read story"
+            CTA). Concludes with a green "15 August 1947 — India is finally free" celebration card.
+            Manually screenshot-verified: heroes appear chronologically (Tilka Manjhi 1750 → Kalpana Datta 1913),
+            eras render correctly, scroll smoothly to the end. Library tab now has a navy "INTERACTIVE TIMELINE"
+            CTA banner above the story grid.
+
 metadata:
   created_by: "main_agent"
   version: "3.0"
