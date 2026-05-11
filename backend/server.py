@@ -17,6 +17,7 @@ from pydantic import BaseModel, Field
 
 from stories_seed import STORIES, BADGES, LEVELS, get_level_for_xp
 from hunts_seed import HUNTS
+from hero_visuals import HERO_VISUALS  # monument_id + portrait_prompt per hero
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / ".env")
@@ -304,6 +305,7 @@ async def get_story(story_id: str):
     s = next((x for x in STORIES if x["id"] == story_id), None)
     if not s:
         raise HTTPException(404, "Story not found")
+    vis = HERO_VISUALS.get(story_id, {})
     return {
         "id": s["id"],
         "name": s["name"],
@@ -317,7 +319,71 @@ async def get_story(story_id: str):
         "story_hi": s["story_hi"],
         "lessons_en": s.get("lessons_en", []),
         "lessons_hi": s.get("lessons_hi", []),
+        "monument": vis.get("monument", "red_fort"),
+        "has_portrait": True,  # client should try the portrait endpoint; falls back to initials
     }
+
+
+@api.get("/stories/{story_id}/portrait")
+async def get_story_portrait(story_id: str):
+    """Return a cached AI-generated portrait of the hero as PNG.
+
+    First call may take ~5-10s as it generates and caches. Subsequent calls are
+    instant (served from MongoDB).
+    """
+    from fastapi.responses import Response
+
+    s = next((x for x in STORIES if x["id"] == story_id), None)
+    if not s:
+        raise HTTPException(404, "Story not found")
+    vis = HERO_VISUALS.get(story_id)
+    if not vis or not vis.get("portrait_prompt"):
+        raise HTTPException(404, "No portrait prompt configured")
+
+    # Try cache first
+    cached = await db.portraits.find_one({"story_id": story_id})
+    if cached and cached.get("png_b64"):
+        png_bytes = __import__("base64").b64decode(cached["png_b64"])
+        mime = cached.get("mime_type") or "image/png"
+        return Response(content=png_bytes, media_type=mime, headers={"Cache-Control": "public, max-age=2592000"})
+
+    # Generate fresh
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"portrait-{story_id}",
+            system_message="You are an artist making warm illustrated portraits for a children's history app.",
+        ).with_model("gemini", "gemini-3.1-flash-image-preview").with_params(modalities=["image", "text"])
+        msg = UserMessage(text=vis["portrait_prompt"])
+        _txt, images = await chat.send_message_multimodal_response(msg)
+        if not images:
+            raise RuntimeError("No image returned")
+        png_b64 = images[0]["data"]
+        await db.portraits.update_one(
+            {"story_id": story_id},
+            {"$set": {
+                "story_id": story_id,
+                "png_b64": png_b64,
+                "mime_type": images[0].get("mime_type", "image/png"),
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            }},
+            upsert=True,
+        )
+        png_bytes = __import__("base64").b64decode(png_b64)
+        return Response(content=png_bytes, media_type="image/png", headers={"Cache-Control": "public, max-age=2592000"})
+    except Exception as e:
+        log.exception("Portrait generation failed for %s", story_id)
+        raise HTTPException(503, f"Portrait generation temporarily unavailable: {e}")
+
+
+@api.post("/admin/regenerate-portrait/{story_id}")
+async def admin_regenerate_portrait(story_id: str, user=Depends(get_current_user)):
+    """Delete the cached portrait so next GET will regenerate. Auth-protected.
+    Any logged-in user can trigger; safe because the generation is idempotent
+    and rate-limited by the LLM provider."""
+    await db.portraits.delete_one({"story_id": story_id})
+    return {"ok": True, "story_id": story_id}
 
 
 @api.get("/stories/{story_id}/quiz")

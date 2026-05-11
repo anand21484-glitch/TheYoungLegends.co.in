@@ -204,6 +204,48 @@ backend:
             - POST /api/journal moderation passed and returned status='approved' with reaction counters.
 
 frontend:
+  - task: "Animated story reader (portraits + monuments + decor)"
+    implemented: true
+    working: "NA"
+    file: "frontend/app/story/[id].tsx, frontend/src/components/Monument.tsx, frontend/src/components/HeroPortrait.tsx, frontend/src/components/FloatingDecor.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: |
+            Major UX upgrade to the story reader screen for kids:
+            * NEW backend endpoints:
+              - GET /api/stories/{id}/portrait → returns the AI-generated portrait PNG/JPEG,
+                cached in db.portraits collection. First call generates via Gemini Nano Banana
+                (gemini-3.1-flash-image-preview) using a curated kid-friendly prompt per hero.
+                Cache-Control 30d.
+              - POST /api/admin/regenerate-portrait/{id} → auth-protected, clears cache.
+              - GET /api/stories/{id} response now includes `monument` (one of 9 archetypes)
+                and `has_portrait` flag.
+            * Generated 6 AI portraits so far (bhagat-singh, rani-lakshmibai, mahatma-gandhi,
+              subhas-bose, sarojini-naidu, chandrashekhar-azad). Remaining 24 will fall back
+              to colored initials cards until the user's Emergent LLM budget allows more
+              generation (was capped at $0.40/key).
+            * NEW frontend components:
+              - <Monument /> — animated SVG silhouettes for 9 monument archetypes
+                (red_fort, india_gate, jhansi_fort, sabarmati, jallianwala, charminar,
+                kashmiri_gate, gateway_india, ashoka_pillar). Each comes with an animated sun,
+                drifting clouds, and a tiny waving Indian flag.
+              - <HeroPortrait /> — fetches portrait from backend; falls back to a stylized
+                color+initials avatar. Wrapped in a breathing animation and a glowing halo.
+              - <FloatingDecor /> — drifting lotus, chakra and stars across the story screen
+                + twinkling sparkles in 5 spots.
+            * Story screen redesigned:
+              - Soft pastel background tinted with the hero's color
+              - Monument silhouette at the top of the scroll
+              - Hero portrait centered inside the colored hero block
+              - All cards now ride on top of decorations
+            * Verified screenshots for: bhagat-singh (Punjab dome + AI portrait),
+              rani-lakshmibai (Jhansi Fort + AI portrait), sukhdev (Punjab dome + initials fallback).
+              All show waving flag, animated sun/clouds, sparkles, smooth load.
+
   - task: "Treasure Hunts UI (list + detail with tap-the-hero)"
     implemented: true
     working: true

@@ -6,8 +6,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as Speech from "expo-speech";
+import Animated, { FadeIn, FadeInUp } from "react-native-reanimated";
 import { API } from "../../src/api";
 import { C, SHADOW } from "../../src/theme";
+import { Monument } from "../../src/components/Monument";
+import { FloatingDecor } from "../../src/components/FloatingDecor";
+import { HeroPortrait } from "../../src/components/HeroPortrait";
 
 type Mode = "idle" | "story" | "lessons";
 
@@ -84,144 +88,188 @@ export default function StoryReader() {
   const lessons: string[] = lang === "hi" ? story.lessons_hi : story.lessons_en;
 
   return (
-    <SafeAreaView style={styles.c} edges={["top"]}>
-      <View style={styles.topBar}>
-        <TouchableOpacity testID="back-btn" onPress={() => { Speech.stop(); router.back(); }} style={styles.backBtn}>
-          <Ionicons name="chevron-back" size={26} color={C.navy} />
-        </TouchableOpacity>
-        <View style={styles.langSwitch}>
-          <TouchableOpacity
-            testID="story-lang-en"
-            style={[styles.langBtn, lang === "en" && styles.langActive]}
-            onPress={() => switchLang("en")}
-          >
-            <Text style={[styles.langTxt, lang === "en" && { color: C.white }]}>EN</Text>
+    <View style={[styles.c, { backgroundColor: lightTint(story.color) }]}>
+      {/* Animated decoration background */}
+      <FloatingDecor />
+
+      <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
+        <View style={styles.topBar}>
+          <TouchableOpacity testID="back-btn" onPress={() => { Speech.stop(); router.back(); }} style={styles.backBtn}>
+            <Ionicons name="chevron-back" size={26} color={C.navy} />
           </TouchableOpacity>
-          <TouchableOpacity
-            testID="story-lang-hi"
-            style={[styles.langBtn, lang === "hi" && styles.langActive]}
-            onPress={() => switchLang("hi")}
-          >
-            <Text style={[styles.langTxt, lang === "hi" && { color: C.white }]}>हिं</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <ScrollView contentContainerStyle={{ padding: 18, paddingBottom: 60 }} testID="story-scroll">
-        <View style={[styles.heroBlock, { backgroundColor: story.color }]}>
-          <Text style={styles.heroEra}>{story.era}</Text>
-          <Text style={styles.heroName}>{story.name}</Text>
-          <Text style={styles.heroTitle}>{lang === "hi" ? story.title_hi : story.title_en}</Text>
-
-          <TouchableOpacity testID="tts-btn" style={styles.ttsBtn} onPress={() => speak("story")}>
-            <Ionicons name={speakMode === "story" ? "stop" : "play"} size={20} color={C.navy} />
-            <Text style={styles.ttsTxt}>
-              {speakMode === "story"
-                ? (lang === "hi" ? "रोकें" : "Stop Reading")
-                : (lang === "hi" ? "सुनें" : "Listen Aloud")}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <Text style={styles.body} testID="story-body">
-          {lang === "hi" ? story.story_hi : story.story_en}
-        </Text>
-
-        {/* Inline What I Learned card */}
-        {lessons && lessons.length > 0 && (
-          <View style={styles.lessonsCard} testID="lessons-card">
-            <View style={styles.lessonsHeader}>
-              <View style={styles.lessonsTitleRow}>
-                <Ionicons name="bulb" size={22} color={C.saffron} />
-                <Text style={styles.lessonsTitle}>
-                  {lang === "hi" ? "मैंने क्या सीखा" : "What I Learned"}
-                </Text>
-              </View>
-              <TouchableOpacity
-                testID="lessons-tts-btn"
-                style={[styles.miniPlay, speakMode === "lessons" && { backgroundColor: C.green }]}
-                onPress={() => speak("lessons")}
-              >
-                <Ionicons
-                  name={speakMode === "lessons" ? "stop" : "play"}
-                  size={16}
-                  color={C.white}
-                />
-                <Text style={styles.miniPlayTxt}>
-                  {speakMode === "lessons"
-                    ? (lang === "hi" ? "रोकें" : "Stop")
-                    : (lang === "hi" ? "सुनें" : "Listen")}
-                </Text>
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.lessonsSubtitle}>
-              {lang === "hi"
-                ? "रोज़मर्रा की ज़िंदगी में अपनाओ"
-                : "Bring these into your daily life"}
-            </Text>
-            {lessons.map((l, i) => (
-              <View key={i} style={styles.lessonRow} testID={`lesson-${i}`}>
-                <View style={styles.lessonNum}>
-                  <Text style={styles.lessonNumTxt}>{i + 1}</Text>
-                </View>
-                <Text style={styles.lessonTxt}>{l}</Text>
-              </View>
-            ))}
-          </View>
-        )}
-
-        {!completed ? (
-          <TouchableOpacity testID="finish-btn" style={styles.finishBtn} onPress={finishStory}>
-            <Ionicons name="checkmark-circle" size={22} color={C.white} />
-            <Text style={styles.finishTxt}>
-              {lang === "hi" ? "मैंने पढ़ लिया! +20 XP" : "I Finished Reading! +20 XP"}
-            </Text>
-          </TouchableOpacity>
-        ) : (
-          <>
-            <View style={styles.celebrate} testID="celebrate-box">
-              <Text style={{ fontSize: 44 }}>🎉</Text>
-              <Text style={styles.celTitle}>
-                {lang === "hi" ? "बहुत बढ़िया!" : "Wonderful!"}
-              </Text>
-              <Text style={styles.celSub}>
-                {lang === "hi"
-                  ? "तुमने 20 XP कमाए। याद रखो अपनी सीखें — अब क्विज़ का समय!"
-                  : "You earned 20 XP. Keep these lessons close — now test your memory!"}
-              </Text>
-            </View>
-
-            {/* Highlighted lessons recap */}
-            <View style={styles.recapCard} testID="recap-card">
-              <Text style={styles.recapTitle}>
-                ✨ {lang === "hi" ? "आज की मेरी प्रेरणाएँ" : "My Takeaways Today"}
-              </Text>
-              {lessons.slice(0, 3).map((l, i) => (
-                <View key={i} style={styles.recapRow}>
-                  <Ionicons name="sparkles" size={14} color={C.gold} style={{ marginTop: 4 }} />
-                  <Text style={styles.recapTxt}>{l}</Text>
-                </View>
-              ))}
-            </View>
-
+          <View style={styles.langSwitch}>
             <TouchableOpacity
-              testID="quiz-cta"
-              style={styles.quizCta}
-              onPress={() => router.replace(`/quiz/${id}` as any)}
+              testID="story-lang-en"
+              style={[styles.langBtn, lang === "en" && styles.langActive]}
+              onPress={() => switchLang("en")}
             >
-              <Text style={styles.quizCtaTxt}>
-                {lang === "hi" ? "क्विज़ खेलें 🎯" : "Take the Quiz 🎯"}
+              <Text style={[styles.langTxt, lang === "en" && { color: C.white }]}>EN</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              testID="story-lang-hi"
+              style={[styles.langBtn, lang === "hi" && styles.langActive]}
+              onPress={() => switchLang("hi")}
+            >
+              <Text style={[styles.langTxt, lang === "hi" && { color: C.white }]}>हिं</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <ScrollView contentContainerStyle={{ padding: 18, paddingBottom: 60 }} testID="story-scroll">
+          {/* Animated monument silhouette */}
+          <Animated.View entering={FadeIn.duration(700)} style={styles.monumentWrap}>
+            <Monument monumentKey={story.monument || "red_fort"} />
+          </Animated.View>
+
+          {/* Hero block with portrait */}
+          <Animated.View entering={FadeInUp.duration(500)} style={[styles.heroBlock, { backgroundColor: story.color }]}>
+            <View style={styles.portraitWrap}>
+              <HeroPortrait storyId={story.id} name={story.name} color={story.color} size={140} />
+            </View>
+            <Text style={styles.heroEra}>{story.era}</Text>
+            <Text style={styles.heroName}>{story.name}</Text>
+            <Text style={styles.heroTitle}>{lang === "hi" ? story.title_hi : story.title_en}</Text>
+
+            <TouchableOpacity testID="tts-btn" style={styles.ttsBtn} onPress={() => speak("story")}>
+              <Ionicons name={speakMode === "story" ? "stop" : "play"} size={20} color={C.navy} />
+              <Text style={styles.ttsTxt}>
+                {speakMode === "story"
+                  ? (lang === "hi" ? "रोकें" : "Stop Reading")
+                  : (lang === "hi" ? "सुनें" : "Listen Aloud")}
               </Text>
             </TouchableOpacity>
-          </>
-        )}
-      </ScrollView>
-    </SafeAreaView>
+          </Animated.View>
+
+          <Animated.View entering={FadeInUp.delay(200).duration(500)}>
+            <Text style={styles.body} testID="story-body">
+              {lang === "hi" ? story.story_hi : story.story_en}
+            </Text>
+          </Animated.View>
+
+          {/* Inline What I Learned card */}
+          {lessons && lessons.length > 0 && (
+            <Animated.View entering={FadeInUp.delay(300).duration(500)} style={styles.lessonsCard} testID="lessons-card">
+              <View style={styles.lessonsHeader}>
+                <View style={styles.lessonsTitleRow}>
+                  <Ionicons name="bulb" size={22} color={C.saffron} />
+                  <Text style={styles.lessonsTitle}>
+                    {lang === "hi" ? "मैंने क्या सीखा" : "What I Learned"}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  testID="lessons-tts-btn"
+                  style={[styles.miniPlay, speakMode === "lessons" && { backgroundColor: C.green }]}
+                  onPress={() => speak("lessons")}
+                >
+                  <Ionicons
+                    name={speakMode === "lessons" ? "stop" : "play"}
+                    size={16}
+                    color={C.white}
+                  />
+                  <Text style={styles.miniPlayTxt}>
+                    {speakMode === "lessons"
+                      ? (lang === "hi" ? "रोकें" : "Stop")
+                      : (lang === "hi" ? "सुनें" : "Listen")}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.lessonsSubtitle}>
+                {lang === "hi"
+                  ? "रोज़मर्रा की ज़िंदगी में अपनाओ"
+                  : "Bring these into your daily life"}
+              </Text>
+              {lessons.map((l, i) => (
+                <View key={i} style={styles.lessonRow} testID={`lesson-${i}`}>
+                  <View style={styles.lessonNum}>
+                    <Text style={styles.lessonNumTxt}>{i + 1}</Text>
+                  </View>
+                  <Text style={styles.lessonTxt}>{l}</Text>
+                </View>
+              ))}
+            </Animated.View>
+          )}
+
+          {!completed ? (
+            <TouchableOpacity testID="finish-btn" style={styles.finishBtn} onPress={finishStory}>
+              <Ionicons name="checkmark-circle" size={22} color={C.white} />
+              <Text style={styles.finishTxt}>
+                {lang === "hi" ? "मैंने पढ़ लिया! +20 XP" : "I Finished Reading! +20 XP"}
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <>
+              <View style={styles.celebrate} testID="celebrate-box">
+                <Text style={{ fontSize: 44 }}>🎉</Text>
+                <Text style={styles.celTitle}>
+                  {lang === "hi" ? "बहुत बढ़िया!" : "Wonderful!"}
+                </Text>
+                <Text style={styles.celSub}>
+                  {lang === "hi"
+                    ? "तुमने 20 XP कमाए। याद रखो अपनी सीखें — अब क्विज़ का समय!"
+                    : "You earned 20 XP. Keep these lessons close — now test your memory!"}
+                </Text>
+              </View>
+
+              {/* Highlighted lessons recap */}
+              <View style={styles.recapCard} testID="recap-card">
+                <Text style={styles.recapTitle}>
+                  ✨ {lang === "hi" ? "आज की मेरी प्रेरणाएँ" : "My Takeaways Today"}
+                </Text>
+                {lessons.slice(0, 3).map((l, i) => (
+                  <View key={i} style={styles.recapRow}>
+                    <Ionicons name="sparkles" size={14} color={C.gold} style={{ marginTop: 4 }} />
+                    <Text style={styles.recapTxt}>{l}</Text>
+                  </View>
+                ))}
+              </View>
+
+              <TouchableOpacity
+                testID="quiz-cta"
+                style={styles.quizCta}
+                onPress={() => router.replace(`/quiz/${id}` as any)}
+              >
+                <Text style={styles.quizCtaTxt}>
+                  {lang === "hi" ? "क्विज़ खेलें 🎯" : "Take the Quiz 🎯"}
+                </Text>
+              </TouchableOpacity>
+            </>
+          )}
+        </ScrollView>
+      </SafeAreaView>
+    </View>
   );
+}
+
+// Lighten a hex color by mixing with white (returns a soft kid-friendly tint)
+function lightTint(hex: string): string {
+  try {
+    const h = hex.replace("#", "");
+    const r = parseInt(h.substring(0, 2), 16);
+    const g = parseInt(h.substring(2, 4), 16);
+    const b = parseInt(h.substring(4, 6), 16);
+    // mix 85% white + 15% color
+    const mix = (c: number) => Math.round(c * 0.18 + 255 * 0.82);
+    return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
+  } catch {
+    return "#FFF8E7";
+  }
 }
 
 const styles = StyleSheet.create({
   c: { flex: 1, backgroundColor: C.cream },
+  monumentWrap: {
+    height: 140,
+    marginHorizontal: -18,
+    marginTop: -8,
+    marginBottom: 8,
+    overflow: "hidden",
+    borderRadius: 0,
+  },
+  portraitWrap: {
+    alignSelf: "center",
+    marginTop: -10,
+    marginBottom: 14,
+  },
   topBar: {
     flexDirection: "row", justifyContent: "space-between",
     paddingHorizontal: 14, paddingVertical: 8,
