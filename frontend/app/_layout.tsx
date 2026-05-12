@@ -17,6 +17,8 @@ export default function RootLayout() {
         <Stack.Screen name="hunts/index" />
         <Stack.Screen name="hunts/[id]" />
         <Stack.Screen name="timeline" />
+        <Stack.Screen name="jigsaw/index" />
+        <Stack.Screen name="jigsaw/[id]" />
       </Stack>
     </SafeAreaProvider>
   );

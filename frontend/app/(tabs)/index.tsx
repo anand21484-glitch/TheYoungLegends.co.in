@@ -124,6 +124,22 @@ export default function Home() {
           <Ionicons name="chevron-forward" size={22} color={C.white} />
         </TouchableOpacity>
 
+        <TouchableOpacity
+          testID="jigsaw-banner"
+          activeOpacity={0.85}
+          onPress={() => router.push("/jigsaw" as any)}
+          style={styles.jigsawBanner}
+        >
+          <View style={styles.jigsawIconWrap}>
+            <Ionicons name="extension-puzzle" size={26} color={C.navy} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.jigsawTag}>JIGSAW PUZZLES 🧩</Text>
+            <Text style={styles.jigsawTitle}>Reassemble 5 hero portraits • +30 XP each</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={22} color={C.navy} />
+        </TouchableOpacity>
+
         <Text style={styles.sectionTitle}>Brave Hearts to Meet</Text>
         {stories.slice(1).map((s) => (
           <TouchableOpacity
@@ -221,6 +237,18 @@ const styles = StyleSheet.create({
   },
   huntsTag: { color: C.gold, fontWeight: "900", fontSize: 11, letterSpacing: 1, marginBottom: 2 },
   huntsTitle: { color: C.white, fontSize: 14, fontWeight: "800", lineHeight: 18 },
+  jigsawBanner: {
+    flexDirection: "row", alignItems: "center", gap: 14,
+    backgroundColor: C.gold, padding: 16, borderRadius: 22,
+    borderWidth: 2, borderColor: C.navy, marginBottom: 22, ...SHADOW,
+  },
+  jigsawIconWrap: {
+    width: 48, height: 48, borderRadius: 24,
+    backgroundColor: C.white, justifyContent: "center", alignItems: "center",
+    borderWidth: 2, borderColor: C.navy,
+  },
+  jigsawTag: { color: C.navy, fontWeight: "900", fontSize: 11, letterSpacing: 1, marginBottom: 2 },
+  jigsawTitle: { color: C.navy, fontSize: 14, fontWeight: "800", lineHeight: 18 },
   storyRow: {
     flexDirection: "row", alignItems: "center", gap: 14,
     backgroundColor: C.white, padding: 14, borderRadius: 18,

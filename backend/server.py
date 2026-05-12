@@ -80,6 +80,19 @@ class HuntAnswerReq(BaseModel):
     answer_id: str  # the hero story_id the kid tapped
 
 
+# Jigsaw puzzle config — 5 selected heroes' portraits.
+JIGSAW_HEROES = [
+    "sarojini-naidu",
+    "bhimrao-ambedkar",
+    "mahatma-gandhi",
+    "tilak",
+    "sardar-patel",
+]
+JIGSAW_GRID = 3  # 3x3 = 9 pieces
+JIGSAW_XP_REWARD = 30
+JIGSAW_BADGE = "jigsaw_master"
+
+
 class LoginReq(BaseModel):
     username: str
     password: str
@@ -885,6 +898,69 @@ async def answer_hunt_clue(hunt_id: str, req: HuntAnswerReq, user=Depends(get_cu
         "just_completed": just_completed,
         "xp_awarded": awarded_clue_xp + bonus_xp,
         "badge_awarded": badge_awarded,
+        "user": serialize_user(fresh).model_dump(),
+    }
+
+
+# ---------- Jigsaw Puzzles ----------
+@api.get("/jigsaw")
+async def list_jigsaw(user=Depends(get_current_user)):
+    """5 selected freedom-fighter portraits as 3x3 jigsaw puzzles."""
+    solved_set = set((user.get("jigsaw_solved") or []))
+    out = []
+    for sid in JIGSAW_HEROES:
+        s = next((x for x in STORIES if x["id"] == sid), None)
+        if not s:
+            continue
+        out.append({
+            "id": sid,
+            "name": s["name"],
+            "title_en": s["title_en"],
+            "title_hi": s["title_hi"],
+            "color": s["color"],
+            "era": s["era"],
+            "portrait_url": f"/api/stories/{sid}/portrait",
+            "grid": JIGSAW_GRID,
+            "xp_reward": JIGSAW_XP_REWARD,
+            "solved": sid in solved_set,
+        })
+    return out
+
+
+@api.post("/jigsaw/{story_id}/complete")
+async def complete_jigsaw(story_id: str, user=Depends(get_current_user)):
+    if story_id not in JIGSAW_HEROES:
+        raise HTTPException(404, "Not a jigsaw puzzle")
+    u = await db.users.find_one({"id": user["id"]}, {"_id": 0})
+    solved = list(u.get("jigsaw_solved") or [])
+    just_solved = False
+    xp_awarded = 0
+    if story_id not in solved:
+        solved.append(story_id)
+        just_solved = True
+        xp_awarded = JIGSAW_XP_REWARD
+        await db.users.update_one(
+            {"id": user["id"]},
+            {"$set": {"jigsaw_solved": solved}, "$inc": {"xp": xp_awarded}},
+        )
+    badge_awarded = None
+    # Award master badge when all 5 are solved
+    if set(solved) >= set(JIGSAW_HEROES):
+        u2 = await db.users.find_one({"id": user["id"]}, {"_id": 0})
+        b = set(u2.get("badges", []))
+        if JIGSAW_BADGE not in b:
+            b.add(JIGSAW_BADGE)
+            await db.users.update_one({"id": user["id"]}, {"$set": {"badges": list(b)}})
+            badge_awarded = JIGSAW_BADGE
+    await update_streak(user)
+    await maybe_award_badges(user["id"])
+    fresh = await db.users.find_one({"id": user["id"]}, {"_id": 0, "password_hash": 0})
+    return {
+        "just_solved": just_solved,
+        "xp_awarded": xp_awarded,
+        "badge_awarded": badge_awarded,
+        "solved_count": len(solved),
+        "total": len(JIGSAW_HEROES),
         "user": serialize_user(fresh).model_dump(),
     }
 

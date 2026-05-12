@@ -502,6 +502,7 @@ BADGES.extend([
     {"id": "hunt_1857", "name": "1857 Detective", "icon": "flame", "desc": "Solve the Great Revolt hunt"},
     {"id": "hunt_women", "name": "Veerangana", "icon": "rose", "desc": "Solve the Women Warriors hunt"},
     {"id": "hunt_youth", "name": "Young Tiger", "icon": "flash", "desc": "Solve the Young Revolutionaries hunt"},
+    {"id": "jigsaw_master", "name": "Jigsaw Master", "icon": "extension-puzzle", "desc": "Solve all 5 hero jigsaw puzzles"},
 ])
 
 # Update "all_stories" badge description to reflect new total
