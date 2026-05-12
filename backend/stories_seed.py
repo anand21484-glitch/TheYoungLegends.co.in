@@ -464,6 +464,38 @@ except Exception as _e:
 
 
 # ==========================================================
+# Merge AI-generated + manual extra quiz questions onto each story.
+# Each story ends up with up to 10 quiz questions (5 base + 5 extra).
+# Manual is merged AFTER AI so it tops up any story where AI returned <5.
+# ==========================================================
+_ai_extras: dict = {}
+_manual_extras: dict = {}
+try:
+    from quiz_extensions import EXTRA_QUIZZES as _ai_extras  # noqa: F401
+except Exception:
+    pass
+try:
+    from quiz_extensions_manual import MANUAL_EXTRA_QUIZZES as _manual_extras  # noqa: F401
+except Exception:
+    pass
+
+for _s in STORIES:
+    pool = list(_ai_extras.get(_s["id"], [])) + list(_manual_extras.get(_s["id"], []))
+    if not pool:
+        continue
+    existing_q_ens = {q["q_en"].strip().lower() for q in _s.get("quiz", [])}
+    for _e in pool:
+        if len(_s["quiz"]) >= 10:
+            break
+        key = _e["q_en"].strip().lower()
+        if key in existing_q_ens:
+            continue
+        _s["quiz"].append(_e)
+        existing_q_ens.add(key)
+    _s["quiz"] = _s["quiz"][:10]
+
+
+# ==========================================================
 # Hunt-related badges
 # ==========================================================
 BADGES.extend([
