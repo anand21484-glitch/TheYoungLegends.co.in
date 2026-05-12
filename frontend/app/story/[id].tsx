@@ -16,6 +16,72 @@ import { HeroPortrait } from "../../src/components/HeroPortrait";
 
 type Mode = "idle" | "story" | "lessons";
 
+// --- Peppy / expressive TTS modulation (module scope) ----------------
+type Chunk = { text: string; pitch: number; rate: number; pauseAfterMs: number };
+
+function chunkAndModulate(rawText: string): Chunk[] {
+  const sentenceRegex = /([^.!?।]+[.!?।]+|[^.!?।]+$)/g;
+  const sentences: string[] = (rawText.match(sentenceRegex) || [rawText])
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return sentences.map<Chunk>((s) => {
+    const lastChar = s.trim().slice(-1);
+    const hasQuote = /["“”'‘’]/.test(s);
+    const hasEmphasis = /[!]/.test(s);
+    const hasQuestion = /[?]/.test(s);
+    const isNumbered = /^\d+\./.test(s.trim());
+    // Base warm storyteller tone
+    let pitch = 1.18;
+    let rate = 0.92;
+    let pauseAfterMs = 280;
+    if (hasEmphasis || lastChar === "!") {
+      pitch = 1.32; rate = 1.0; pauseAfterMs = 420;
+    } else if (hasQuestion || lastChar === "?") {
+      pitch = 1.28; rate = 0.92; pauseAfterMs = 380;
+    } else if (hasQuote) {
+      pitch = 1.42; rate = 0.9; pauseAfterMs = 300;
+    } else if (isNumbered) {
+      pitch = 1.22; rate = 0.95; pauseAfterMs = 480;
+    } else if (s.length < 30) {
+      pitch = 1.24; rate = 0.95; pauseAfterMs = 320;
+    } else if (s.length > 110) {
+      pitch = 1.12; rate = 0.88; pauseAfterMs = 320;
+    }
+    const variation = ((s.charCodeAt(0) || 1) % 5 - 2) * 0.02;
+    pitch = Math.max(0.85, Math.min(1.7, pitch + variation));
+    return { text: s, pitch, rate, pauseAfterMs };
+  });
+}
+
+let _speakQueueCancelled = false;
+function speakWithModulation(text: string, lang: "en" | "hi", onAllDone: () => void) {
+  _speakQueueCancelled = false;
+  const chunks = chunkAndModulate(text);
+  let idx = 0;
+  const language = lang === "hi" ? "hi-IN" : "en-IN";
+  const next = () => {
+    if (_speakQueueCancelled) { onAllDone(); return; }
+    if (idx >= chunks.length) { onAllDone(); return; }
+    const c = chunks[idx++];
+    Speech.speak(c.text, {
+      language, pitch: c.pitch, rate: c.rate,
+      onDone: () => {
+        if (_speakQueueCancelled) { onAllDone(); return; }
+        setTimeout(next, c.pauseAfterMs);
+      },
+      onStopped: () => { onAllDone(); },
+      onError: () => setTimeout(next, 80),
+    });
+  };
+  next();
+}
+
+function cancelSpeech() {
+  _speakQueueCancelled = true;
+  Speech.stop();
+}
+// -----------------------------------------------------------------
+
 export default function StoryReader() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -39,33 +105,26 @@ export default function StoryReader() {
 
   const speak = (mode: "story" | "lessons") => {
     if (speakMode === mode) {
-      Speech.stop();
+      cancelSpeech();
       setSpeakMode("idle");
       return;
     }
-    Speech.stop();
+    cancelSpeech();
     let text = "";
     if (mode === "story") {
       text = lang === "hi" ? story.story_hi : story.story_en;
     } else {
       const lessons = lang === "hi" ? story.lessons_hi : story.lessons_en;
-      const intro = lang === "hi" ? "मैंने क्या सीखा। " : "What I Learned. ";
-      text = intro + lessons.map((l: string, i: number) => `${i + 1}. ${l}`).join(" ");
+      const intro = lang === "hi" ? "मैंने क्या सीखा! " : "What I learned today! ";
+      text = intro + lessons.map((l: string, i: number) => `${i + 1}. ${l}`).join(" ... ");
     }
     setSpeakMode(mode);
-    Speech.speak(text, {
-      language: lang === "hi" ? "hi-IN" : "en-IN",
-      rate: 0.9,
-      pitch: 1.0,
-      onDone: () => setSpeakMode("idle"),
-      onStopped: () => setSpeakMode("idle"),
-      onError: () => setSpeakMode("idle"),
-    });
+    speakWithModulation(text, lang, () => setSpeakMode("idle"));
   };
 
   const finishStory = async () => {
     try {
-      Speech.stop();
+      cancelSpeech();
       setSpeakMode("idle");
       await API.post("/stories/complete", { story_id: id });
       setCompleted(true);
@@ -73,7 +132,7 @@ export default function StoryReader() {
   };
 
   const switchLang = (newLang: "en" | "hi") => {
-    Speech.stop();
+    cancelSpeech();
     setSpeakMode("idle");
     setLang(newLang);
   };
