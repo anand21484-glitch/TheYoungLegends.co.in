@@ -7,6 +7,7 @@ import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { API, clearAuth } from "../../src/api";
 import { C, SHADOW } from "../../src/theme";
+import { UserAvatar } from "../../src/components/UserAvatar";
 
 export default function Profile() {
   const router = useRouter();
@@ -44,9 +45,7 @@ export default function Profile() {
     <SafeAreaView style={styles.c} edges={["top"]}>
       <ScrollView contentContainerStyle={{ padding: 18, paddingBottom: 40 }}>
         <View style={styles.heroCard}>
-          <View style={styles.avatarBig}>
-            <Text style={{ fontSize: 56 }}>{user.avatar}</Text>
-          </View>
+          <UserAvatar avatar={user.avatar} size={120} borderColor={C.gold} borderWidth={4} />
           <Text style={styles.username} testID="profile-username">{user.username}</Text>
           <Text style={styles.age}>Age {user.age} · {user.language === "hi" ? "हिंदी" : "English"}</Text>
 

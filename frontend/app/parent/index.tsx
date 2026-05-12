@@ -8,6 +8,7 @@ import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { API, clearAuth } from "../../src/api";
 import { C, SHADOW } from "../../src/theme";
+import { UserAvatar } from "../../src/components/UserAvatar";
 
 type Tab = "children" | "review";
 
@@ -139,7 +140,9 @@ export default function ParentHome() {
                 children.map((k) => (
                   <View key={k.id} style={styles.kidCard} testID={`kid-${k.id}`}>
                     <View style={styles.kidTop}>
-                      <View style={styles.kidAv}><Text style={{ fontSize: 32 }}>{k.avatar}</Text></View>
+                      <View style={styles.kidAv}>
+                        <UserAvatar avatar={k.avatar} size={48} borderWidth={0} showBackground={false} />
+                      </View>
                       <View style={{ flex: 1 }}>
                         <Text style={styles.kidName}>{k.username}</Text>
                         <Text style={styles.kidMeta}>Age {k.age} · {k.level_name}</Text>
@@ -188,7 +191,7 @@ export default function ParentHome() {
                 pending.map((p) => (
                   <View key={p.id} style={styles.reviewCard} testID={`review-${p.id}`}>
                     <View style={styles.reviewTop}>
-                      <Text style={{ fontSize: 28 }}>{p.author_avatar}</Text>
+                      <UserAvatar avatar={p.author_avatar} size={44} />
                       <View style={{ flex: 1 }}>
                         <Text style={styles.kidName}>{p.author_username}</Text>
                         {p.story_id && <Text style={styles.kidMeta}>📖 {p.story_id.replace(/-/g, " ")}</Text>}

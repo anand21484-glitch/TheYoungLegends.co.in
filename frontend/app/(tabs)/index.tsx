@@ -7,6 +7,7 @@ import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { API } from "../../src/api";
 import { C, SHADOW } from "../../src/theme";
+import { UserAvatar, isHeroAvatar } from "../../src/components/UserAvatar";
 
 export default function Home() {
   const router = useRouter();
@@ -49,9 +50,14 @@ export default function Home() {
         testID="home-scroll"
       >
         <View style={styles.headerRow}>
-          <View>
-            <Text style={styles.hello}>Namaste,</Text>
-            <Text style={styles.name} testID="home-username">{user.username} {user.avatar || "🦉"}</Text>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+            <UserAvatar avatar={user.avatar} size={52} />
+            <View>
+              <Text style={styles.hello}>Namaste,</Text>
+              <Text style={styles.name} testID="home-username">
+                {user.username}{!isHeroAvatar(user.avatar) ? ` ${user.avatar || "🦉"}` : ""}
+              </Text>
+            </View>
           </View>
           <View style={styles.streakPill}>
             <Ionicons name="flame" size={18} color={C.saffron} />

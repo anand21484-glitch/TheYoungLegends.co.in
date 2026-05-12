@@ -7,6 +7,7 @@ import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { API } from "../../src/api";
 import { C, SHADOW } from "../../src/theme";
+import { UserAvatar } from "../../src/components/UserAvatar";
 
 const EMOJIS = ["🔥", "💡", "🌟"];
 
@@ -87,9 +88,7 @@ export default function Journal() {
         {data.map((p) => (
           <View key={p.id} style={styles.post} testID={`post-${p.id}`}>
             <View style={styles.postTop}>
-              <View style={styles.av}>
-                <Text style={{ fontSize: 22 }}>{p.author_avatar}</Text>
-              </View>
+              <UserAvatar avatar={p.author_avatar} size={40} />
               <View style={{ flex: 1 }}>
                 <Text style={styles.author}>{p.author_username}</Text>
                 {p.story_id && <Text style={styles.storyTag}>📖 {p.story_id.replace(/-/g, " ")}</Text>}

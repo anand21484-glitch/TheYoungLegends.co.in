@@ -7,8 +7,9 @@ import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { API, saveAuth } from "../src/api";
 import { C, SHADOW } from "../src/theme";
+import { UserAvatar, HERO_AVATARS } from "../src/components/UserAvatar";
 
-const AVATARS = ["🦉", "🦁", "🐯", "🐘", "🦚", "🦅"];
+const AVATARS = HERO_AVATARS.map((h) => h.id);
 
 export default function Auth() {
   const router = useRouter();
@@ -141,16 +142,20 @@ export default function Auth() {
                   ))}
                 </View>
 
-                <Text style={styles.label}>Pick Your Avatar</Text>
-                <View style={styles.row}>
-                  {AVATARS.map((a) => (
+                <Text style={styles.label}>Pick Your Hero Avatar</Text>
+                <View style={styles.avatarGrid}>
+                  {HERO_AVATARS.map((h) => (
                     <TouchableOpacity
-                      key={a}
-                      testID={`avatar-${a}`}
-                      style={[styles.avatar, avatar === a && styles.avatarActive]}
-                      onPress={() => setAvatar(a)}
+                      key={h.id}
+                      testID={`avatar-${h.id}`}
+                      style={[styles.avatarCard, avatar === h.id && { borderColor: h.color, borderWidth: 4 }]}
+                      onPress={() => setAvatar(h.id)}
+                      activeOpacity={0.85}
                     >
-                      <Text style={{ fontSize: 28 }}>{a}</Text>
+                      <UserAvatar avatar={h.id} size={60} borderColor={h.color} borderWidth={3} />
+                      <Text style={[styles.avatarName, avatar === h.id && { color: h.color }]} numberOfLines={1}>
+                        {h.name}
+                      </Text>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -239,6 +244,25 @@ const styles = StyleSheet.create({
     alignItems: "center", justifyContent: "center",
   },
   avatarActive: { backgroundColor: C.gold, borderColor: C.gold },
+  avatarGrid: {
+    flexDirection: "row", flexWrap: "wrap", gap: 8,
+  },
+  avatarCard: {
+    width: "31%",
+    backgroundColor: C.white,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: C.navy,
+    padding: 8,
+    alignItems: "center",
+    gap: 4,
+  },
+  avatarName: {
+    fontSize: 11,
+    fontWeight: "900",
+    color: C.navy,
+    textAlign: "center",
+  },
   cta: {
     marginTop: 22, backgroundColor: C.saffron, paddingVertical: 18,
     borderRadius: 999, alignItems: "center", borderWidth: 2, borderColor: C.navy,
