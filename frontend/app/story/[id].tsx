@@ -11,6 +11,7 @@ import { API } from "../../src/api";
 import { C, SHADOW } from "../../src/theme";
 import { Monument } from "../../src/components/Monument";
 import { FloatingDecor } from "../../src/components/FloatingDecor";
+import { FloatingMonuments } from "../../src/components/FloatingMonuments";
 import { HeroPortrait } from "../../src/components/HeroPortrait";
 
 type Mode = "idle" | "story" | "lessons";
@@ -89,8 +90,10 @@ export default function StoryReader() {
 
   return (
     <View style={[styles.c, { backgroundColor: lightTint(story.color) }]}>
-      {/* Animated decoration background */}
+      {/* Animated decoration background — lotus + sparkles */}
       <FloatingDecor />
+      {/* Drifting Indian monuments behind the content */}
+      <FloatingMonuments />
 
       <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
         <View style={styles.topBar}>
