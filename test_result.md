@@ -610,4 +610,36 @@ agent_communication:
            Total XP delta = 175 (exactly 35×5).
 
         No critical issues. Freedom Map API is production-ready.
+    - agent: "main"
+      message: |
+        Freedom Map of India screen COMPLETE.
+
+        Backend (server.py + freedom_map.py):
+          • 35 freedom fighters across all major Indian states/regions
+          • New endpoints: GET /api/freedom-map and POST /api/freedom-map/discover/{hero_id}
+          • +5 XP per discovery, map_explorer badge on 35th discovery (verified 21/21 assertions)
+          • Heroes with existing stories link to their story page; ~18 without stories
+            show "Story coming soon!" chip and use Pollinations.ai for portraits
+
+        Frontend (/app/frontend/app/map.tsx, 470 lines):
+          • Geographically accurate India SVG (CC-licensed from @svg-maps/india, 176KB)
+            with all 28 state boundaries rendered in pastel cream + warm brown stroke
+          • All 35 heroes placed by lat/lon → SVG viewBox coords with per-hero offsets
+          • Reanimated PulsingDot: outer glow + mid glow + core in saffron;
+            discovered heroes turn into a gold star with shine
+          • Modal popup card with portrait, name, state pill, short line,
+            Indian motif emojis (🪷 ☸️) at all 4 corners, "Meet [Name]!" button
+          • Progress bar + counter pill "★ N/35" in header
+          • Tricolor confetti celebration on finishing all 35
+          • SFX via expo-av: tap chime (~57KB) and win ding (~57KB), web no-op
+          • Home banner added (deep-green, between jigsaw banner and stories list)
+
+        Testkid reset to discovered_heroes=[] for clean retest.
+
+        Verified end-to-end with token-injection screenshot:
+          • Map renders with state boundaries and all 35 saffron dots
+          • Tap → popup with hero info → Discover & Continue → counter increments,
+            dot turns gold, progress bar advances
+          • Heroes with stories link to /story/{id}, heroes without show
+            "Story coming soon!" and gracefully stay on the map
 
