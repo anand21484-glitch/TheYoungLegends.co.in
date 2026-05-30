@@ -965,6 +965,86 @@ async def complete_jigsaw(story_id: str, user=Depends(get_current_user)):
     }
 
 
+# ===================== Freedom Map of India =====================
+from freedom_map import (
+    get_freedom_map_data, FREEDOM_MAP_TOTAL,
+    FREEDOM_MAP_BADGE, FREEDOM_MAP_XP_PER_DISCOVERY,
+)
+
+
+@api.get("/freedom-map")
+async def freedom_map_list(user=Depends(get_current_user)):
+    """All 35 freedom fighters across India with x/y coords for the map."""
+    discovered = set(user.get("discovered_heroes") or [])
+    heroes = get_freedom_map_data()
+    # Enrich with portrait_url (from existing story portrait when available)
+    for h in heroes:
+        h["discovered"] = h["hero_id"] in discovered
+        if h["has_story"]:
+            h["portrait_url"] = f"/api/stories/{h['story_id']}/portrait"
+        else:
+            # Pollinations.ai free portrait fallback (cached client-side)
+            from urllib.parse import quote
+            prompt = (
+                f"{h['name']}, Indian freedom fighter from {h['state']}, "
+                "warm watercolor children's storybook portrait, soft pastel saffron and green tones, "
+                "kind expression, head and shoulders, traditional Indian attire, "
+                "vintage hand-painted illustration"
+            )
+            h["portrait_url"] = (
+                f"https://image.pollinations.ai/prompt/{quote(prompt)}"
+                f"?width=512&height=512&nologo=true&seed={abs(hash(h['hero_id'])) % 100000}"
+            )
+    return {
+        "heroes": heroes,
+        "discovered_count": len([h for h in heroes if h["discovered"]]),
+        "total": FREEDOM_MAP_TOTAL,
+    }
+
+
+class DiscoverReq(BaseModel):
+    pass
+
+
+@api.post("/freedom-map/discover/{hero_id}")
+async def freedom_map_discover(hero_id: str, user=Depends(get_current_user)):
+    valid_ids = {h["hero_id"] for h in get_freedom_map_data()}
+    if hero_id not in valid_ids:
+        raise HTTPException(404, "Hero not on the freedom map")
+    u = await db.users.find_one({"id": user["id"]}, {"_id": 0})
+    discovered = list(u.get("discovered_heroes") or [])
+    just_discovered = False
+    xp_awarded = 0
+    if hero_id not in discovered:
+        discovered.append(hero_id)
+        just_discovered = True
+        xp_awarded = FREEDOM_MAP_XP_PER_DISCOVERY
+        await db.users.update_one(
+            {"id": user["id"]},
+            {"$set": {"discovered_heroes": discovered}, "$inc": {"xp": xp_awarded}},
+        )
+    badge_awarded = None
+    # Award explorer badge when all heroes are found
+    if len(discovered) >= FREEDOM_MAP_TOTAL:
+        u2 = await db.users.find_one({"id": user["id"]}, {"_id": 0})
+        b = set(u2.get("badges", []))
+        if FREEDOM_MAP_BADGE not in b:
+            b.add(FREEDOM_MAP_BADGE)
+            await db.users.update_one({"id": user["id"]}, {"$set": {"badges": list(b)}})
+            badge_awarded = FREEDOM_MAP_BADGE
+    await update_streak(user)
+    await maybe_award_badges(user["id"])
+    fresh = await db.users.find_one({"id": user["id"]}, {"_id": 0, "password_hash": 0})
+    return {
+        "just_discovered": just_discovered,
+        "xp_awarded": xp_awarded,
+        "badge_awarded": badge_awarded,
+        "discovered_count": len(discovered),
+        "total": FREEDOM_MAP_TOTAL,
+        "user": serialize_user(fresh).model_dump(),
+    }
+
+
 app.include_router(api)
 
 app.add_middleware(

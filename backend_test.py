@@ -1,292 +1,299 @@
-"""Backend test for Jigsaw Puzzle endpoints — Azaadi Tales.
-
-Tests the new /api/jigsaw endpoints per the review request.
-Uses external preview URL for HTTP testing and MongoDB directly
-(MONGO_URL from backend/.env) to RESET testkid's jigsaw progress
-before running, so the first-time / idempotent assertions are valid
-across repeated test runs.
-"""
+"""Backend tests for Azaadi Tales — Freedom Map of India endpoints."""
 import sys
-import asyncio
 import requests
-from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import MongoClient
 
-BASE_URL = "https://azaadi-stories.preview.emergentagent.com/api"
-KID_USERNAME = "testkid"
-KID_PASSWORD = "abcd"
-
+BACKEND_URL = "https://azaadi-stories.preview.emergentagent.com/api"
 MONGO_URL = "mongodb://localhost:27017"
 DB_NAME = "azaadi_tales"
 
-EXPECTED_HEROES = [
-    "sarojini-naidu",
-    "bhimrao-ambedkar",
-    "mahatma-gandhi",
-    "tilak",
-    "sardar-patel",
-]
+USERNAME = "testkid"
+PASSWORD = "abcd"
 
-results = []  # list[(name, pass_bool, message)]
+results = []
 
 
-def record(name, ok, msg=""):
-    results.append((name, ok, msg))
-    status = "PASS" if ok else "FAIL"
-    print(f"[{status}] {name}: {msg}")
+def record(name, passed, detail=""):
+    results.append((name, passed, detail))
+    print(f"{'PASS' if passed else 'FAIL'} | {name}" + (f" | {detail}" if detail else ""))
 
 
-async def reset_kid_jigsaw():
-    """Reset testkid's jigsaw_solved field and remove jigsaw_master badge so
-    we can test first-time / idempotent / badge flows cleanly."""
-    client = AsyncIOMotorClient(MONGO_URL)
-    db = client[DB_NAME]
-    user = await db.users.find_one({"username": KID_USERNAME})
-    if not user:
-        print("!! testkid not found in DB.")
-        client.close()
+def reset_testkid():
+    mc = MongoClient(MONGO_URL)
+    db = mc[DB_NAME]
+    u = db.users.find_one({"username": USERNAME})
+    if not u:
+        print(f"WARN: {USERNAME} not found in DB, cannot reset")
         return None
-    xp_before = user.get("xp", 0)
-    badges = [b for b in (user.get("badges") or []) if b != "jigsaw_master"]
-    await db.users.update_one(
-        {"username": KID_USERNAME},
-        {"$set": {"jigsaw_solved": [], "badges": badges}},
+    badges = [b for b in (u.get("badges") or []) if b != "map_explorer"]
+    db.users.update_one(
+        {"username": USERNAME},
+        {"$set": {"discovered_heroes": [], "badges": badges}},
     )
-    print(f"Reset testkid: jigsaw_solved=[], removed jigsaw_master badge. xp_pre_reset={xp_before}")
-    client.close()
-    return xp_before
+    fresh = db.users.find_one({"username": USERNAME})
+    mc.close()
+    print(f"Reset {USERNAME}: discovered_heroes=[], badges={fresh.get('badges')}, xp={fresh.get('xp')}")
+    return fresh
 
 
-def login(username, password):
-    return requests.post(f"{BASE_URL}/auth/login", json={"username": username, "password": password}, timeout=30)
+def login():
+    r = requests.post(f"{BACKEND_URL}/auth/login", json={"username": USERNAME, "password": PASSWORD}, timeout=30)
+    assert r.status_code == 200, f"login {r.status_code} {r.text}"
+    data = r.json()
+    return data["token"], data["user"]
 
 
-def auth_headers(token):
-    return {"Authorization": f"Bearer {token}"}
+def auth_headers(tok):
+    return {"Authorization": f"Bearer {tok}"}
 
 
 def test_login():
-    print("\n=== 1. POST /api/auth/login ===")
-    r = login(KID_USERNAME, KID_PASSWORD)
-    if r.status_code != 200:
-        record("login_testkid", False, f"HTTP {r.status_code}: {r.text}")
-        return None, None
-    data = r.json()
-    token = data.get("token")
-    user = data.get("user")
-    if not token or not user:
-        record("login_testkid", False, f"missing token/user in response: {data}")
-        return None, None
-    record("login_testkid", True, f"got token, user.xp={user.get('xp')}")
-    return token, user
+    try:
+        tok, user = login()
+        record("POST /api/auth/login (testkid/abcd)", bool(tok) and user.get("username") == USERNAME, f"xp={user.get('xp')}")
+        return tok, user
+    except Exception as e:
+        record("POST /api/auth/login (testkid/abcd)", False, str(e))
+        sys.exit(1)
 
 
-def test_list_jigsaw(token, expected_solved_set=None, label="list_jigsaw"):
-    print(f"\n=== GET /api/jigsaw ({label}) ===")
-    r = requests.get(f"{BASE_URL}/jigsaw", headers=auth_headers(token), timeout=30)
+def test_get_freedom_map_initial(tok):
+    r = requests.get(f"{BACKEND_URL}/freedom-map", headers=auth_headers(tok), timeout=30)
     if r.status_code != 200:
-        record(f"{label}_status", False, f"HTTP {r.status_code}: {r.text}")
+        record("GET /api/freedom-map (status 200)", False, f"{r.status_code} {r.text[:200]}")
         return None
-    record(f"{label}_status", True, "HTTP 200")
+    record("GET /api/freedom-map (status 200)", True)
     data = r.json()
-    if not isinstance(data, list) or len(data) != 5:
-        record(f"{label}_count", False, f"expected list of 5, got {type(data).__name__} len={len(data) if isinstance(data, list) else 'n/a'}")
-        return data
-    record(f"{label}_count", True, "5 puzzles returned")
+    heroes = data.get("heroes", [])
 
-    ids = [p.get("id") for p in data]
-    missing = [h for h in EXPECTED_HEROES if h not in ids]
-    if missing:
-        record(f"{label}_ids", False, f"missing expected hero ids: {missing}. got={ids}")
-    else:
-        record(f"{label}_ids", True, "contains all 5 expected hero ids")
+    record(
+        "GET /api/freedom-map: total=35 and len(heroes)==35",
+        data.get("total") == 35 and len(heroes) == 35,
+        f"total={data.get('total')}, len={len(heroes)}",
+    )
 
-    required_fields = ["id", "name", "title_en", "title_hi", "color", "era", "portrait_url", "grid", "xp_reward", "solved"]
-    fields_ok = True
-    for p in data:
-        for f in required_fields:
-            if f not in p:
-                record(f"{label}_fields", False, f"puzzle {p.get('id')} missing field '{f}'")
-                fields_ok = False
-                break
-        if p.get("grid") != 3:
-            record(f"{label}_grid_val", False, f"puzzle {p.get('id')} grid={p.get('grid')} (expected 3)")
-            fields_ok = False
-        if p.get("xp_reward") != 30:
-            record(f"{label}_xp_val", False, f"puzzle {p.get('id')} xp_reward={p.get('xp_reward')} (expected 30)")
-            fields_ok = False
-        if not isinstance(p.get("solved"), bool):
-            record(f"{label}_solved_type", False, f"puzzle {p.get('id')} solved type={type(p.get('solved')).__name__} (expected bool)")
-            fields_ok = False
-        if not isinstance(p.get("portrait_url"), str) or "/api/stories/" not in p.get("portrait_url", ""):
-            record(f"{label}_portrait_url", False, f"puzzle {p.get('id')} bad portrait_url={p.get('portrait_url')}")
-            fields_ok = False
-    if fields_ok:
-        record(f"{label}_fields", True, "all puzzles contain required fields with correct types/values")
+    required = ["hero_id", "name", "state", "x", "y", "short_line", "has_story", "story_id", "portrait_url", "discovered"]
+    missing_field_heroes = []
+    type_issues = []
+    bounds_issues = []
+    for h in heroes:
+        for k in required:
+            if k not in h:
+                missing_field_heroes.append((h.get("hero_id"), k))
+        if not isinstance(h.get("x"), (int, float)):
+            type_issues.append(f"{h.get('hero_id')} x type={type(h.get('x')).__name__}")
+        if not isinstance(h.get("y"), (int, float)):
+            type_issues.append(f"{h.get('hero_id')} y type={type(h.get('y')).__name__}")
+        if not isinstance(h.get("has_story"), bool):
+            type_issues.append(f"{h.get('hero_id')} has_story type={type(h.get('has_story')).__name__}")
+        if not isinstance(h.get("portrait_url"), str):
+            type_issues.append(f"{h.get('hero_id')} portrait_url type={type(h.get('portrait_url')).__name__}")
+        if not isinstance(h.get("discovered"), bool):
+            type_issues.append(f"{h.get('hero_id')} discovered type={type(h.get('discovered')).__name__}")
+        sid = h.get("story_id")
+        if sid is not None and not isinstance(sid, str):
+            type_issues.append(f"{h.get('hero_id')} story_id type={type(sid).__name__}")
+        x, y = h.get("x"), h.get("y")
+        if isinstance(x, (int, float)) and not (0 <= x <= 612):
+            bounds_issues.append(f"{h.get('hero_id')} x={x}")
+        if isinstance(y, (int, float)) and not (0 <= y <= 696):
+            bounds_issues.append(f"{h.get('hero_id')} y={y}")
 
-    if expected_solved_set is not None:
-        all_ok = True
-        for p in data:
-            want = p["id"] in expected_solved_set
-            if p["solved"] != want:
-                record(f"{label}_solved_state[{p['id']}]", False, f"solved={p['solved']} expected={want}")
-                all_ok = False
-        if all_ok:
-            record(f"{label}_solved_states", True, f"solved flags match expected set={sorted(expected_solved_set)}")
+    record("Each hero has all required fields", not missing_field_heroes, str(missing_field_heroes)[:300])
+    record("Each hero has correct field types", not type_issues, ";".join(type_issues)[:300])
+    record("x in [0,612] and y in [0,696]", not bounds_issues, ";".join(bounds_issues)[:300])
+
+    record(
+        "Initial discovered_count == 0",
+        data.get("discovered_count") == 0,
+        f"discovered_count={data.get('discovered_count')}",
+    )
+
+    by_id = {h["hero_id"]: h for h in heroes}
+
+    bs = by_id.get("bhagat-singh")
+    ok = bs is not None and bs.get("has_story") is True and bs.get("story_id") == "bhagat-singh" and bs.get("state") == "Punjab"
+    record("Spot check bhagat-singh (Punjab, has_story=True, story_id=bhagat-singh)", ok, str(bs)[:200] if bs else "missing")
+
+    ts = by_id.get("tirot-sing")
+    ok = ts is not None and ts.get("has_story") is False and ts.get("story_id") is None and ts.get("state") == "Meghalaya"
+    record("Spot check tirot-sing (Meghalaya, has_story=False, story_id=None)", ok, str(ts)[:200] if ts else "missing")
+
+    kb = by_id.get("kanaklata-barua")
+    ok = kb is not None and kb.get("has_story") is False and kb.get("state") == "Assam"
+    record("Spot check kanaklata-barua (Assam, has_story=False)", ok, str(kb)[:200] if kb else "missing")
+
     return data
 
 
-def test_complete_first(token, baseline_xp):
-    print("\n=== 3. POST /api/jigsaw/sarojini-naidu/complete (first call) ===")
-    r = requests.post(f"{BASE_URL}/jigsaw/sarojini-naidu/complete", headers=auth_headers(token), timeout=30)
+def test_discover_bhagat_singh_first(tok, baseline_xp):
+    r = requests.post(f"{BACKEND_URL}/freedom-map/discover/bhagat-singh", headers=auth_headers(tok), timeout=30)
     if r.status_code != 200:
-        record("complete_first_status", False, f"HTTP {r.status_code}: {r.text}")
+        record("POST /api/freedom-map/discover/bhagat-singh (1st)", False, f"{r.status_code} {r.text[:200]}")
         return None
-    record("complete_first_status", True, "HTTP 200")
-    d = r.json()
-    checks = [
-        ("complete_first_just_solved", d.get("just_solved") is True, f"just_solved={d.get('just_solved')}"),
-        ("complete_first_xp_awarded", d.get("xp_awarded") == 30, f"xp_awarded={d.get('xp_awarded')}"),
-        ("complete_first_solved_count", d.get("solved_count") == 1, f"solved_count={d.get('solved_count')}"),
-        ("complete_first_total", d.get("total") == 5, f"total={d.get('total')}"),
-    ]
-    for name, ok, msg in checks:
-        record(name, ok, msg)
-    user = d.get("user") or {}
-    if not user:
-        record("complete_first_user", False, "missing user in response")
-    else:
-        record("complete_first_user", True, f"user returned (xp={user.get('xp')})")
-        if user.get("xp") != baseline_xp + 30:
-            record("complete_first_xp_increased", False, f"user.xp={user.get('xp')} expected={baseline_xp + 30}")
-        else:
-            record("complete_first_xp_increased", True, f"user.xp went {baseline_xp} -> {user.get('xp')} (+30)")
-    return d
+    data = r.json()
+    ok = (
+        data.get("just_discovered") is True
+        and data.get("xp_awarded") == 5
+        and data.get("discovered_count") == 1
+        and data.get("badge_awarded") is None
+    )
+    record(
+        "POST discover/bhagat-singh (1st): just_discovered=true, xp=5, count=1, badge=null",
+        ok,
+        f"data={ {k:data.get(k) for k in ['just_discovered','xp_awarded','discovered_count','badge_awarded']} }",
+    )
+    new_xp = data["user"]["xp"]
+    record(
+        "User XP increased by exactly 5",
+        new_xp == baseline_xp + 5,
+        f"baseline={baseline_xp}, new={new_xp}",
+    )
+    return data
 
 
-def test_complete_idempotent(token, expected_xp_after_first):
-    print("\n=== 4. POST /api/jigsaw/sarojini-naidu/complete (second call — idempotent) ===")
-    r = requests.post(f"{BASE_URL}/jigsaw/sarojini-naidu/complete", headers=auth_headers(token), timeout=30)
+def test_discover_bhagat_singh_idempotent(tok, xp_after_first):
+    r = requests.post(f"{BACKEND_URL}/freedom-map/discover/bhagat-singh", headers=auth_headers(tok), timeout=30)
     if r.status_code != 200:
-        record("complete_idempotent_status", False, f"HTTP {r.status_code}: {r.text}")
+        record("POST /api/freedom-map/discover/bhagat-singh (2nd)", False, f"{r.status_code} {r.text[:200]}")
         return
-    record("complete_idempotent_status", True, "HTTP 200")
-    d = r.json()
-    record("complete_idempotent_just_solved", d.get("just_solved") is False, f"just_solved={d.get('just_solved')}")
-    record("complete_idempotent_xp_awarded", d.get("xp_awarded") == 0, f"xp_awarded={d.get('xp_awarded')}")
-    user = d.get("user") or {}
-    record("complete_idempotent_no_double_xp", user.get("xp") == expected_xp_after_first,
-           f"user.xp={user.get('xp')} expected={expected_xp_after_first}")
-    record("complete_idempotent_solved_count", d.get("solved_count") == 1, f"solved_count={d.get('solved_count')}")
+    data = r.json()
+    ok = (
+        data.get("just_discovered") is False
+        and data.get("xp_awarded") == 0
+        and data["user"]["xp"] == xp_after_first
+    )
+    record(
+        "POST discover/bhagat-singh (2nd, idempotent): just_discovered=false, xp=0, no double XP",
+        ok,
+        f"data={ {k:data.get(k) for k in ['just_discovered','xp_awarded']} }, user.xp={data['user']['xp']}",
+    )
 
 
-def test_complete_invalid(token):
-    print("\n=== 5. POST /api/jigsaw/invalid-hero/complete ===")
-    r = requests.post(f"{BASE_URL}/jigsaw/invalid-hero/complete", headers=auth_headers(token), timeout=30)
-    if r.status_code != 404:
-        record("complete_invalid_status", False, f"HTTP {r.status_code} (expected 404). body={r.text}")
+def test_discover_invalid(tok):
+    r = requests.post(f"{BACKEND_URL}/freedom-map/discover/some-fake-hero", headers=auth_headers(tok), timeout=30)
+    record(
+        "POST /api/freedom-map/discover/some-fake-hero returns 404",
+        r.status_code == 404,
+        f"status={r.status_code}, body={r.text[:200]}",
+    )
+
+
+def test_freedom_map_after_discovery(tok):
+    r = requests.get(f"{BACKEND_URL}/freedom-map", headers=auth_headers(tok), timeout=30)
+    if r.status_code != 200:
+        record("GET /api/freedom-map after a discovery", False, str(r.status_code))
         return
-    record("complete_invalid_status", True, "HTTP 404")
-    try:
-        d = r.json()
-        detail = d.get("detail", "")
-        record("complete_invalid_detail", "Not a jigsaw puzzle" in detail,
-               f"detail='{detail}'")
-    except Exception as e:
-        record("complete_invalid_detail", False, f"could not parse json: {e}")
+    data = r.json()
+    by_id = {h["hero_id"]: h for h in data["heroes"]}
+    bs = by_id.get("bhagat-singh")
+    record(
+        "After discovery, bhagat-singh.discovered=true",
+        bs is not None and bs.get("discovered") is True,
+        f"bhagat-singh.discovered={bs.get('discovered') if bs else None}",
+    )
+    record(
+        "discovered_count=1 after one discovery",
+        data.get("discovered_count") == 1,
+        f"discovered_count={data.get('discovered_count')}",
+    )
 
 
-def test_complete_all_and_badge(token):
-    print("\n=== 7. Complete remaining 4 puzzles + verify jigsaw_master badge ===")
-    remaining = [h for h in EXPECTED_HEROES if h != "sarojini-naidu"]
-    last_resp = None
-    for i, hid in enumerate(remaining):
-        r = requests.post(f"{BASE_URL}/jigsaw/{hid}/complete", headers=auth_headers(token), timeout=30)
-        if r.status_code != 200:
-            record(f"complete_{hid}_status", False, f"HTTP {r.status_code}: {r.text}")
-            return None
-        d = r.json()
-        record(f"complete_{hid}_status", True,
-               f"solved_count={d.get('solved_count')}, just_solved={d.get('just_solved')}, badge_awarded={d.get('badge_awarded')}")
-        is_last = (i == len(remaining) - 1)
-        last_resp = d
-        if is_last:
-            record("badge_solved_count_5", d.get("solved_count") == 5,
-                   f"solved_count={d.get('solved_count')}")
-            record("badge_awarded_field", d.get("badge_awarded") == "jigsaw_master",
-                   f"badge_awarded={d.get('badge_awarded')}")
-            user = d.get("user") or {}
-            record("badge_in_user_badges", "jigsaw_master" in (user.get("badges") or []),
-                   f"user.badges={user.get('badges')}")
-    return last_resp
+def test_all_35_discoveries():
+    reset_testkid()
+    tok, user = login()
+    baseline_xp = user["xp"]
+
+    r = requests.get(f"{BACKEND_URL}/freedom-map", headers=auth_headers(tok), timeout=30)
+    heroes = r.json()["heroes"]
+    hero_ids = [h["hero_id"] for h in heroes]
+    record("Fresh map after reset: 35 heroes, 0 discovered",
+           len(hero_ids) == 35 and r.json()["discovered_count"] == 0,
+           f"len={len(hero_ids)}, discovered_count={r.json()['discovered_count']}")
+
+    badge_awarded_on = None
+    last_response = None
+    pre_badge_badge_awarded_seen = False
+    for i, hid in enumerate(hero_ids, start=1):
+        resp = requests.post(f"{BACKEND_URL}/freedom-map/discover/{hid}", headers=auth_headers(tok), timeout=30)
+        if resp.status_code != 200:
+            record(f"Discover #{i} {hid}", False, f"{resp.status_code} {resp.text[:200]}")
+            return
+        d = resp.json()
+        if d.get("badge_awarded") is not None:
+            if i < 35:
+                pre_badge_badge_awarded_seen = True
+            badge_awarded_on = i
+        if i == 35:
+            last_response = d
+
+    record("No badge awarded before 35th discovery",
+           not pre_badge_badge_awarded_seen,
+           f"premature badge at i={badge_awarded_on}")
+
+    ok = (
+        last_response is not None
+        and last_response.get("badge_awarded") == "map_explorer"
+        and last_response.get("discovered_count") == 35
+    )
+    record(
+        "35th discovery returns badge_awarded='map_explorer' and discovered_count=35",
+        ok,
+        f"badge_awarded={last_response.get('badge_awarded') if last_response else None}, "
+        f"discovered_count={last_response.get('discovered_count') if last_response else None}",
+    )
+
+    r = requests.get(f"{BACKEND_URL}/me", headers=auth_headers(tok), timeout=30)
+    me_data = r.json()
+    record(
+        "user.badges contains 'map_explorer' after all 35",
+        "map_explorer" in (me_data.get("badges") or []),
+        f"badges={me_data.get('badges')}",
+    )
+
+    record(
+        "Total XP gain == 35*5 = 175",
+        me_data.get("xp") == baseline_xp + 175,
+        f"baseline={baseline_xp}, final={me_data.get('xp')}, delta={me_data.get('xp')-baseline_xp}",
+    )
 
 
-def test_portrait_urls(token, puzzles):
-    print("\n=== 8. Portrait URL GET checks for each puzzle ===")
-    for p in puzzles:
-        url = f"{BASE_URL}/stories/{p['id']}/portrait"
-        try:
-            r = requests.get(url, headers=auth_headers(token), timeout=60)
-        except Exception as e:
-            record(f"portrait_{p['id']}", False, f"request error: {e}")
-            continue
-        ctype = r.headers.get("content-type", "")
-        size = len(r.content) if r.content else 0
-        if r.status_code != 200:
-            record(f"portrait_{p['id']}", False, f"HTTP {r.status_code} on {url}. body[:200]={r.text[:200]}")
-            continue
-        if not ctype.startswith("image/"):
-            record(f"portrait_{p['id']}", False, f"content-type={ctype} (expected image/*)")
-            continue
-        if size < 1000:
-            record(f"portrait_{p['id']}", False, f"image too small: {size} bytes")
-            continue
-        record(f"portrait_{p['id']}", True, f"200 {ctype} {size // 1024} KB")
+def main():
+    print("="*70)
+    print("Freedom Map of India — Backend Tests")
+    print("="*70)
 
+    reset_testkid()
 
-async def main():
-    await reset_kid_jigsaw()
+    tok, user = test_login()
+    baseline_xp = user["xp"]
 
-    token, user = test_login()
-    if not token:
-        print("\nABORT: could not authenticate.")
-        return finalize()
-    baseline_xp = user.get("xp", 0)
-    print(f"baseline xp (after reset, post-login) = {baseline_xp}")
+    test_get_freedom_map_initial(tok)
 
-    puzzles = test_list_jigsaw(token, expected_solved_set=set(), label="list_jigsaw_initial")
+    first = test_discover_bhagat_singh_first(tok, baseline_xp)
+    if first is None:
+        return
+    xp_after_first = first["user"]["xp"]
 
-    test_complete_first(token, baseline_xp)
+    test_discover_bhagat_singh_idempotent(tok, xp_after_first)
 
-    expected_xp_after_first = baseline_xp + 30
-    test_complete_idempotent(token, expected_xp_after_first)
+    test_discover_invalid(tok)
 
-    test_complete_invalid(token)
+    test_freedom_map_after_discovery(tok)
 
-    print("\n=== 6. GET /api/jigsaw (after one completion) — verify sarojini-naidu solved=true ===")
-    test_list_jigsaw(token, expected_solved_set={"sarojini-naidu"}, label="list_jigsaw_after_one")
+    test_all_35_discoveries()
 
-    test_complete_all_and_badge(token)
-
-    if puzzles:
-        test_portrait_urls(token, puzzles)
-
-    finalize()
-
-
-def finalize():
-    print("\n" + "=" * 60)
+    print("\n" + "="*70)
     print("SUMMARY")
-    print("=" * 60)
-    passed = sum(1 for _, ok, _ in results if ok)
-    failed = sum(1 for _, ok, _ in results if not ok)
-    print(f"Total: {len(results)}  Passed: {passed}  Failed: {failed}")
-    if failed:
-        print("\nFAILED CHECKS:")
-        for name, ok, msg in results:
-            if not ok:
-                print(f"  - {name}: {msg}")
-    sys.exit(0 if failed == 0 else 1)
+    print("="*70)
+    passed = sum(1 for _, p, _ in results if p)
+    total = len(results)
+    for name, p, detail in results:
+        print(f"{'PASS' if p else 'FAIL'} | {name}" + (f" | {detail}" if (not p and detail) else ""))
+    print(f"\n{passed}/{total} assertions passed")
+    if passed != total:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

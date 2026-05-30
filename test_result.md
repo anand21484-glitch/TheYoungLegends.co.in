@@ -187,6 +187,50 @@ backend:
             - hunt-women c1 = sarojini-naidu correct.
             - hunt-youth c1 = bhagat-singh correct.
 
+  - task: "Freedom Map of India API (35 heroes, XP + map_explorer badge)"
+    implemented: true
+    working: true
+    file: "backend/server.py, backend/freedom_map.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: |
+            Full backend test against https://azaadi-stories.preview.emergentagent.com/api
+            with testkid/abcd. Pre-reset testkid (discovered_heroes=[], removed map_explorer
+            badge). ALL 21/21 assertions PASS.
+
+            1) POST /api/auth/login (testkid/abcd) → 200, token + user.
+            2) GET /api/freedom-map (initial):
+               - total=35, heroes array length=35 ✅
+               - Every hero has hero_id/name/state/x/y/short_line/has_story/story_id/
+                 portrait_url/discovered with correct types (x,y numbers; has_story/
+                 discovered bool; portrait_url string; story_id string or None). ✅
+               - All x ∈ [0,612], all y ∈ [0,696] (SVG viewBox bounds). ✅
+               - discovered_count=0 initially. ✅
+               - bhagat-singh: has_story=True, story_id='bhagat-singh', state='Punjab' ✅
+               - tirot-sing: has_story=False, story_id=None, state='Meghalaya' ✅
+               - kanaklata-barua: has_story=False, state='Assam' ✅
+            3) POST /api/freedom-map/discover/bhagat-singh (1st):
+               - just_discovered=true, xp_awarded=5, discovered_count=1, badge_awarded=null ✅
+               - user.xp 700 → 705 (+5 exactly) ✅
+            4) POST /api/freedom-map/discover/bhagat-singh (2nd, idempotent):
+               - just_discovered=false, xp_awarded=0, user.xp still 705 ✅
+            5) POST /api/freedom-map/discover/some-fake-hero → 404
+               detail='Hero not on the freedom map' ✅
+            6) GET /api/freedom-map after discovery → bhagat-singh.discovered=true,
+               discovered_count=1. ✅
+            7) Full 35-discovery flow (after second reset):
+               - Iterated through all 35 hero_ids. No badge_awarded for first 34. ✅
+               - 35th discovery returned badge_awarded='map_explorer' and
+                 discovered_count=35. ✅
+               - GET /api/me afterwards: badges array contains 'map_explorer'. ✅
+               - Total XP delta = 175 (exactly 35×5). ✅
+
+            No critical issues. Endpoint is production-ready.
+
   - task: "Jigsaw Puzzles API (5 portraits, XP + jigsaw_master badge)"
     implemented: true
     working: true
@@ -444,7 +488,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Jigsaw Puzzles API (5 portraits, XP + jigsaw_master badge)"
+    - "Freedom Map of India API (35 heroes, XP + map_explorer badge)"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -536,3 +580,34 @@ agent_communication:
 
         No backend changes — all existing endpoints remain green from the 37/37 assertion run.
         testkid was reset to jigsaw_solved=[] for clean retest.
+    - agent: "testing"
+      message: |
+        Freedom Map of India backend testing complete.
+        Ran /app/backend_test.py against https://azaadi-stories.preview.emergentagent.com/api
+        with testkid/abcd. ALL 21/21 assertions PASS.
+
+        Pre-reset testkid (discovered_heroes=[], removed map_explorer badge in Mongo)
+        so first-time/idempotent/badge flows could be re-verified.
+
+        ✅ POST /api/auth/login → token + user
+        ✅ GET /api/freedom-map → total=35, heroes len=35, all required fields present
+           with correct types, all x∈[0,612], all y∈[0,696]. Spot checks for
+           bhagat-singh (Punjab, has_story=True, story_id='bhagat-singh'),
+           tirot-sing (Meghalaya, has_story=False, story_id=None),
+           kanaklata-barua (Assam, has_story=False) all pass.
+        ✅ POST /api/freedom-map/discover/bhagat-singh (1st) →
+           just_discovered=true, xp_awarded=5, discovered_count=1, badge_awarded=null,
+           user.xp went 700 → 705 (+5 exactly).
+        ✅ POST /api/freedom-map/discover/bhagat-singh (2nd, idempotent) →
+           just_discovered=false, xp_awarded=0, user.xp still 705.
+        ✅ POST /api/freedom-map/discover/some-fake-hero → 404
+           detail="Hero not on the freedom map".
+        ✅ GET /api/freedom-map after discovery → bhagat-singh.discovered=true,
+           discovered_count=1.
+        ✅ Full 35-discovery flow (after second reset): no badge awarded for the first
+           34 discoveries, 35th returned badge_awarded='map_explorer' and
+           discovered_count=35. /api/me afterwards shows 'map_explorer' in user.badges.
+           Total XP delta = 175 (exactly 35×5).
+
+        No critical issues. Freedom Map API is production-ready.
+

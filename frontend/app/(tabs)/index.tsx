@@ -140,6 +140,22 @@ export default function Home() {
           <Ionicons name="chevron-forward" size={22} color={C.navy} />
         </TouchableOpacity>
 
+        <TouchableOpacity
+          testID="map-banner"
+          activeOpacity={0.85}
+          onPress={() => router.push("/map" as any)}
+          style={styles.mapBanner}
+        >
+          <View style={styles.mapIconWrap}>
+            <Text style={{ fontSize: 24 }}>🗺️</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.mapTag}>FREEDOM MAP OF INDIA 🇮🇳</Text>
+            <Text style={styles.mapTitle}>Tap glowing dots • Discover 35 heroes • +5 XP each</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={22} color={C.white} />
+        </TouchableOpacity>
+
         <Text style={styles.sectionTitle}>Brave Hearts to Meet</Text>
         {stories.slice(1).map((s) => (
           <TouchableOpacity
@@ -249,6 +265,18 @@ const styles = StyleSheet.create({
   },
   jigsawTag: { color: C.navy, fontWeight: "900", fontSize: 11, letterSpacing: 1, marginBottom: 2 },
   jigsawTitle: { color: C.navy, fontSize: 14, fontWeight: "800", lineHeight: 18 },
+  mapBanner: {
+    flexDirection: "row", alignItems: "center", gap: 14,
+    backgroundColor: C.green, padding: 16, borderRadius: 22,
+    borderWidth: 2, borderColor: C.navy, marginBottom: 22, ...SHADOW,
+  },
+  mapIconWrap: {
+    width: 48, height: 48, borderRadius: 24,
+    backgroundColor: C.white, justifyContent: "center", alignItems: "center",
+    borderWidth: 2, borderColor: C.navy,
+  },
+  mapTag: { color: C.white, fontWeight: "900", fontSize: 11, letterSpacing: 1, marginBottom: 2 },
+  mapTitle: { color: C.white, fontSize: 14, fontWeight: "800", lineHeight: 18 },
   storyRow: {
     flexDirection: "row", alignItems: "center", gap: 14,
     backgroundColor: C.white, padding: 14, borderRadius: 18,
