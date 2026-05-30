@@ -1,319 +1,292 @@
-"""Backend test script for Azaadi Tales Phase 3:
-- 30-story catalog
-- Treasure Hunts API
-- Regression: auth/me/chat/journal
+"""Backend test for Jigsaw Puzzle endpoints — Azaadi Tales.
+
+Tests the new /api/jigsaw endpoints per the review request.
+Uses external preview URL for HTTP testing and MongoDB directly
+(MONGO_URL from backend/.env) to RESET testkid's jigsaw progress
+before running, so the first-time / idempotent assertions are valid
+across repeated test runs.
 """
-import os
 import sys
-import json
-import random
-import string
+import asyncio
 import requests
+from motor.motor_asyncio import AsyncIOMotorClient
 
-BASE = "https://azaadi-stories.preview.emergentagent.com/api"
+BASE_URL = "https://azaadi-stories.preview.emergentagent.com/api"
+KID_USERNAME = "testkid"
+KID_PASSWORD = "abcd"
 
-NEW_STORY_IDS = [
-    "sardar-patel", "lala-lajpat-rai", "tilak", "sukhdev", "rajguru",
-    "khudiram-bose", "surya-sen", "bagha-jatin", "matangini-hazra",
-    "bipin-pal", "veer-savarkar", "madam-cama", "tantia-tope",
-    "subramania-bharati", "alluri-sitarama-raju", "velu-thampi",
-    "begum-hazrat-mahal", "kittur-chennamma", "aruna-asaf-ali",
-    "kalpana-datta", "birsa-munda", "tilka-manjhi",
+MONGO_URL = "mongodb://localhost:27017"
+DB_NAME = "azaadi_tales"
+
+EXPECTED_HEROES = [
+    "sarojini-naidu",
+    "bhimrao-ambedkar",
+    "mahatma-gandhi",
+    "tilak",
+    "sardar-patel",
 ]
 
-results = []
+results = []  # list[(name, pass_bool, message)]
 
-def report(name, ok, detail=""):
+
+def record(name, ok, msg=""):
+    results.append((name, ok, msg))
     status = "PASS" if ok else "FAIL"
-    line = f"[{status}] {name}" + (f" — {detail}" if detail else "")
-    print(line)
-    results.append({"name": name, "ok": ok, "detail": detail})
-
-def must(cond, name, detail=""):
-    report(name, bool(cond), detail)
-    return bool(cond)
-
-def rand_username(prefix="huntkid"):
-    s = "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
-    return f"{prefix}_{s}"
+    print(f"[{status}] {name}: {msg}")
 
 
-# ========== 1) Stories ==========
-def test_stories_catalog():
-    print("\n=== Stories Catalog ===")
-    r = requests.get(f"{BASE}/stories", timeout=30)
-    must(r.status_code == 200, "GET /api/stories status 200", f"got {r.status_code}")
-    data = r.json()
-    must(isinstance(data, list), "GET /api/stories returns list")
-    must(len(data) == 30, f"GET /api/stories returns EXACTLY 30 stories", f"got {len(data)}")
-    ids_present = {s["id"] for s in data}
-    missing = [sid for sid in NEW_STORY_IDS if sid not in ids_present]
-    must(not missing, "All 22 new story IDs present", f"missing: {missing}")
-
-    # detail + quiz checks
-    for sid in NEW_STORY_IDS:
-        r = requests.get(f"{BASE}/stories/{sid}", timeout=30)
-        ok = r.status_code == 200
-        if not ok:
-            report(f"GET /stories/{sid}", False, f"status {r.status_code}")
-            continue
-        d = r.json()
-        fields_ok = all(d.get(k) for k in ("story_en", "story_hi"))
-        lessons_ok = bool(d.get("lessons_en")) and bool(d.get("lessons_hi"))
-        report(
-            f"Story {sid} has non-empty story_en/hi/lessons_en/hi",
-            fields_ok and lessons_ok,
-            f"keys-ok story={fields_ok} lessons={lessons_ok}",
-        )
-
-    for sid in ("birsa-munda", "madam-cama", "kittur-chennamma"):
-        r = requests.get(f"{BASE}/stories/{sid}/quiz", timeout=30)
-        ok = r.status_code == 200 and isinstance(r.json(), list) and len(r.json()) == 5
-        report(f"GET /stories/{sid}/quiz returns 5 questions", ok,
-               f"status {r.status_code} len {len(r.json()) if r.status_code==200 else '?'}")
+async def reset_kid_jigsaw():
+    """Reset testkid's jigsaw_solved field and remove jigsaw_master badge so
+    we can test first-time / idempotent / badge flows cleanly."""
+    client = AsyncIOMotorClient(MONGO_URL)
+    db = client[DB_NAME]
+    user = await db.users.find_one({"username": KID_USERNAME})
+    if not user:
+        print("!! testkid not found in DB.")
+        client.close()
+        return None
+    xp_before = user.get("xp", 0)
+    badges = [b for b in (user.get("badges") or []) if b != "jigsaw_master"]
+    await db.users.update_one(
+        {"username": KID_USERNAME},
+        {"$set": {"jigsaw_solved": [], "badges": badges}},
+    )
+    print(f"Reset testkid: jigsaw_solved=[], removed jigsaw_master badge. xp_pre_reset={xp_before}")
+    client.close()
+    return xp_before
 
 
-# ========== 2) Treasure Hunts ==========
-def signup_kid(username, password="abcd"):
-    r = requests.post(f"{BASE}/auth/signup", json={
-        "username": username, "password": password,
-        "age": 9, "avatar": "owl", "language": "en", "role": "kid",
-    }, timeout=30)
-    if r.status_code != 200:
-        return None, None
-    body = r.json()
-    return body["token"], body["user"]
+def login(username, password):
+    return requests.post(f"{BASE_URL}/auth/login", json={"username": username, "password": password}, timeout=30)
 
 
-def auth(token):
+def auth_headers(token):
     return {"Authorization": f"Bearer {token}"}
 
 
-def test_hunts():
-    print("\n=== Treasure Hunts ===")
+def test_login():
+    print("\n=== 1. POST /api/auth/login ===")
+    r = login(KID_USERNAME, KID_PASSWORD)
+    if r.status_code != 200:
+        record("login_testkid", False, f"HTTP {r.status_code}: {r.text}")
+        return None, None
+    data = r.json()
+    token = data.get("token")
+    user = data.get("user")
+    if not token or not user:
+        record("login_testkid", False, f"missing token/user in response: {data}")
+        return None, None
+    record("login_testkid", True, f"got token, user.xp={user.get('xp')}")
+    return token, user
 
-    # Auth required
-    r = requests.get(f"{BASE}/hunts", timeout=15)
-    must(r.status_code == 401, "GET /api/hunts without token → 401", f"got {r.status_code}")
-    r = requests.get(f"{BASE}/hunts/hunt-1857", timeout=15)
-    must(r.status_code == 401, "GET /api/hunts/hunt-1857 without token → 401", f"got {r.status_code}")
-    r = requests.post(f"{BASE}/hunts/hunt-1857/answer", json={"clue_id": "c1", "answer_id": "x"}, timeout=15)
-    must(r.status_code == 401, "POST hunt answer without token → 401", f"got {r.status_code}")
 
-    # Fresh kid
-    uname = rand_username()
-    token, user = signup_kid(uname)
-    must(token is not None, f"Signup fresh kid {uname}", "ok" if token else "failed")
-    if not token:
-        return
-    h = auth(token)
-    baseline_xp = user.get("xp", 0)
+def test_list_jigsaw(token, expected_solved_set=None, label="list_jigsaw"):
+    print(f"\n=== GET /api/jigsaw ({label}) ===")
+    r = requests.get(f"{BASE_URL}/jigsaw", headers=auth_headers(token), timeout=30)
+    if r.status_code != 200:
+        record(f"{label}_status", False, f"HTTP {r.status_code}: {r.text}")
+        return None
+    record(f"{label}_status", True, "HTTP 200")
+    data = r.json()
+    if not isinstance(data, list) or len(data) != 5:
+        record(f"{label}_count", False, f"expected list of 5, got {type(data).__name__} len={len(data) if isinstance(data, list) else 'n/a'}")
+        return data
+    record(f"{label}_count", True, "5 puzzles returned")
 
-    # GET /api/hunts
-    r = requests.get(f"{BASE}/hunts", headers=h, timeout=15)
-    must(r.status_code == 200, "GET /api/hunts auth ok", f"status {r.status_code}")
-    hunts = r.json()
-    must(isinstance(hunts, list) and len(hunts) == 3, "GET /api/hunts returns 3 hunts",
-         f"got {len(hunts) if isinstance(hunts, list) else '?'}")
-    expected_ids = {"hunt-1857", "hunt-women", "hunt-youth"}
-    got_ids = {h_.get("id") for h_ in hunts}
-    must(got_ids == expected_ids, "Hunt IDs match", f"got {got_ids}")
-    for hh in hunts:
-        for k in ("id","title_en","title_hi","tagline_en","tagline_hi","icon","color",
-                 "badge_id","xp_reward","total_clues","solved_clues","completed","percent"):
-            if k not in hh:
-                report(f"Hunt {hh.get('id')} has key {k}", False)
+    ids = [p.get("id") for p in data]
+    missing = [h for h in EXPECTED_HEROES if h not in ids]
+    if missing:
+        record(f"{label}_ids", False, f"missing expected hero ids: {missing}. got={ids}")
+    else:
+        record(f"{label}_ids", True, "contains all 5 expected hero ids")
+
+    required_fields = ["id", "name", "title_en", "title_hi", "color", "era", "portrait_url", "grid", "xp_reward", "solved"]
+    fields_ok = True
+    for p in data:
+        for f in required_fields:
+            if f not in p:
+                record(f"{label}_fields", False, f"puzzle {p.get('id')} missing field '{f}'")
+                fields_ok = False
                 break
-        else:
-            ok = (hh["xp_reward"] == 75 and hh["total_clues"] == 5
-                  and hh["solved_clues"] == 0 and hh["completed"] is False
-                  and hh["percent"] == 0)
-            report(f"Hunt {hh['id']} fresh-progress correct", ok,
-                   f"xp_reward={hh['xp_reward']} total={hh['total_clues']} solved={hh['solved_clues']} pct={hh['percent']}")
+        if p.get("grid") != 3:
+            record(f"{label}_grid_val", False, f"puzzle {p.get('id')} grid={p.get('grid')} (expected 3)")
+            fields_ok = False
+        if p.get("xp_reward") != 30:
+            record(f"{label}_xp_val", False, f"puzzle {p.get('id')} xp_reward={p.get('xp_reward')} (expected 30)")
+            fields_ok = False
+        if not isinstance(p.get("solved"), bool):
+            record(f"{label}_solved_type", False, f"puzzle {p.get('id')} solved type={type(p.get('solved')).__name__} (expected bool)")
+            fields_ok = False
+        if not isinstance(p.get("portrait_url"), str) or "/api/stories/" not in p.get("portrait_url", ""):
+            record(f"{label}_portrait_url", False, f"puzzle {p.get('id')} bad portrait_url={p.get('portrait_url')}")
+            fields_ok = False
+    if fields_ok:
+        record(f"{label}_fields", True, "all puzzles contain required fields with correct types/values")
 
-    # GET /api/hunts/hunt-1857
-    r = requests.get(f"{BASE}/hunts/hunt-1857", headers=h, timeout=15)
-    must(r.status_code == 200, "GET /api/hunts/hunt-1857 auth ok", f"status {r.status_code}")
-    hd = r.json()
-    must(isinstance(hd.get("clues"), list) and len(hd["clues"]) == 5,
-         "hunt-1857 returns 5 clues",
-         f"len={len(hd.get('clues', []))}")
-    answer_leak = any("answer_id" in c for c in hd.get("clues", []))
-    must(not answer_leak, "Clues do NOT contain answer_id", "leaked!" if answer_leak else "")
-    for c in hd.get("clues", []):
-        for k in ("id","clue_en","clue_hi","options","hint_en","hint_hi"):
-            if k not in c:
-                report(f"Clue {c.get('id')} missing field {k}", False)
-                break
-        else:
-            opts = c["options"]
-            ok = (isinstance(opts, list) and len(opts) == 4 and
-                  all(isinstance(o, dict) and {"id","name","color"}.issubset(o.keys()) for o in opts))
-            report(f"hunt-1857 clue {c['id']} has 4 valid hero options", ok)
-    must(hd.get("solved_clues") == [] and hd.get("completed") is False,
-         "hunt-1857 fresh user solved=[] completed=false")
+    if expected_solved_set is not None:
+        all_ok = True
+        for p in data:
+            want = p["id"] in expected_solved_set
+            if p["solved"] != want:
+                record(f"{label}_solved_state[{p['id']}]", False, f"solved={p['solved']} expected={want}")
+                all_ok = False
+        if all_ok:
+            record(f"{label}_solved_states", True, f"solved flags match expected set={sorted(expected_solved_set)}")
+    return data
 
-    # Invalid hunt id
-    r = requests.get(f"{BASE}/hunts/foo", headers=h, timeout=15)
-    must(r.status_code == 404, "GET /api/hunts/foo → 404", f"status {r.status_code}")
 
-    # POST correct c1
-    r = requests.post(f"{BASE}/hunts/hunt-1857/answer", headers=h,
-                      json={"clue_id": "c1", "answer_id": "mangal-pandey"}, timeout=15)
-    must(r.status_code == 200, "POST answer c1 correct status 200", f"status {r.status_code}")
-    body = r.json()
-    must(body.get("correct") is True, "c1 correct=true")
-    must(body.get("xp_awarded") == 5, "c1 xp_awarded=5", f"got {body.get('xp_awarded')}")
-    must(body.get("solved_clues") == ["c1"], "solved_clues=['c1']", f"got {body.get('solved_clues')}")
-    must(body.get("just_completed") is False, "just_completed=false")
-    must(body.get("badge_awarded") is None, "badge_awarded=null on first clue")
-    user_after = body.get("user", {})
-    must(user_after.get("xp") == baseline_xp + 5, "User XP increased by 5",
-         f"baseline={baseline_xp} got={user_after.get('xp')}")
-
-    # POST wrong c1
-    r = requests.post(f"{BASE}/hunts/hunt-1857/answer", headers=h,
-                      json={"clue_id": "c1", "answer_id": "bhagat-singh"}, timeout=15)
-    must(r.status_code == 200, "POST wrong answer status 200")
-    b2 = r.json()
-    must(b2.get("correct") is False, "wrong answer correct=false")
-    must(b2.get("xp_awarded") == 0, "wrong answer xp_awarded=0", f"got {b2.get('xp_awarded')}")
-    must(b2.get("solved_clues") == ["c1"], "solved still ['c1']", f"got {b2.get('solved_clues')}")
-    must(b2.get("user", {}).get("xp") == baseline_xp + 5, "User XP unchanged after wrong answer",
-         f"got {b2.get('user', {}).get('xp')}")
-
-    # Repeat correct c1 — no double count, no extra xp
-    r = requests.post(f"{BASE}/hunts/hunt-1857/answer", headers=h,
-                      json={"clue_id": "c1", "answer_id": "mangal-pandey"}, timeout=15)
-    b3 = r.json()
-    must(b3.get("solved_clues") == ["c1"], "Repeat correct: solved_clues remains ['c1']",
-         f"got {b3.get('solved_clues')}")
-    must(b3.get("user", {}).get("xp") == baseline_xp + 5, "Repeat correct: no extra XP",
-         f"got {b3.get('user', {}).get('xp')}")
-
-    # Solve c2..c5
-    answers = [
-        ("c2", "rani-lakshmibai"),
-        ("c3", "tantia-tope"),
-        ("c4", "begum-hazrat-mahal"),
-        ("c5", "kittur-chennamma"),
+def test_complete_first(token, baseline_xp):
+    print("\n=== 3. POST /api/jigsaw/sarojini-naidu/complete (first call) ===")
+    r = requests.post(f"{BASE_URL}/jigsaw/sarojini-naidu/complete", headers=auth_headers(token), timeout=30)
+    if r.status_code != 200:
+        record("complete_first_status", False, f"HTTP {r.status_code}: {r.text}")
+        return None
+    record("complete_first_status", True, "HTTP 200")
+    d = r.json()
+    checks = [
+        ("complete_first_just_solved", d.get("just_solved") is True, f"just_solved={d.get('just_solved')}"),
+        ("complete_first_xp_awarded", d.get("xp_awarded") == 30, f"xp_awarded={d.get('xp_awarded')}"),
+        ("complete_first_solved_count", d.get("solved_count") == 1, f"solved_count={d.get('solved_count')}"),
+        ("complete_first_total", d.get("total") == 5, f"total={d.get('total')}"),
     ]
-    final_body = None
-    for cid, ans in answers:
-        r = requests.post(f"{BASE}/hunts/hunt-1857/answer", headers=h,
-                          json={"clue_id": cid, "answer_id": ans}, timeout=15)
-        must(r.status_code == 200, f"POST answer {cid} ok", f"status {r.status_code}")
-        final_body = r.json()
-        must(final_body.get("correct") is True, f"{cid} correct=true")
-
-    # Final c5 expectations
-    must(final_body.get("just_completed") is True, "5th correct: just_completed=true")
-    must(final_body.get("completed") is True, "5th correct: completed=true")
-    must(final_body.get("xp_awarded") == 80, "5th correct: xp_awarded=80 (5+75)",
-         f"got {final_body.get('xp_awarded')}")
-    must(final_body.get("badge_awarded") == "hunt_1857", "Badge hunt_1857 awarded",
-         f"got {final_body.get('badge_awarded')}")
-    final_user = final_body.get("user", {})
-    must("hunt_1857" in final_user.get("badges", []), "User now has hunt_1857 badge",
-         f"badges {final_user.get('badges')}")
-    expected_xp = baseline_xp + 5 * 5 + 75  # 5 clues + bonus
-    must(final_user.get("xp") == expected_xp, f"User XP = baseline+{5*5+75}",
-         f"baseline={baseline_xp} expected={expected_xp} got={final_user.get('xp')}")
-
-    # Wrong hunt id on answer endpoint → 404
-    r = requests.post(f"{BASE}/hunts/foo/answer", headers=h,
-                      json={"clue_id": "c1", "answer_id": "x"}, timeout=15)
-    must(r.status_code == 404, "POST answer on invalid hunt → 404", f"status {r.status_code}")
-
-    # Clue not in hunt → 404
-    r = requests.post(f"{BASE}/hunts/hunt-1857/answer", headers=h,
-                      json={"clue_id": "c99", "answer_id": "x"}, timeout=15)
-    must(r.status_code == 404, "POST answer on invalid clue id → 404", f"status {r.status_code}")
-
-    # Each hunt: 5 clues, 4 options
-    for hid in ("hunt-1857", "hunt-women", "hunt-youth"):
-        r = requests.get(f"{BASE}/hunts/{hid}", headers=h, timeout=15)
-        ok = r.status_code == 200
-        if ok:
-            d = r.json()
-            ok = len(d.get("clues", [])) == 5 and all(len(c.get("options", [])) == 4 for c in d["clues"])
-        report(f"Hunt {hid} → 5 clues with 4 options each", ok)
-
-    # First clue of hunt-women
-    uname2 = rand_username("women")
-    t2, u2 = signup_kid(uname2)
-    h2 = auth(t2)
-    r = requests.post(f"{BASE}/hunts/hunt-women/answer", headers=h2,
-                      json={"clue_id": "c1", "answer_id": "sarojini-naidu"}, timeout=15)
-    must(r.status_code == 200 and r.json().get("correct") is True,
-         "hunt-women c1 = sarojini-naidu correct",
-         f"status {r.status_code} body {r.json() if r.status_code == 200 else r.text[:120]}")
-
-    # First clue of hunt-youth
-    uname3 = rand_username("youth")
-    t3, u3 = signup_kid(uname3)
-    h3 = auth(t3)
-    r = requests.post(f"{BASE}/hunts/hunt-youth/answer", headers=h3,
-                      json={"clue_id": "c1", "answer_id": "bhagat-singh"}, timeout=15)
-    must(r.status_code == 200 and r.json().get("correct") is True,
-         "hunt-youth c1 = bhagat-singh correct",
-         f"status {r.status_code}")
+    for name, ok, msg in checks:
+        record(name, ok, msg)
+    user = d.get("user") or {}
+    if not user:
+        record("complete_first_user", False, "missing user in response")
+    else:
+        record("complete_first_user", True, f"user returned (xp={user.get('xp')})")
+        if user.get("xp") != baseline_xp + 30:
+            record("complete_first_xp_increased", False, f"user.xp={user.get('xp')} expected={baseline_xp + 30}")
+        else:
+            record("complete_first_xp_increased", True, f"user.xp went {baseline_xp} -> {user.get('xp')} (+30)")
+    return d
 
 
-# ========== 3) Regression ==========
-def test_regression():
-    print("\n=== Regression ===")
-    uname = rand_username("regress")
-    token, user = signup_kid(uname)
-    must(token is not None, f"Regression: signup {uname}", "ok" if token else "failed")
-    if not token:
+def test_complete_idempotent(token, expected_xp_after_first):
+    print("\n=== 4. POST /api/jigsaw/sarojini-naidu/complete (second call — idempotent) ===")
+    r = requests.post(f"{BASE_URL}/jigsaw/sarojini-naidu/complete", headers=auth_headers(token), timeout=30)
+    if r.status_code != 200:
+        record("complete_idempotent_status", False, f"HTTP {r.status_code}: {r.text}")
         return
-    h = auth(token)
-
-    # login
-    r = requests.post(f"{BASE}/auth/login", json={"username": uname, "password": "abcd"}, timeout=15)
-    must(r.status_code == 200, "Login works for newly created user", f"status {r.status_code}")
-
-    # /me
-    r = requests.get(f"{BASE}/me", headers=h, timeout=15)
-    must(r.status_code == 200, "GET /api/me works", f"status {r.status_code}")
-
-    # /chat
-    r = requests.post(f"{BASE}/chat", headers=h,
-                      json={"message": "Tell me one fun fact about Bhagat Singh in one sentence.",
-                            "language": "en"}, timeout=60)
-    if r.status_code == 200:
-        rep = r.json().get("reply", "")
-        must(isinstance(rep, str) and len(rep.strip()) > 5, "Chat returns Azaadi reply", f"len={len(rep)}")
-    else:
-        must(False, "POST /api/chat returns 200", f"status {r.status_code} body {r.text[:200]}")
-
-    # /journal
-    r = requests.post(f"{BASE}/journal", headers=h,
-                      json={"text": "I learned today that Bhagat Singh was very brave and read many books."},
-                      timeout=60)
-    if r.status_code == 200:
-        body = r.json()
-        # may be approved/pending/rejected; just verify endpoint works
-        ok = body.get("ok") in (True, False) and "status" in body
-        must(ok, "POST /api/journal works", f"body {body}")
-    else:
-        must(False, "POST /api/journal returns 200", f"status {r.status_code} body {r.text[:200]}")
+    record("complete_idempotent_status", True, "HTTP 200")
+    d = r.json()
+    record("complete_idempotent_just_solved", d.get("just_solved") is False, f"just_solved={d.get('just_solved')}")
+    record("complete_idempotent_xp_awarded", d.get("xp_awarded") == 0, f"xp_awarded={d.get('xp_awarded')}")
+    user = d.get("user") or {}
+    record("complete_idempotent_no_double_xp", user.get("xp") == expected_xp_after_first,
+           f"user.xp={user.get('xp')} expected={expected_xp_after_first}")
+    record("complete_idempotent_solved_count", d.get("solved_count") == 1, f"solved_count={d.get('solved_count')}")
 
 
-def main():
-    test_stories_catalog()
-    test_hunts()
-    test_regression()
+def test_complete_invalid(token):
+    print("\n=== 5. POST /api/jigsaw/invalid-hero/complete ===")
+    r = requests.post(f"{BASE_URL}/jigsaw/invalid-hero/complete", headers=auth_headers(token), timeout=30)
+    if r.status_code != 404:
+        record("complete_invalid_status", False, f"HTTP {r.status_code} (expected 404). body={r.text}")
+        return
+    record("complete_invalid_status", True, "HTTP 404")
+    try:
+        d = r.json()
+        detail = d.get("detail", "")
+        record("complete_invalid_detail", "Not a jigsaw puzzle" in detail,
+               f"detail='{detail}'")
+    except Exception as e:
+        record("complete_invalid_detail", False, f"could not parse json: {e}")
 
-    failed = [r for r in results if not r["ok"]]
-    print(f"\n=== TOTAL: {len(results)}  PASS: {len(results) - len(failed)}  FAIL: {len(failed)} ===")
+
+def test_complete_all_and_badge(token):
+    print("\n=== 7. Complete remaining 4 puzzles + verify jigsaw_master badge ===")
+    remaining = [h for h in EXPECTED_HEROES if h != "sarojini-naidu"]
+    last_resp = None
+    for i, hid in enumerate(remaining):
+        r = requests.post(f"{BASE_URL}/jigsaw/{hid}/complete", headers=auth_headers(token), timeout=30)
+        if r.status_code != 200:
+            record(f"complete_{hid}_status", False, f"HTTP {r.status_code}: {r.text}")
+            return None
+        d = r.json()
+        record(f"complete_{hid}_status", True,
+               f"solved_count={d.get('solved_count')}, just_solved={d.get('just_solved')}, badge_awarded={d.get('badge_awarded')}")
+        is_last = (i == len(remaining) - 1)
+        last_resp = d
+        if is_last:
+            record("badge_solved_count_5", d.get("solved_count") == 5,
+                   f"solved_count={d.get('solved_count')}")
+            record("badge_awarded_field", d.get("badge_awarded") == "jigsaw_master",
+                   f"badge_awarded={d.get('badge_awarded')}")
+            user = d.get("user") or {}
+            record("badge_in_user_badges", "jigsaw_master" in (user.get("badges") or []),
+                   f"user.badges={user.get('badges')}")
+    return last_resp
+
+
+def test_portrait_urls(token, puzzles):
+    print("\n=== 8. Portrait URL GET checks for each puzzle ===")
+    for p in puzzles:
+        url = f"{BASE_URL}/stories/{p['id']}/portrait"
+        try:
+            r = requests.get(url, headers=auth_headers(token), timeout=60)
+        except Exception as e:
+            record(f"portrait_{p['id']}", False, f"request error: {e}")
+            continue
+        ctype = r.headers.get("content-type", "")
+        size = len(r.content) if r.content else 0
+        if r.status_code != 200:
+            record(f"portrait_{p['id']}", False, f"HTTP {r.status_code} on {url}. body[:200]={r.text[:200]}")
+            continue
+        if not ctype.startswith("image/"):
+            record(f"portrait_{p['id']}", False, f"content-type={ctype} (expected image/*)")
+            continue
+        if size < 1000:
+            record(f"portrait_{p['id']}", False, f"image too small: {size} bytes")
+            continue
+        record(f"portrait_{p['id']}", True, f"200 {ctype} {size // 1024} KB")
+
+
+async def main():
+    await reset_kid_jigsaw()
+
+    token, user = test_login()
+    if not token:
+        print("\nABORT: could not authenticate.")
+        return finalize()
+    baseline_xp = user.get("xp", 0)
+    print(f"baseline xp (after reset, post-login) = {baseline_xp}")
+
+    puzzles = test_list_jigsaw(token, expected_solved_set=set(), label="list_jigsaw_initial")
+
+    test_complete_first(token, baseline_xp)
+
+    expected_xp_after_first = baseline_xp + 30
+    test_complete_idempotent(token, expected_xp_after_first)
+
+    test_complete_invalid(token)
+
+    print("\n=== 6. GET /api/jigsaw (after one completion) — verify sarojini-naidu solved=true ===")
+    test_list_jigsaw(token, expected_solved_set={"sarojini-naidu"}, label="list_jigsaw_after_one")
+
+    test_complete_all_and_badge(token)
+
+    if puzzles:
+        test_portrait_urls(token, puzzles)
+
+    finalize()
+
+
+def finalize():
+    print("\n" + "=" * 60)
+    print("SUMMARY")
+    print("=" * 60)
+    passed = sum(1 for _, ok, _ in results if ok)
+    failed = sum(1 for _, ok, _ in results if not ok)
+    print(f"Total: {len(results)}  Passed: {passed}  Failed: {failed}")
     if failed:
-        print("FAILURES:")
-        for f in failed:
-            print(f"  - {f['name']}: {f['detail']}")
-    sys.exit(0 if not failed else 1)
+        print("\nFAILED CHECKS:")
+        for name, ok, msg in results:
+            if not ok:
+                print(f"  - {name}: {msg}")
+    sys.exit(0 if failed == 0 else 1)
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

@@ -187,6 +187,50 @@ backend:
             - hunt-women c1 = sarojini-naidu correct.
             - hunt-youth c1 = bhagat-singh correct.
 
+  - task: "Jigsaw Puzzles API (5 portraits, XP + jigsaw_master badge)"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: |
+            Comprehensive testing of /api/jigsaw endpoints against
+            https://azaadi-stories.preview.emergentagent.com/api with testkid/abcd.
+            Pre-reset testkid's jigsaw_solved=[] + removed jigsaw_master badge in Mongo
+            so first-time/idempotent/badge assertions are valid. ALL 37 assertions PASS.
+
+            1) POST /api/auth/login (testkid/abcd) → 200, token+user returned (xp=395 baseline).
+            2) GET /api/jigsaw (fresh):
+               - Returns exactly 5 puzzles.
+               - IDs = {sarojini-naidu, bhimrao-ambedkar, mahatma-gandhi, tilak, sardar-patel} ✅
+               - Each puzzle has required fields: id, name, title_en, title_hi, color, era,
+                 portrait_url (=/api/stories/{id}/portrait), grid=3, xp_reward=30, solved=bool.
+               - All solved=false initially.
+            3) POST /api/jigsaw/sarojini-naidu/complete (1st):
+               - just_solved=true, xp_awarded=30, solved_count=1, total=5.
+               - user.xp went 395 → 425 (+30 exactly).
+            4) POST /api/jigsaw/sarojini-naidu/complete (2nd, idempotent):
+               - just_solved=false, xp_awarded=0, user.xp still 425, solved_count still 1.
+            5) POST /api/jigsaw/invalid-hero/complete → 404 with detail "Not a jigsaw puzzle".
+            6) GET /api/jigsaw after one completion → sarojini-naidu.solved=true,
+               all others solved=false. ✅
+            7) Badge flow: completing remaining 4 puzzles (bhimrao-ambedkar, mahatma-gandhi,
+               tilak, sardar-patel). On the 5th completion: solved_count=5,
+               badge_awarded='jigsaw_master', user.badges contains 'jigsaw_master'. ✅
+            8) Portrait URL GETs (with auth header, though endpoint is public):
+               - sarojini-naidu: 200 image/jpeg, 773 KB
+               - bhimrao-ambedkar: 200 image/jpeg, 41 KB
+               - mahatma-gandhi: 200 image/jpeg, 742 KB
+               - tilak: 200 image/jpeg, 43 KB
+               - sardar-patel: 200 image/jpeg, 39 KB
+               All cached portraits served immediately (no live Gemini generation needed).
+
+            No regressions, no critical issues. Endpoint is production-ready.
+
   - task: "Regression: auth/me/chat/journal still working"
     implemented: true
     working: true
@@ -400,8 +444,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Animated story reader (portraits + monuments + decor)"
-    - "Floating Indian monuments in story background"
+    - "Jigsaw Puzzles API (5 portraits, XP + jigsaw_master badge)"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -437,3 +480,30 @@ agent_communication:
         /api/hunts/hunt-youth/answer (correct/wrong both), /api/stories/kittur-chennamma, /api/me.
         
         No critical issues. Phase 3 frontend can be considered shipped.
+    - agent: "testing"
+      message: |
+        Jigsaw Puzzle backend testing complete.
+        Ran /app/backend_test.py against the external preview URL — ALL 37 assertions PASS.
+
+        Pre-test setup: reset testkid's jigsaw_solved=[] and removed 'jigsaw_master' badge
+        in MongoDB so first-time / idempotent / badge flows can be re-verified on successive
+        runs. testkid retained all other progress (xp=395, badges intact).
+
+        Coverage (against https://azaadi-stories.preview.emergentagent.com/api):
+        • POST /api/auth/login (testkid/abcd) → 200 ✅
+        • GET /api/jigsaw → exactly 5 puzzles, all 5 required hero ids present
+          (sarojini-naidu, bhimrao-ambedkar, mahatma-gandhi, tilak, sardar-patel), every
+          puzzle has id/name/title_en/title_hi/color/era/portrait_url/grid=3/xp_reward=30/
+          solved(bool). ✅
+        • POST /api/jigsaw/sarojini-naidu/complete (1st) → just_solved=true, xp_awarded=30,
+          solved_count=1, total=5, user.xp 395→425 (+30 exact). ✅
+        • POST /api/jigsaw/sarojini-naidu/complete (2nd) → idempotent: just_solved=false,
+          xp_awarded=0, user.xp still 425, solved_count still 1. ✅
+        • POST /api/jigsaw/invalid-hero/complete → 404 "Not a jigsaw puzzle". ✅
+        • GET /api/jigsaw after one completion → sarojini-naidu.solved=true, others false. ✅
+        • Completing all 5 puzzles → on 5th completion: badge_awarded='jigsaw_master',
+          user.badges contains 'jigsaw_master'. ✅
+        • Portrait URLs: GET /api/stories/{id}/portrait returns 200 image/jpeg for all 5
+          heroes (cached). ✅
+
+        No critical issues. Jigsaw API is production-ready.
