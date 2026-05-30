@@ -507,3 +507,32 @@ agent_communication:
           heroes (cached). ✅
 
         No critical issues. Jigsaw API is production-ready.
+    - agent: "main"
+      message: |
+        Jigsaw Puzzle gameplay COMPLETED (frontend polish pass).
+
+        File rewritten: /app/frontend/app/jigsaw/[id].tsx (was 358 lines → now 537 lines).
+        New additions on top of the previously-implemented tap-to-swap base:
+          • Live timer (mm:ss) shown in header during play
+          • Move counter chip in header
+          • Personal-best time per puzzle (AsyncStorage, key jigsaw_best_<id>)
+          • Auto-peek of goal portrait for 2.5s when puzzle opens (kids see the target)
+          • First-time tutorial overlay (AsyncStorage key jigsaw_tutorial_seen_v1, auto-dismiss 5s)
+          • Per-piece pulse animation when a piece lands in correct slot (Reanimated)
+          • Selected piece has subtle continuous pulse (Reanimated)
+          • Green checkmark badge on correctly-placed pieces (in addition to green border)
+          • Progress bar "N of 9 pieces in place" updates in real time
+          • Haptic feedback (expo-haptics): light tap on select/deselect, medium impact on swap,
+            success notification on solve. Web is no-op.
+          • Confetti burst (8 emoji items animated with translate + rotate + opacity) on celebration
+          • Celebration screen now shows time, moves, XP, badge AND "New Personal Best" trophy chip
+
+        Visual verification via screenshot tool with token injection (login form click is a
+        known Playwright-on-RN-web limitation, not a real bug):
+          • /jigsaw → renders all 5 puzzle cards with portraits, era, 3×3 chip, +30 XP chip
+          • Tap card → /jigsaw/sarojini-naidu → 9 pieces rendered, timer ticking, moves=0
+          • Tap two pieces → swap fires, moves=1, one piece lands correct → green checkmark
+            badge + green border + progress bar "1 of 9 pieces in place" + pulse animation
+
+        No backend changes — all existing endpoints remain green from the 37/37 assertion run.
+        testkid was reset to jigsaw_solved=[] for clean retest.
