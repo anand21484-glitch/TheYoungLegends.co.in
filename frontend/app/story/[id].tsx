@@ -16,64 +16,266 @@ import { HeroPortrait } from "../../src/components/HeroPortrait";
 
 type Mode = "idle" | "story" | "lessons";
 
-// --- Peppy / expressive TTS modulation (module scope) ----------------
-type Chunk = { text: string; pitch: number; rate: number; pauseAfterMs: number };
+// --- Warm storyteller TTS for kids (Azaadi Tales voice direction) ---------
+// Aim: Asian-neutral, warm, slightly slower than adult pace (85-90%),
+// reverent emphasis on hero names, dramatic pauses on dates & punchy lines,
+// rising intonation on questions, wonder on exclamations.
+type Chunk = {
+  text: string;
+  pitch: number;
+  rate: number;
+  pauseAfterMs: number;
+  pauseBeforeMs?: number;
+  reverent?: boolean;
+};
 
-function chunkAndModulate(rawText: string): Chunk[] {
+// ---- Voice picking: prefer warm female Enhanced/Neural Indian voices ------
+let _voicePicked: { en?: string; hi?: string } = {};
+let _voicePromise: Promise<void> | null = null;
+
+async function pickWarmVoices() {
+  if (_voicePromise) return _voicePromise;
+  _voicePromise = (async () => {
+    try {
+      const voices: any[] = await Speech.getAvailableVoicesAsync();
+      const scoreFor = (langPrefix: string) => (v: any) => {
+        if (!v?.language) return -1;
+        const langOk = v.language.toLowerCase().startsWith(langPrefix.toLowerCase());
+        if (!langOk) return -1;
+        const nm = ((v.name || "") + " " + (v.identifier || "")).toLowerCase();
+        let score = 1;
+        // Prefer female / warm storyteller voices
+        if (/female|woman|samantha|aarohi|aditi|raveena|kalpana|veena|google.*female/.test(nm)) score += 6;
+        // Quality boosts
+        if (/enhanced|premium|neural|natural|wavenet|studio/.test(nm)) score += 4;
+        if (v.quality === "Enhanced") score += 4;
+        if (/network|cloud/.test(nm)) score += 2;
+        // Penalise clearly male voices
+        if (/\bmale\b|man\b|rishi|aaron|daniel|fred|alex/.test(nm) && !/female/.test(nm)) score -= 4;
+        return score;
+      };
+      const pick = (langPrefix: string) =>
+        voices
+          .map((v) => ({ v, s: scoreFor(langPrefix)(v) }))
+          .filter((x) => x.s >= 0)
+          .sort((a, b) => b.s - a.s)[0]?.v?.identifier as string | undefined;
+
+      _voicePicked.en = pick("en-IN") || pick("en-GB") || pick("en-AU") || pick("en");
+      _voicePicked.hi = pick("hi-IN") || pick("hi");
+    } catch {
+      // Silently fall back to OS default voice
+    }
+  })();
+  return _voicePromise;
+}
+
+// ---- Hero name detection: reverent slow-down + post-pause -----------------
+const HERO_NAMES_EN = new RegExp(
+  [
+    "Mahatma Gandhi", "Mohandas Karamchand Gandhi", "Bapu",
+    "Bhagat Singh", "Sukhdev(?: Thapar)?", "Shivaram Rajguru", "Rajguru",
+    "Sardar Vallabhbhai Patel", "Sardar Patel", "Vallabhbhai Patel",
+    "Bal Gangadhar Tilak", "Lokmanya Tilak",
+    "Sarojini Naidu",
+    "Dr\\.?\\s*B\\.?\\s*R\\.?\\s*Ambedkar", "B\\.?\\s*R\\.?\\s*Ambedkar", "Bhimrao Ambedkar", "Ambedkar",
+    "Subhash Chandra Bose", "Netaji(?: Subhash Chandra Bose)?",
+    "Jawaharlal Nehru", "Pandit Nehru", "Chacha Nehru",
+    "Rani Lakshmibai", "Rani of Jhansi", "Jhansi Ki Rani",
+    "Tantia Tope", "Mangal Pandey",
+    "Lala Lajpat Rai", "Punjab Kesari",
+    "Chandrashekhar Azad", "Chandra Shekhar Azad",
+    "Khudiram Bose", "Birsa Munda", "Tipu Sultan",
+    "Veer Savarkar", "Vinayak Damodar Savarkar",
+    "Maulana Abul Kalam Azad", "Maulana Azad",
+    "Madan Lal Dhingra", "Aurobindo Ghosh", "Sri Aurobindo",
+    "Bipin Chandra Pal", "Gopal Krishna Gokhale", "Dadabhai Naoroji",
+    "Begum Hazrat Mahal", "Kasturba Gandhi",
+    "Bhagini Nivedita", "Sister Nivedita", "Annie Besant",
+    "Vinoba Bhave", "Lal Bahadur Shastri", "Rabindranath Tagore",
+    "Ashfaqulla Khan", "Ram Prasad Bismil",
+    "Alluri Sitarama Raju", "Kanaiyalal Maneklal Munshi",
+    "Bagha Jatin", "Jatindra Nath Mukherjee",
+    "Matangini Hazra", "Pritilata Waddedar",
+    "Kittur Chennamma", "Rani Chennamma",
+    "Bipin Pal", "C\\.?\\s*Rajagopalachari", "Rajaji",
+    "Bhikaiji Cama", "Madame Cama",
+    "Usha Mehta", "Captain Lakshmi Sahgal",
+  ].join("|"),
+  "g"
+);
+
+const HERO_NAMES_HI = new RegExp(
+  [
+    "महात्मा गांधी", "महात्मा गाँधी", "बापू",
+    "भगत सिंह", "सुखदेव", "राजगुरु",
+    "सरदार वल्लभभाई पटेल", "सरदार पटेल", "वल्लभभाई पटेल",
+    "बाल गंगाधर तिलक", "लोकमान्य तिलक",
+    "सरोजिनी नायडू",
+    "डॉ\\.?\\s*भीमराव अंबेडकर", "भीमराव अंबेडकर", "अंबेडकर", "बाबासाहेब",
+    "सुभाष चंद्र बोस", "नेताजी",
+    "जवाहरलाल नेहरू", "पंडित नेहरू", "चाचा नेहरू",
+    "रानी लक्ष्मीबाई", "झांसी की रानी",
+    "तांत्या टोपे", "मंगल पांडे",
+    "लाला लाजपत राय",
+    "चंद्रशेखर आज़ाद", "चंद्रशेखर आजाद",
+    "खुदीराम बोस", "बिरसा मुंडा", "टीपू सुल्तान",
+    "वीर सावरकर", "विनायक दामोदर सावरकर",
+    "मौलाना आज़ाद", "मौलाना अबुल कलाम आज़ाद",
+    "मदन लाल ढींगरा", "अरविंद घोष",
+    "बिपिन चंद्र पाल", "गोपाल कृष्ण गोखले", "दादाभाई नौरोजी",
+    "बेगम हज़रत महल", "कस्तूरबा गांधी",
+    "भगिनी निवेदिता", "एनी बेसेंट",
+    "विनोबा भावे", "लाल बहादुर शास्त्री", "रवींद्रनाथ टैगोर",
+    "अशफ़ाक़ुल्ला ख़ान", "राम प्रसाद बिस्मिल",
+    "रानी चेन्नम्मा", "मातंगिनी हाज़रा",
+    "उषा मेहता", "कैप्टन लक्ष्मी सहगल",
+  ].join("|"),
+  "g"
+);
+
+const DATE_RE_EN =
+  /\b(1[5-9]\d{2}|20\d{2})\b|\b\d{1,2}(st|nd|rd|th)?\s*(January|February|March|April|May|June|July|August|September|October|November|December)\b/i;
+const DATE_RE_HI = /\b(1[5-9]\d{2}|20\d{2})\b/;
+
+function splitOnHeroName(sentence: string, lang: "en" | "hi"):
+  Array<{ text: string; isHeroName?: boolean }> {
+  const re = lang === "hi" ? HERO_NAMES_HI : HERO_NAMES_EN;
+  re.lastIndex = 0;
+  const parts: Array<{ text: string; isHeroName?: boolean }> = [];
+  let lastIdx = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(sentence)) !== null) {
+    if (m.index > lastIdx) parts.push({ text: sentence.slice(lastIdx, m.index) });
+    parts.push({ text: m[0], isHeroName: true });
+    lastIdx = m.index + m[0].length;
+    if (m[0].length === 0) re.lastIndex++; // safety
+  }
+  if (lastIdx < sentence.length) parts.push({ text: sentence.slice(lastIdx) });
+  return parts.length ? parts : [{ text: sentence }];
+}
+
+// ---- Per-sentence emotional modulation ------------------------------------
+function chunkAndModulate(rawText: string, lang: "en" | "hi"): Chunk[] {
+  // Split on . ! ? । (Devanagari poorna viram)
   const sentenceRegex = /([^.!?।]+[.!?।]+|[^.!?।]+$)/g;
   const sentences: string[] = (rawText.match(sentenceRegex) || [rawText])
     .map((s) => s.trim())
     .filter(Boolean);
-  return sentences.map<Chunk>((s) => {
-    const lastChar = s.trim().slice(-1);
+
+  const dateRe = lang === "hi" ? DATE_RE_HI : DATE_RE_EN;
+  const chunks: Chunk[] = [];
+
+  sentences.forEach((s) => {
+    const lastChar = s.slice(-1);
+    const hasEmphasis = s.includes("!");
+    const hasQuestion = s.includes("?");
     const hasQuote = /["“”'‘’]/.test(s);
-    const hasEmphasis = /[!]/.test(s);
-    const hasQuestion = /[?]/.test(s);
-    const isNumbered = /^\d+\./.test(s.trim());
-    // Base warm storyteller tone
-    let pitch = 1.18;
-    let rate = 0.92;
-    let pauseAfterMs = 280;
+    const hasDate = dateRe.test(s);
+    const isNumbered = /^\s*\d+\./.test(s);
+    const isShort = s.length < 32;
+    const isLong = s.length > 110;
+
+    // Warm storyteller default — slower than adult pace, gentle pride
+    let pitch = 1.15;
+    let rate = 0.86;
+    let pauseAfterMs = 320;
+    let pauseBeforeMs = 0;
+
     if (hasEmphasis || lastChar === "!") {
-      pitch = 1.32; rate = 1.0; pauseAfterMs = 420;
+      // Wonder & excitement
+      pitch = 1.32; rate = 0.92; pauseAfterMs = 550; pauseBeforeMs = 120;
     } else if (hasQuestion || lastChar === "?") {
-      pitch = 1.28; rate = 0.92; pauseAfterMs = 380;
+      // Rising intonation, lean-in suspense
+      pitch = 1.30; rate = 0.88; pauseAfterMs = 480; pauseBeforeMs = 100;
+    } else if (hasDate) {
+      // Reverence on history & dates
+      pitch = 1.10; rate = 0.80; pauseAfterMs = 520;
     } else if (hasQuote) {
-      pitch = 1.42; rate = 0.9; pauseAfterMs = 300;
+      // Character dialogue
+      pitch = 1.38; rate = 0.88; pauseAfterMs = 380;
     } else if (isNumbered) {
-      pitch = 1.22; rate = 0.95; pauseAfterMs = 480;
-    } else if (s.length < 30) {
-      pitch = 1.24; rate = 0.95; pauseAfterMs = 320;
-    } else if (s.length > 110) {
-      pitch = 1.12; rate = 0.88; pauseAfterMs = 320;
+      pitch = 1.20; rate = 0.90; pauseAfterMs = 500;
+    } else if (isShort) {
+      // Punchy + dramatic pause
+      pitch = 1.24; rate = 0.86; pauseAfterMs = 500;
+    } else if (isLong) {
+      pitch = 1.10; rate = 0.84; pauseAfterMs = 360;
     }
-    const variation = ((s.charCodeAt(0) || 1) % 5 - 2) * 0.02;
+
+    // Subtle natural variation between sentences
+    const variation = (((s.charCodeAt(0) || 1) % 5) - 2) * 0.015;
     pitch = Math.max(0.85, Math.min(1.7, pitch + variation));
-    return { text: s, pitch, rate, pauseAfterMs };
+
+    // Split sentence on hero names → reverent micro-pause + slow-down
+    const parts = splitOnHeroName(s, lang);
+    if (parts.length === 1) {
+      chunks.push({ text: s, pitch, rate, pauseAfterMs, pauseBeforeMs });
+      return;
+    }
+    parts.forEach((p, i) => {
+      const isLast = i === parts.length - 1;
+      const txt = p.text.replace(/\s+/g, " ").trim();
+      if (!txt) return;
+      if (p.isHeroName) {
+        chunks.push({
+          text: txt,
+          pitch: Math.min(1.4, pitch + 0.05), // gentle reverent lift
+          rate: Math.max(0.72, rate - 0.10),  // slow down on the name
+          pauseAfterMs: isLast ? Math.max(pauseAfterMs, 420) : 380,
+          pauseBeforeMs: 160, // anticipation before the name lands
+          reverent: true,
+        });
+      } else {
+        chunks.push({
+          text: txt,
+          pitch,
+          rate,
+          pauseAfterMs: isLast ? pauseAfterMs : 90,
+          pauseBeforeMs: i === 0 ? pauseBeforeMs : 0,
+        });
+      }
+    });
   });
+
+  return chunks;
 }
 
+// ---- Playback queue --------------------------------------------------------
 let _speakQueueCancelled = false;
+
 function speakWithModulation(text: string, lang: "en" | "hi", onAllDone: () => void) {
   _speakQueueCancelled = false;
-  const chunks = chunkAndModulate(text);
+  const chunks = chunkAndModulate(text, lang);
   let idx = 0;
   const language = lang === "hi" ? "hi-IN" : "en-IN";
-  const next = () => {
+
+  const speakNext = () => {
     if (_speakQueueCancelled) { onAllDone(); return; }
     if (idx >= chunks.length) { onAllDone(); return; }
     const c = chunks[idx++];
-    Speech.speak(c.text, {
-      language, pitch: c.pitch, rate: c.rate,
-      onDone: () => {
-        if (_speakQueueCancelled) { onAllDone(); return; }
-        setTimeout(next, c.pauseAfterMs);
-      },
-      onStopped: () => { onAllDone(); },
-      onError: () => setTimeout(next, 80),
-    });
+    const voice = lang === "hi" ? _voicePicked.hi : _voicePicked.en;
+    const fire = () => {
+      if (_speakQueueCancelled) { onAllDone(); return; }
+      Speech.speak(c.text, {
+        language,
+        voice: voice || undefined,
+        pitch: c.pitch,
+        rate: c.rate,
+        onDone: () => {
+          if (_speakQueueCancelled) { onAllDone(); return; }
+          setTimeout(speakNext, c.pauseAfterMs);
+        },
+        onStopped: () => { onAllDone(); },
+        onError: () => setTimeout(speakNext, 80),
+      });
+    };
+    const lead = c.pauseBeforeMs || 0;
+    if (lead > 0) setTimeout(fire, lead);
+    else fire();
   };
-  next();
+
+  // Resolve warmest voice once, then start narration
+  pickWarmVoices().then(speakNext).catch(speakNext);
 }
 
 function cancelSpeech() {
