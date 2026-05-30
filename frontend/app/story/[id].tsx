@@ -29,39 +29,59 @@ type Chunk = {
   reverent?: boolean;
 };
 
-// ---- Voice picking: prefer warm female Enhanced/Neural Indian voices ------
-let _voicePicked: { en?: string; hi?: string } = {};
+// ---- Voice picking: STRONGLY prefer female storyteller voices -------------
+// We try Indian-English female first, then ANY English female (en-US/GB/AU),
+// then non-female only as a last resort. A "feminize" pitch boost is applied
+// if we ended up with a likely-male voice.
+let _voicePicked: { en?: string; hi?: string; enIsLikelyMale?: boolean } = {};
 let _voicePromise: Promise<void> | null = null;
+
+const FEMALE_HINTS = /female|woman|girl|samantha|karen|moira|tessa|fiona|veena|aarohi|aditi|raveena|kalpana|priya|swara|google.*female|en-in-x-cxx|en-in-x-end|en-in-x-ene/;
+const MALE_HINTS   = /\bmale\b|\bman\b|rishi|aaron|daniel|fred|alex|arthur|gordon|oliver|en-in-x-ahp|en-in-x-end-network/;
 
 async function pickWarmVoices() {
   if (_voicePromise) return _voicePromise;
   _voicePromise = (async () => {
     try {
       const voices: any[] = await Speech.getAvailableVoicesAsync();
-      const scoreFor = (langPrefix: string) => (v: any) => {
+      const scoreFor = (langPrefix: string, requireFemale: boolean) => (v: any) => {
         if (!v?.language) return -1;
         const langOk = v.language.toLowerCase().startsWith(langPrefix.toLowerCase());
         if (!langOk) return -1;
         const nm = ((v.name || "") + " " + (v.identifier || "")).toLowerCase();
+        const isFemale = FEMALE_HINTS.test(nm);
+        const isMale = MALE_HINTS.test(nm) && !isFemale;
+        if (requireFemale && !isFemale) return -1;
         let score = 1;
-        // Prefer female / warm storyteller voices
-        if (/female|woman|samantha|aarohi|aditi|raveena|kalpana|veena|google.*female/.test(nm)) score += 6;
-        // Quality boosts
-        if (/enhanced|premium|neural|natural|wavenet|studio/.test(nm)) score += 4;
-        if (v.quality === "Enhanced") score += 4;
-        if (/network|cloud/.test(nm)) score += 2;
-        // Penalise clearly male voices
-        if (/\bmale\b|man\b|rishi|aaron|daniel|fred|alex/.test(nm) && !/female/.test(nm)) score -= 4;
+        if (isFemale) score += 20;
+        if (/enhanced|premium|neural|natural|wavenet|studio/.test(nm)) score += 5;
+        if (v.quality === "Enhanced") score += 5;
+        if (/network|cloud|online/.test(nm)) score += 2;
+        if (isMale) score -= 10; // strongly avoid
         return score;
       };
-      const pick = (langPrefix: string) =>
+      const pickBest = (langPrefix: string, requireFemale: boolean) =>
         voices
-          .map((v) => ({ v, s: scoreFor(langPrefix)(v) }))
+          .map((v) => ({ v, s: scoreFor(langPrefix, requireFemale)(v) }))
           .filter((x) => x.s >= 0)
-          .sort((a, b) => b.s - a.s)[0]?.v?.identifier as string | undefined;
+          .sort((a, b) => b.s - a.s)[0]?.v;
 
-      _voicePicked.en = pick("en-IN") || pick("en-GB") || pick("en-AU") || pick("en");
-      _voicePicked.hi = pick("hi-IN") || pick("hi");
+      // EN: try Indian-female → any-English-female → en-IN (any) → any English
+      const enFemale =
+        pickBest("en-IN", true) ||
+        pickBest("en-GB", true) ||
+        pickBest("en-US", true) ||
+        pickBest("en-AU", true) ||
+        pickBest("en", true);
+      const enAny = enFemale || pickBest("en-IN", false) || pickBest("en", false);
+      _voicePicked.en = enAny?.identifier;
+      const enNm = ((enAny?.name || "") + " " + (enAny?.identifier || "")).toLowerCase();
+      _voicePicked.enIsLikelyMale = !FEMALE_HINTS.test(enNm) && (MALE_HINTS.test(enNm) || !enFemale);
+
+      // HI: female preferred, fall back to any Hindi
+      const hiFemale = pickBest("hi-IN", true) || pickBest("hi", true);
+      const hiAny = hiFemale || pickBest("hi-IN", false) || pickBest("hi", false);
+      _voicePicked.hi = hiAny?.identifier;
     } catch {
       // Silently fall back to OS default voice
     }
@@ -155,6 +175,9 @@ function splitOnHeroName(sentence: string, lang: "en" | "hi"):
 }
 
 // ---- Per-sentence emotional modulation ------------------------------------
+// PEPPY storyteller — fast, warm, expressive. Lots of variation so it never
+// sounds dull. Hero names still get reverent emphasis, but everything else
+// keeps moving at a lively, interactive pace.
 function chunkAndModulate(rawText: string, lang: "en" | "hi"): Chunk[] {
   // Split on . ! ? । (Devanagari poorna viram)
   const sentenceRegex = /([^.!?।]+[.!?।]+|[^.!?।]+$)/g;
@@ -165,7 +188,7 @@ function chunkAndModulate(rawText: string, lang: "en" | "hi"): Chunk[] {
   const dateRe = lang === "hi" ? DATE_RE_HI : DATE_RE_EN;
   const chunks: Chunk[] = [];
 
-  sentences.forEach((s) => {
+  sentences.forEach((s, sentIdx) => {
     const lastChar = s.slice(-1);
     const hasEmphasis = s.includes("!");
     const hasQuestion = s.includes("?");
@@ -175,38 +198,51 @@ function chunkAndModulate(rawText: string, lang: "en" | "hi"): Chunk[] {
     const isShort = s.length < 32;
     const isLong = s.length > 110;
 
-    // Warm storyteller default — slower than adult pace, gentle pride
-    let pitch = 1.15;
-    let rate = 0.86;
-    let pauseAfterMs = 320;
+    // Peppy storyteller default — natural adult-ish pace, warm & lively
+    let pitch = 1.22;
+    let rate = 0.96;
+    let pauseAfterMs = 200;
     let pauseBeforeMs = 0;
 
     if (hasEmphasis || lastChar === "!") {
-      // Wonder & excitement
-      pitch = 1.32; rate = 0.92; pauseAfterMs = 550; pauseBeforeMs = 120;
+      // Wonder & excitement — bright, snappy
+      pitch = 1.42; rate = 1.04; pauseAfterMs = 360; pauseBeforeMs = 60;
     } else if (hasQuestion || lastChar === "?") {
       // Rising intonation, lean-in suspense
-      pitch = 1.30; rate = 0.88; pauseAfterMs = 480; pauseBeforeMs = 100;
+      pitch = 1.36; rate = 0.98; pauseAfterMs = 320; pauseBeforeMs = 60;
     } else if (hasDate) {
-      // Reverence on history & dates
-      pitch = 1.10; rate = 0.80; pauseAfterMs = 520;
+      // Slight reverence on history & dates — but still moving
+      pitch = 1.18; rate = 0.90; pauseAfterMs = 340;
     } else if (hasQuote) {
-      // Character dialogue
-      pitch = 1.38; rate = 0.88; pauseAfterMs = 380;
+      // Character dialogue — playful
+      pitch = 1.46; rate = 1.00; pauseAfterMs = 260;
     } else if (isNumbered) {
-      pitch = 1.20; rate = 0.90; pauseAfterMs = 500;
+      pitch = 1.28; rate = 0.98; pauseAfterMs = 360;
     } else if (isShort) {
-      // Punchy + dramatic pause
-      pitch = 1.24; rate = 0.86; pauseAfterMs = 500;
+      // Punchy + brief drama pause
+      pitch = 1.32; rate = 0.98; pauseAfterMs = 320;
     } else if (isLong) {
-      pitch = 1.10; rate = 0.84; pauseAfterMs = 360;
+      pitch = 1.18; rate = 0.94; pauseAfterMs = 220;
     }
 
-    // Subtle natural variation between sentences
-    const variation = (((s.charCodeAt(0) || 1) % 5) - 2) * 0.015;
-    pitch = Math.max(0.85, Math.min(1.7, pitch + variation));
+    // Strong natural variation between sentences so it doesn't feel scripted
+    const v1 = (((s.charCodeAt(0) || 1) % 7) - 3) * 0.025; // pitch jitter ±0.075
+    const v2 = (((s.charCodeAt(s.length - 1) || 1) % 5) - 2) * 0.015; // rate jitter ±0.03
+    pitch = Math.max(0.9, Math.min(1.75, pitch + v1));
+    rate = Math.max(0.82, Math.min(1.12, rate + v2));
 
-    // Split sentence on hero names → reverent micro-pause + slow-down
+    // Every ~5th sentence: extra zing for storytelling rhythm
+    if (sentIdx > 0 && sentIdx % 5 === 0) {
+      pitch = Math.min(1.75, pitch + 0.05);
+      pauseAfterMs = Math.max(pauseAfterMs, 280);
+    }
+
+    // Apply "feminize" lift if we ended up with a male voice
+    if (lang === "en" && _voicePicked.enIsLikelyMale) {
+      pitch = Math.min(1.85, pitch + 0.12);
+    }
+
+    // Split sentence on hero names → reverent micro-pause + slight slow-down
     const parts = splitOnHeroName(s, lang);
     if (parts.length === 1) {
       chunks.push({ text: s, pitch, rate, pauseAfterMs, pauseBeforeMs });
@@ -219,10 +255,10 @@ function chunkAndModulate(rawText: string, lang: "en" | "hi"): Chunk[] {
       if (p.isHeroName) {
         chunks.push({
           text: txt,
-          pitch: Math.min(1.4, pitch + 0.05), // gentle reverent lift
-          rate: Math.max(0.72, rate - 0.10),  // slow down on the name
-          pauseAfterMs: isLast ? Math.max(pauseAfterMs, 420) : 380,
-          pauseBeforeMs: 160, // anticipation before the name lands
+          pitch: Math.min(1.55, pitch + 0.06), // bright reverent lift
+          rate: Math.max(0.82, rate - 0.06),   // small slow-down (was -0.10)
+          pauseAfterMs: isLast ? Math.max(pauseAfterMs, 280) : 240,
+          pauseBeforeMs: 100, // anticipation before the name lands
           reverent: true,
         });
       } else {
@@ -230,7 +266,7 @@ function chunkAndModulate(rawText: string, lang: "en" | "hi"): Chunk[] {
           text: txt,
           pitch,
           rate,
-          pauseAfterMs: isLast ? pauseAfterMs : 90,
+          pauseAfterMs: isLast ? pauseAfterMs : 70,
           pauseBeforeMs: i === 0 ? pauseBeforeMs : 0,
         });
       }
