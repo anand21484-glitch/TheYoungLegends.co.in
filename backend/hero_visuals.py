@@ -297,4 +297,144 @@ HERO_VISUALS = {
             "style. Head-and-shoulders. Plain off-white parchment background."
         ),
     },
+
+    # ---------- 16 additional heroes (added with stories_seed_extra) ----------
+    "ram-prasad-bismil": {
+        "monument": "ashoka_pillar",
+        "portrait_prompt": (
+            "A warm illustrated portrait of Ram Prasad Bismil, young Indian revolutionary poet from the 1920s, "
+            "neat short hair, thin moustache, kind determined eyes, wearing simple white kurta with shawl, "
+            "holding a small notebook of poems. Children's storybook watercolor cartoon style. Head-and-shoulders. "
+            "Plain off-white parchment background. Subtle tricolor halo."
+        ),
+    },
+    "ashfaqulla-khan": {
+        "monument": "ashoka_pillar",
+        "portrait_prompt": (
+            "A warm illustrated portrait of Ashfaqullah Khan, young 1920s Indian Muslim freedom fighter, "
+            "wearing a small white cap, kind smiling face, light beard, simple sherwani, gentle eyes. "
+            "Children's storybook watercolor cartoon style. Head-and-shoulders. Plain off-white parchment background."
+        ),
+    },
+    "kunwar-singh": {
+        "monument": "jhansi_fort",
+        "portrait_prompt": (
+            "A warm illustrated portrait of Veer Kunwar Singh of Bihar, brave 80-year-old Indian warrior king of 1857, "
+            "long white beard, large turban with feather, ornate royal robe, sword at side, fierce wise eyes. "
+            "Children's storybook watercolor cartoon style. Head-and-shoulders. Plain off-white parchment background."
+        ),
+    },
+    "tara-rani-srivastava": {
+        "monument": "india_gate",
+        "portrait_prompt": (
+            "A warm illustrated portrait of Tara Rani Srivastava, brave young Indian woman freedom fighter of 1942, "
+            "wearing a simple white khadi sari with red border, hair in a low bun, calm determined face, "
+            "holding the Indian tricolor flag. Children's storybook watercolor cartoon style. Head-and-shoulders. "
+            "Plain off-white parchment background."
+        ),
+    },
+    "aurobindo-ghosh": {
+        "monument": "ashoka_pillar",
+        "portrait_prompt": (
+            "A warm illustrated portrait of Sri Aurobindo Ghosh, Indian yogi-revolutionary, long flowing white hair "
+            "and white beard, deep peaceful eyes, simple white robe, meditative expression. "
+            "Children's storybook watercolor cartoon style. Head-and-shoulders. Plain off-white parchment background."
+        ),
+    },
+    "veer-surendra-sai": {
+        "monument": "jhansi_fort",
+        "portrait_prompt": (
+            "A warm illustrated portrait of Veer Surendra Sai, Odisha warrior prince of the 1800s, "
+            "long thick black moustache, turban with feather, royal tribal robes, sword in hand, fierce kind eyes. "
+            "Children's storybook watercolor cartoon style. Head-and-shoulders. Plain off-white parchment background."
+        ),
+    },
+    "bhima-bhoi": {
+        "monument": "ashoka_pillar",
+        "portrait_prompt": (
+            "A warm illustrated portrait of Bhima Bhoi, blind tribal poet-philosopher of Odisha, "
+            "closed peaceful eyes, gentle smile, long beard, simple saffron robe, lotus garland, "
+            "wise calm face. Children's storybook watercolor cartoon style. Head-and-shoulders. "
+            "Plain off-white parchment background."
+        ),
+    },
+    "uyyalawada-narasimha-reddy": {
+        "monument": "charminar",
+        "portrait_prompt": (
+            "A warm illustrated portrait of Uyyalawada Narasimha Reddy, Andhra Pradesh chieftain of the 1840s, "
+            "thick black moustache, large turban, royal silk robes, sword and shield, brave determined eyes. "
+            "Children's storybook watercolor cartoon style. Head-and-shoulders. Plain off-white parchment background."
+        ),
+    },
+    "abbakka-chowta": {
+        "monument": "gateway_india",
+        "portrait_prompt": (
+            "A warm illustrated portrait of Rani Abbakka Chowta, 16th-century warrior queen of Ullal Karnataka, "
+            "elegant traditional South Indian queenly attire with gold jewellery, long hair tied with flowers, "
+            "holding a sword, fierce kind face, ocean breeze. Children's storybook watercolor cartoon style. "
+            "Head-and-shoulders. Plain off-white parchment background."
+        ),
+    },
+    "pazhassi-raja": {
+        "monument": "gateway_india",
+        "portrait_prompt": (
+            "A warm illustrated portrait of Pazhassi Raja of Kerala, late-1700s warrior king of Wayanad, "
+            "broad moustache, traditional Kerala mundu and gold-bordered shawl, ornate turban, "
+            "fierce brave eyes, holding a sword. Children's storybook watercolor cartoon style. "
+            "Head-and-shoulders. Plain off-white parchment background."
+        ),
+    },
+    "kattabomman": {
+        "monument": "charminar",
+        "portrait_prompt": (
+            "A warm illustrated portrait of Veerapandiya Kattabomman, late-1700s Tamil chieftain, "
+            "tall figure, large twisted black moustache, ornate turban with jewel, traditional South Indian "
+            "warrior robes with red sash, sword in hand, defiant brave face. Children's storybook watercolor "
+            "cartoon style. Head-and-shoulders. Plain off-white parchment background."
+        ),
+    },
+    "puli-thevar": {
+        "monument": "charminar",
+        "portrait_prompt": (
+            "A warm illustrated portrait of Puli Thevar, mid-1700s Tamil warrior chieftain, "
+            "fierce eyes, big moustache, simple cotton turban, traditional Tamil warrior attire with sword, "
+            "tiger-like determined expression. Children's storybook watercolor cartoon style. "
+            "Head-and-shoulders. Plain off-white parchment background."
+        ),
+    },
+    "kanaklata-barua": {
+        "monument": "india_gate",
+        "portrait_prompt": (
+            "A warm illustrated portrait of Kanaklata Barua, brave 17-year-old Assamese girl of 1942, "
+            "wearing the traditional Assamese mekhela chador (white with red border), simple braided hair, "
+            "bright determined kind eyes, holding the Indian tricolor flag. Children's storybook watercolor "
+            "cartoon style. Head-and-shoulders. Plain off-white parchment background."
+        ),
+    },
+    "kushal-konwar": {
+        "monument": "india_gate",
+        "portrait_prompt": (
+            "A warm illustrated portrait of Kushal Konwar, gentle Assamese schoolteacher and freedom fighter of 1940s, "
+            "kind calm eyes, neat hair, traditional Assamese white khadi attire with shawl, soft smile. "
+            "Children's storybook watercolor cartoon style. Head-and-shoulders. Plain off-white parchment background."
+        ),
+    },
+    "tirot-sing": {
+        "monument": "jhansi_fort",
+        "portrait_prompt": (
+            "A warm illustrated portrait of U Tirot Sing, early-1800s Khasi tribal chief from Meghalaya, "
+            "wearing traditional Khasi attire with feathered headgear, long earrings, dignified strong face, "
+            "holding a traditional sword. Children's storybook watercolor cartoon style. Head-and-shoulders. "
+            "Plain off-white parchment background."
+        ),
+    },
+    "rani-gaidinliu": {
+        "monument": "india_gate",
+        "portrait_prompt": (
+            "A warm illustrated portrait of Rani Gaidinliu, brave young Naga woman freedom fighter, "
+            "wearing traditional Naga tribal dress with red, black and white woven stripes, beaded necklace, "
+            "feathered headgear, fierce kind eyes. Children's storybook watercolor cartoon style. "
+            "Head-and-shoulders. Plain off-white parchment background."
+        ),
+    },
 }

@@ -47,9 +47,9 @@ FREEDOM_FIGHTERS = [
     ("rani-lakshmibai", "Rani Lakshmibai", "Jhansi, UP", 25.5, 78.6,
         "A queen who fought like a warrior — sword in hand!", -10, -6, "rani-lakshmibai"),
     ("ram-prasad-bismil", "Ram Prasad Bismil", "Uttar Pradesh", 27.0, 80.5,
-        "A poet whose words shook an empire.", 8, -10, None),
+        "A poet whose words shook an empire.", 8, -10, "ram-prasad-bismil"),
     ("ashfaqulla-khan", "Ashfaqulla Khan", "Uttar Pradesh", 26.5, 80.0,
-        "Best friends with Bismil — they fought side by side!", 18, 2, None),
+        "Best friends with Bismil — they fought side by side!", 18, 2, "ashfaqulla-khan"),
     ("begum-hazrat-mahal", "Begum Hazrat Mahal", "Lucknow, UP", 26.85, 80.95,
         "A queen who led an entire army against the British!", -2, 14, "begum-hazrat-mahal"),
 
@@ -59,9 +59,9 @@ FREEDOM_FIGHTERS = [
         "A master strategist of the 1857 uprising!", 12, 8, "tantia-tope"),
 
     ("kunwar-singh", "Kunwar Singh", "Bihar", 25.5, 84.7,
-        "Eighty years old and STILL fighting for freedom!", -6, 0, None),
+        "Eighty years old and STILL fighting for freedom!", -6, 0, "kunwar-singh"),
     ("tara-rani-srivastava", "Tara Rani Srivastava", "Bihar", 25.7, 85.2,
-        "She carried the tricolor even after her husband fell.", 10, 12, None),
+        "She carried the tricolor even after her husband fell.", 10, 12, "tara-rani-srivastava"),
 
     ("subhas-bose", "Subhas Chandra Bose", "West Bengal", 22.6, 88.4,
         "'Give me blood, and I shall give you freedom!'", -10, -10, "subhas-bose"),
@@ -70,7 +70,7 @@ FREEDOM_FIGHTERS = [
     ("bipin-pal", "Bipin Chandra Pal", "West Bengal", 22.9, 88.6,
         "Part of the famous 'Lal-Bal-Pal' trio!", 18, 8, "bipin-pal"),
     ("aurobindo-ghosh", "Aurobindo Ghosh", "West Bengal", 22.4, 88.2,
-        "A scholar, poet, and freedom fighter!", -16, 12, None),
+        "A scholar, poet, and freedom fighter!", -16, 12, "aurobindo-ghosh"),
     ("matangini-hazra", "Matangini Hazra", "West Bengal", 22.1, 87.8,
         "She marched holding our flag until her last breath.", -22, 24, "matangini-hazra"),
 
@@ -78,9 +78,9 @@ FREEDOM_FIGHTERS = [
         "A tribal hero who became a god to his people!", 0, 0, "birsa-munda"),
 
     ("veer-surendra-sai", "Veer Surendra Sai", "Odisha", 21.5, 84.0,
-        "Spent 37 years in jail and never gave up!", -6, -8, None),
+        "Spent 37 years in jail and never gave up!", -6, -8, "veer-surendra-sai"),
     ("bhima-bhoi", "Bhima Bhoi", "Odisha", 20.5, 84.5,
-        "A blind poet whose songs woke up a nation.", 10, 10, None),
+        "A blind poet whose songs woke up a nation.", 10, 10, "bhima-bhoi"),
 
     ("mahatma-gandhi", "Mahatma Gandhi", "Gujarat", 22.5, 71.5,
         "He defeated an empire with peace and a smile.", 0, 0, "mahatma-gandhi"),
@@ -95,7 +95,7 @@ FREEDOM_FIGHTERS = [
     ("alluri-sitarama-raju", "Alluri Sitarama Raju", "Andhra Pradesh", 17.5, 82.5,
         "A jungle warrior who fought with bow and arrow!", -10, -4, "alluri-sitarama-raju"),
     ("uyyalawada-narasimha-reddy", "Uyyalawada Narasimha Reddy", "Andhra Pradesh", 15.5, 78.5,
-        "He rebelled against the British 60 years before 1857!", 8, 14, None),
+        "He rebelled against the British 60 years before 1857!", 8, 14, "uyyalawada-narasimha-reddy"),
 
     ("sarojini-naidu", "Sarojini Naidu", "Telangana", 17.4, 78.5,
         "India's 'Nightingale' — poet AND freedom fighter!", 0, 0, "sarojini-naidu"),
@@ -103,26 +103,26 @@ FREEDOM_FIGHTERS = [
     ("kittur-chennamma", "Kittur Chennamma", "Karnataka", 15.5, 74.8,
         "A warrior queen who refused to bow to British rule!", -10, -8, "kittur-chennamma"),
     ("abbakka-chowta", "Abbakka Chowta", "Karnataka", 13.0, 74.8,
-        "She defended her city for over 40 years!", 8, 12, None),
+        "She defended her city for over 40 years!", 8, 12, "abbakka-chowta"),
 
     ("pazhassi-raja", "Pazhassi Raja", "Kerala", 11.5, 75.5,
-        "The 'Lion of Kerala' who fought from the forests!", 0, 0, None),
+        "The 'Lion of Kerala' who fought from the forests!", 0, 0, "pazhassi-raja"),
 
     ("kattabomman", "Veerapandiya Kattabomman", "Tamil Nadu", 9.0, 77.7,
-        "A fearless chieftain who said NO to British taxes!", -6, -10, None),
+        "A fearless chieftain who said NO to British taxes!", -6, -10, "kattabomman"),
     ("puli-thevar", "Puli Thevar", "Tamil Nadu", 8.7, 77.4,
-        "One of the FIRST kings to fight the British!", 10, 10, None),
+        "One of the FIRST kings to fight the British!", 10, 10, "puli-thevar"),
 
     ("kanaklata-barua", "Kanaklata Barua", "Assam", 26.5, 92.5,
-        "Only 17 years old when she carried the flag — bravely!", -6, -8, None),
+        "Only 17 years old when she carried the flag — bravely!", -6, -8, "kanaklata-barua"),
     ("kushal-konwar", "Kushal Konwar", "Assam", 26.8, 93.5,
-        "He gave his life for the Quit India movement.", 10, 8, None),
+        "He gave his life for the Quit India movement.", 10, 8, "kushal-konwar"),
 
     ("tirot-sing", "U Tirot Sing", "Meghalaya", 25.5, 91.5,
-        "A tribal chief who battled the British in the hills!", 0, 0, None),
+        "A tribal chief who battled the British in the hills!", 0, 0, "tirot-sing"),
 
     ("rani-gaidinliu", "Rani Gaidinliu", "Manipur/Nagaland", 25.5, 94.0,
-        "She started leading her people at just 13 years old!", 0, 0, None),
+        "She started leading her people at just 13 years old!", 0, 0, "rani-gaidinliu"),
 ]
 
 

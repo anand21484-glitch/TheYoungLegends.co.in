@@ -386,8 +386,42 @@ async def get_story_portrait(story_id: str):
         png_bytes = __import__("base64").b64decode(png_b64)
         return Response(content=png_bytes, media_type="image/png", headers={"Cache-Control": "public, max-age=2592000"})
     except Exception as e:
-        log.exception("Portrait generation failed for %s", story_id)
-        raise HTTPException(503, f"Portrait generation temporarily unavailable: {e}")
+        log.exception("Gemini portrait failed for %s, trying Pollinations.ai fallback", story_id)
+        # ---- Pollinations.ai fallback (free, no key) ----
+        try:
+            import httpx
+            from urllib.parse import quote
+            seed = abs(hash(story_id)) % 100000
+            url = (
+                f"https://image.pollinations.ai/prompt/{quote(vis['portrait_prompt'])}"
+                f"?width=512&height=512&nologo=true&seed={seed}"
+            )
+            async with httpx.AsyncClient(timeout=60.0, follow_redirects=True) as cli:
+                r = await cli.get(url)
+                r.raise_for_status()
+                png_bytes = r.content
+                if not png_bytes or len(png_bytes) < 1000:
+                    raise RuntimeError("Empty image from Pollinations")
+                png_b64 = __import__("base64").b64encode(png_bytes).decode()
+                await db.portraits.update_one(
+                    {"story_id": story_id},
+                    {"$set": {
+                        "story_id": story_id,
+                        "png_b64": png_b64,
+                        "mime_type": "image/jpeg",
+                        "source": "pollinations",
+                        "created_at": datetime.now(timezone.utc).isoformat(),
+                    }},
+                    upsert=True,
+                )
+                return Response(
+                    content=png_bytes,
+                    media_type="image/jpeg",
+                    headers={"Cache-Control": "public, max-age=2592000"},
+                )
+        except Exception as e2:
+            log.exception("Pollinations fallback also failed for %s", story_id)
+            raise HTTPException(503, f"Portrait generation temporarily unavailable")
 
 
 @api.post("/admin/regenerate-portrait/{story_id}")

@@ -612,6 +612,42 @@ agent_communication:
         No critical issues. Freedom Map API is production-ready.
     - agent: "main"
       message: |
+        Added 16 new stories + Pollinations portrait cache + freedom map upgrade.
+
+        New backend file: /app/backend/stories_seed_extra.py (16 stories ~1.2K chars each
+        in English + Hindi, 4 lessons each, 5-question bilingual quizzes):
+          Ram Prasad Bismil, Ashfaqullah Khan, Kunwar Singh, Tara Rani Srivastava,
+          Aurobindo Ghosh, Veer Surendra Sai, Bhima Bhoi, Uyyalawada Narasimha Reddy,
+          Abbakka Chowta, Pazhassi Raja, Veerapandiya Kattabomman, Puli Thevar,
+          Kanaklata Barua, Kushal Konwar, U Tirot Sing, Rani Gaidinliu.
+        Wired into stories_seed.py STORIES.extend(EXTRA_STORIES) → catalog now 46 stories.
+
+        hero_visuals.py: Added 16 entries with monument mapping + portrait_prompt for each
+        (kid-friendly watercolor storybook style descriptions, parchment background).
+
+        Portrait endpoint upgrade (/api/stories/{id}/portrait): When Gemini Nano Banana
+        fails (e.g., Emergent budget cap), automatically falls back to Pollinations.ai
+        free image API, downloads PNG/JPEG, stores in db.portraits as base64. Subsequent
+        calls served instantly from cache (Cache-Control: 30 days).
+
+        Pre-caching: scripts_cache_new_portraits.py downloaded all 16 new portraits via
+        Pollinations.ai and stored in db.portraits (38-73 KB each, ~14 OK on first pass,
+        2 retried successfully on second). Total 16/16 cached.
+
+        freedom_map.py: Patched all 16 hero tuples — story_id is now their hero_id, so the
+        Freedom Map "Meet [Name]!" button navigates to a real story for ALL 35 heroes
+        (no more "Story coming soon!" chips).
+
+        Verified end-to-end via screenshot: /story/kanaklata-barua renders the new pastel
+        pink hero header, the Pollinations-generated portrait (Assamese attire, braid,
+        flag), full 1337-char English story, 4 lessons card, EN/हिं language toggle,
+        India Gate monument SVG floating in the animated background.
+
+        Quiz endpoint /api/stories/{id}/quiz returns 5 bilingual questions for each new
+        hero (answer field stripped on the client-facing response). All 35 freedom-map
+        heroes return has_story=true.
+    - agent: "main"
+      message: |
         Freedom Map of India screen COMPLETE.
 
         Backend (server.py + freedom_map.py):

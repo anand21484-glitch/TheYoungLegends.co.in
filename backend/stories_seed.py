@@ -462,6 +462,12 @@ try:
 except Exception as _e:
     pass
 
+try:
+    from stories_seed_extra import EXTRA_STORIES
+    STORIES.extend(EXTRA_STORIES)
+except Exception as _e:
+    pass
+
 
 # ==========================================================
 # Merge AI-generated + manual extra quiz questions onto each story.
