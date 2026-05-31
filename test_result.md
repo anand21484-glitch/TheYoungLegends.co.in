@@ -679,3 +679,60 @@ agent_communication:
           • Heroes with stories link to /story/{id}, heroes without show
             "Story coming soon!" and gracefully stay on the map
 
+
+
+    -agent: "main"
+    -message: |
+        ✅ "Repeat the Battle Cry!" feature — verification & polish complete.
+
+        Key fixes applied:
+          1) `/app/frontend/app/battlecry/[id].tsx`:
+             - Wired up the missing entrance choreography trigger. Previously
+               `startIntro()` was never called after data loaded, so the screen
+               sat on a static "..." forever. Added a dedicated `useEffect` with
+               an `introStartedRef` guard so the portrait zoom + word-by-word
+               reveal of the cry now fires reliably right after the API returns.
+             - Replaced the blind 5-second recording with REAL volume-threshold
+               detection: enabled `isMeteringEnabled` on
+               `prepareToRecordAsync` and registered
+               `setOnRecordingStatusUpdate` to track peak metering. When the
+               kid roars loudly (>= -20 dB) the celebration triggers within
+               ~700 ms (so they can finish the phrase). Soft voices still
+               always celebrate at the 5 s auto-stop — every kid wins.
+             - Made the "shy" nudge actually meaningful: it now appears at
+               ~2.8 s ONLY if no loud audio has been detected yet (max
+               metering < -35 dB), instead of being dead code after the
+               recording had already auto-stopped.
+             - Added a `Platform.OS === "web"` short-circuit in `tapMic` — on
+               web the recording API isn't reliable, so the mic tap goes
+               straight to the celebrate/reward path with the proper API
+               call still made.
+             - Guard against double-tap during the "shy" prompt.
+
+          2) `/app/frontend/app/battlecry/index.tsx`:
+             - Fixed the locked Mega Badge banner contrast (dark text on dark
+               background was nearly invisible) by introducing
+               `megaTitleLight` / `megaSubLight` for the unlocked gold state
+               and switching the locked default to white text.
+             - Clamped the "Complete X more" counter at zero to avoid
+               negatives if the API ever lags behind.
+
+        End-to-end verification (web screenshot):
+          • Portrait zooms in, cry text reveals "Inquilab Zindabad!"
+            word-by-word, meaning + origin fade in correctly, prompt appears.
+          • Glowing orange mic button pulses, "Tap the mic to begin" hint shown.
+          • Tapping the mic (web fallback path) opens the Celebration modal:
+            Lion emoji, "Incredible!", "Battle Cry Badge Earned — Bhagat Singh",
+            +10 XP chip, Say it Again / Continue actions. API
+            `POST /api/battle-cries/{id}/complete` is hit and returns 200.
+          • Battle Cry Wall list renders all 15 heroes with portraits, cries,
+            meanings; completed cries get a green check + gold border; mega
+            badge banner is readable in both locked & unlocked states.
+          • Auto-redirect from `/story/{id}` to `/battlecry/{id}?from=story`
+            confirmed wired for the 15 heroes that have a cry.
+
+        Mic volume threshold testing on a real device is still pending (web
+        path falls back to immediate celebrate), but the metering listener
+        is now correctly attached and the recording path is robust against
+        permission denial, recording errors, and silent users.
+

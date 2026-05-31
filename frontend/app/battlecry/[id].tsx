@@ -48,6 +48,9 @@ export default function BattleCryScreen() {
   const recTimerRef = useRef<any>(null);
   const shyTimerRef = useRef<any>(null);
   const phaseRef = useRef<Phase>("intro");
+  const maxMeteringRef = useRef<number>(-160);
+  const earlySuccessRef = useRef<boolean>(false);
+  const introStartedRef = useRef<boolean>(false);
 
   // Animated values
   const portraitScale = useSharedValue(0.4);
@@ -59,6 +62,16 @@ export default function BattleCryScreen() {
   useEffect(() => {
     phaseRef.current = phase;
   }, [phase]);
+
+  // Kick off the entrance choreography once data has loaded
+  useEffect(() => {
+    if (!loading && data && !introStartedRef.current) {
+      introStartedRef.current = true;
+      // Tiny delay to let SafeAreaView mount cleanly
+      setTimeout(() => startIntro(data.cry), 200);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, data]);
 
   // Load data + audio
   useEffect(() => {
@@ -164,7 +177,12 @@ export default function BattleCryScreen() {
 
   // ---------- Recording flow ----------
   const tapMic = async () => {
-    if (phaseRef.current === "recording") return;
+    if (phaseRef.current === "recording" || phaseRef.current === "shy") return;
+    // Web platform doesn't reliably support expo-av Recording — fall back to tap-celebrate
+    if (Platform.OS === "web") {
+      celebrate();
+      return;
+    }
     if (permissionDenied) { celebrate(); return; }
     try {
       const perm = await Audio.requestPermissionsAsync();
@@ -176,9 +194,35 @@ export default function BattleCryScreen() {
         );
         return;
       }
-      // Start recording
+
+      // Reset trackers
+      maxMeteringRef.current = -160;
+      earlySuccessRef.current = false;
+
+      // Start recording WITH metering enabled (volume threshold detection)
       const rec = new Audio.Recording();
-      await rec.prepareToRecordAsync(Audio.RecordingOptionsPresets.LOW_QUALITY);
+      const opts: any = {
+        ...Audio.RecordingOptionsPresets.LOW_QUALITY,
+        isMeteringEnabled: true,
+      };
+      await rec.prepareToRecordAsync(opts);
+
+      // Listen for metering updates to detect a "roar"
+      rec.setOnRecordingStatusUpdate((status: any) => {
+        if (!status?.isRecording) return;
+        const m: number = typeof status.metering === "number" ? status.metering : -160;
+        if (m > maxMeteringRef.current) maxMeteringRef.current = m;
+
+        // -20 dB = decent shout/loud voice. -10 dB = full roar.
+        // Trigger early success once the kid has roared loudly enough
+        if (!earlySuccessRef.current && m >= -20) {
+          earlySuccessRef.current = true;
+          // Small grace window so they finish the cry, then celebrate
+          setTimeout(() => {
+            if (phaseRef.current === "recording") stopAndCelebrate();
+          }, 700);
+        }
+      });
       await rec.startAsync();
       recordingRef.current = rec;
       setPhase("recording");
@@ -192,15 +236,15 @@ export default function BattleCryScreen() {
       );
       ringScale.value = withRepeat(withTiming(1, { duration: 1100, easing: Easing.out(Easing.ease) }), -1);
 
-      // 5-sec max window → auto stop & celebrate
+      // Auto-stop after 5 s — always celebrates (even soft voices count)
       recTimerRef.current = setTimeout(() => stopAndCelebrate(), 5000);
-      // 8-sec shy timer — if still recording after 8 s (impossible since rec auto-stops at 5s),
-      // but we use this in a different sense: if user never speaks (no sound), show gentle prompt.
-      // We approximate with a 4-sec check on metering. For simplicity, if user hasn't progressed
-      // past "recording" within 8s we show shy.
+
+      // Shy nudge after 2.8 s if we haven't heard anything loud yet
       shyTimerRef.current = setTimeout(() => {
-        if (phaseRef.current === "recording") setPhase("shy");
-      }, 8000);
+        if (phaseRef.current === "recording" && maxMeteringRef.current < -35) {
+          setPhase("shy");
+        }
+      }, 2800);
     } catch (e) {
       console.warn("recording error", e);
       celebrate();

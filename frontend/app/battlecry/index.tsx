@@ -76,13 +76,13 @@ export default function BattleCryWall() {
       <View style={[styles.megaBanner, freedomVoiceUnlocked ? styles.megaUnlocked : styles.megaLocked]}>
         <Text style={styles.megaEmoji}>{freedomVoiceUnlocked ? "🏆" : "🔒"}</Text>
         <View style={{ flex: 1 }}>
-          <Text style={styles.megaTitle}>
+          <Text style={[styles.megaTitle, freedomVoiceUnlocked && styles.megaTitleLight]}>
             {freedomVoiceUnlocked ? "The Freedom Voice" : `${threshold} cries → MEGA BADGE`}
           </Text>
-          <Text style={styles.megaSub}>
+          <Text style={[styles.megaSub, freedomVoiceUnlocked && styles.megaSubLight]}>
             {freedomVoiceUnlocked
               ? "You spoke for India!"
-              : `Complete ${threshold - completedCount} more to unlock 🦁`}
+              : `Complete ${Math.max(0, threshold - completedCount)} more to unlock 🦁`}
           </Text>
         </View>
       </View>
@@ -160,8 +160,10 @@ const styles = StyleSheet.create({
   megaUnlocked: { backgroundColor: "#FFD93D", borderColor: "#FF7A1A" },
   megaLocked: { backgroundColor: "#1F2A52", borderColor: "#FFFFFF44" },
   megaEmoji: { fontSize: 32 },
-  megaTitle: { color: "#0B1437", fontSize: 14, fontWeight: "900" },
-  megaSub: { color: "#0B1437DD", fontSize: 11, fontWeight: "700", marginTop: 2 },
+  megaTitle: { color: "#FFFFFF", fontSize: 14, fontWeight: "900" },
+  megaTitleLight: { color: "#0B1437" },
+  megaSub: { color: "#FFFFFFAA", fontSize: 11, fontWeight: "700", marginTop: 2 },
+  megaSubLight: { color: "#0B1437DD" },
   scroll: { paddingHorizontal: 14, paddingTop: 8, paddingBottom: 40, gap: 10 },
   card: {
     flexDirection: "row", alignItems: "center", gap: 12,
