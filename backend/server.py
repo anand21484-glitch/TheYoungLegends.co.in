@@ -1004,6 +1004,11 @@ from freedom_map import (
     get_freedom_map_data, FREEDOM_MAP_TOTAL,
     FREEDOM_MAP_BADGE, FREEDOM_MAP_XP_PER_DISCOVERY,
 )
+from battle_cries import (
+    BATTLE_CRIES, BATTLE_CRY_BADGE_PREFIX, BATTLE_CRY_XP_PER_COMPLETION,
+    FREEDOM_VOICE_BADGE, FREEDOM_VOICE_THRESHOLD,
+    all_cries, has_cry, get_cry,
+)
 
 
 @api.get("/freedom-map")
@@ -1075,6 +1080,98 @@ async def freedom_map_discover(hero_id: str, user=Depends(get_current_user)):
         "badge_awarded": badge_awarded,
         "discovered_count": len(discovered),
         "total": FREEDOM_MAP_TOTAL,
+        "user": serialize_user(fresh).model_dump(),
+    }
+
+
+# ===================== Battle Cries =====================
+@api.get("/battle-cries")
+async def battle_cries_list(user=Depends(get_current_user)):
+    """List all 15 battle cries with the user's completion status."""
+    done = list(user.get("battle_cries_done") or [])
+    items = []
+    for c in all_cries():
+        hid = c["hero_id"]
+        # Pull the hero name & color from the stories catalog for display
+        s = next((x for x in STORIES if x["id"] == hid), None)
+        items.append({
+            **c,
+            "hero_name": (s or {}).get("name", hid.replace("-", " ").title()),
+            "hero_color": (s or {}).get("color", "#FF7A1A"),
+            "portrait_url": f"/api/stories/{hid}/portrait" if s else None,
+            "completed": hid in done,
+            "badge_id": f"{BATTLE_CRY_BADGE_PREFIX}{hid}",
+        })
+    return {
+        "cries": items,
+        "completed_count": len(done),
+        "total": len(items),
+        "freedom_voice_unlocked": FREEDOM_VOICE_BADGE in (user.get("badges") or []),
+        "freedom_voice_threshold": FREEDOM_VOICE_THRESHOLD,
+    }
+
+
+@api.get("/battle-cries/{hero_id}")
+async def battle_cry_one(hero_id: str, user=Depends(get_current_user)):
+    if not has_cry(hero_id):
+        raise HTTPException(404, "No battle cry for this hero")
+    c = get_cry(hero_id)
+    s = next((x for x in STORIES if x["id"] == hero_id), None)
+    done = list(user.get("battle_cries_done") or [])
+    return {
+        "hero_id": hero_id,
+        "hero_name": (s or {}).get("name", hero_id.replace("-", " ").title()),
+        "hero_color": (s or {}).get("color", "#FF7A1A"),
+        "portrait_url": f"/api/stories/{hero_id}/portrait" if s else None,
+        "cry": c["cry"],
+        "meaning": c["meaning"],
+        "origin": c.get("origin", ""),
+        "completed": hero_id in done,
+        "badge_id": f"{BATTLE_CRY_BADGE_PREFIX}{hero_id}",
+    }
+
+
+@api.post("/battle-cries/{hero_id}/complete")
+async def battle_cry_complete(hero_id: str, user=Depends(get_current_user)):
+    if not has_cry(hero_id):
+        raise HTTPException(404, "No battle cry for this hero")
+    u = await db.users.find_one({"id": user["id"]}, {"_id": 0})
+    done = list(u.get("battle_cries_done") or [])
+    badges = set(u.get("badges") or [])
+    just_completed = False
+    xp_awarded = 0
+    badge_awarded = None
+    cry_badge = f"{BATTLE_CRY_BADGE_PREFIX}{hero_id}"
+    if hero_id not in done:
+        done.append(hero_id)
+        just_completed = True
+        xp_awarded = BATTLE_CRY_XP_PER_COMPLETION
+        badges.add(cry_badge)
+        badge_awarded = cry_badge
+        await db.users.update_one(
+            {"id": user["id"]},
+            {"$set": {"battle_cries_done": done, "badges": list(badges)},
+             "$inc": {"xp": xp_awarded}},
+        )
+    # Award mega-badge at threshold
+    freedom_voice_awarded = None
+    if len(done) >= FREEDOM_VOICE_THRESHOLD and FREEDOM_VOICE_BADGE not in badges:
+        badges.add(FREEDOM_VOICE_BADGE)
+        await db.users.update_one(
+            {"id": user["id"]},
+            {"$set": {"badges": list(badges)}},
+        )
+        freedom_voice_awarded = FREEDOM_VOICE_BADGE
+    await update_streak(user)
+    await maybe_award_badges(user["id"])
+    fresh = await db.users.find_one({"id": user["id"]}, {"_id": 0, "password_hash": 0})
+    return {
+        "just_completed": just_completed,
+        "xp_awarded": xp_awarded,
+        "badge_awarded": badge_awarded,
+        "freedom_voice_awarded": freedom_voice_awarded,
+        "completed_count": len(done),
+        "total": len(BATTLE_CRIES),
         "user": serialize_user(fresh).model_dump(),
     }
 

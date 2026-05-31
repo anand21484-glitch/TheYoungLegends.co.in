@@ -37,6 +37,19 @@ export default function StoryReader() {
     try {
       await API.post("/stories/complete", { story_id: id });
       setCompleted(true);
+      // Auto-trigger battle cry screen for heroes that have one
+      const HEROES_WITH_CRY = new Set([
+        "bhagat-singh", "rani-lakshmibai", "subhas-bose", "mahatma-gandhi",
+        "tilak", "chandrashekhar-azad", "lala-lajpat-rai", "birsa-munda",
+        "rani-gaidinliu", "kunwar-singh", "ram-prasad-bismil", "kittur-chennamma",
+        "kattabomman", "matangini-hazra", "sarojini-naidu",
+      ]);
+      if (HEROES_WITH_CRY.has(String(id))) {
+        // Give the celebration a moment, then route to battle cry
+        setTimeout(() => {
+          router.push(`/battlecry/${id}?from=story` as any);
+        }, 1800);
+      }
     } catch {}
   };
 

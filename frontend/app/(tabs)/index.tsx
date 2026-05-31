@@ -156,6 +156,22 @@ export default function Home() {
           <Ionicons name="chevron-forward" size={22} color={C.white} />
         </TouchableOpacity>
 
+        <TouchableOpacity
+          testID="battlecry-banner"
+          activeOpacity={0.85}
+          onPress={() => router.push("/battlecry" as any)}
+          style={styles.cryBanner}
+        >
+          <View style={styles.cryIconWrap}>
+            <Text style={{ fontSize: 24 }}>🦁</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.cryTag}>BATTLE CRY WALL 🔥</Text>
+            <Text style={styles.cryTitle}>Roar like a freedom fighter • 15 cries to unlock</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={22} color="#0B1437" />
+        </TouchableOpacity>
+
         <Text style={styles.sectionTitle}>Brave Hearts to Meet</Text>
         {stories.slice(1).map((s) => (
           <TouchableOpacity
@@ -277,6 +293,18 @@ const styles = StyleSheet.create({
   },
   mapTag: { color: C.white, fontWeight: "900", fontSize: 11, letterSpacing: 1, marginBottom: 2 },
   mapTitle: { color: C.white, fontSize: 14, fontWeight: "800", lineHeight: 18 },
+  cryBanner: {
+    flexDirection: "row", alignItems: "center", gap: 14,
+    backgroundColor: "#FFD93D", padding: 16, borderRadius: 22,
+    borderWidth: 2, borderColor: "#0B1437", marginBottom: 22, ...SHADOW,
+  },
+  cryIconWrap: {
+    width: 48, height: 48, borderRadius: 24,
+    backgroundColor: "#0B1437", justifyContent: "center", alignItems: "center",
+    borderWidth: 2, borderColor: "#FF7A1A",
+  },
+  cryTag: { color: "#0B1437", fontWeight: "900", fontSize: 11, letterSpacing: 1, marginBottom: 2 },
+  cryTitle: { color: "#0B1437", fontSize: 14, fontWeight: "800", lineHeight: 18 },
   storyRow: {
     flexDirection: "row", alignItems: "center", gap: 14,
     backgroundColor: C.white, padding: 14, borderRadius: 18,
