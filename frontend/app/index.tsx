@@ -126,42 +126,93 @@ export default function Welcome() {
           </Animated.View>
 
           <Animated.Text entering={FadeInUp.delay(300).duration(500)} style={styles.heroTitle}>
-            Welcome to the world of{"\n"}
-            <Text style={styles.heroAccent}>India's Brave Hearts!</Text>
+            Every Child Knows Batman.{"\n"}
+            Every Child Knows Spider-Man.{"\n"}
+            <Text style={styles.heroAccent}>But Does Every Child Know Bhagat Singh?</Text>
           </Animated.Text>
 
           <Animated.View entering={FadeIn.delay(450).duration(600)} style={styles.card}>
+            <SectionLabel icon="book" color={C.saffron} text="What Is This App?" />
             <Para>
-              This app is specially created for{" "}
-              <Bold>children aged 5 to 10 years</Bold> to help them learn about the
-              inspiring lives of India's greatest freedom fighters in a fun and
-              engaging way. Through{" "}
-              <Bold>stories, activities, quizzes, and adventures</Bold>, kids will
-              discover the courage, kindness, leadership, and patriotism of the
-              heroes who fought for our country's freedom.
+              This app brings the stories of <Bold>India's freedom fighters</Bold> to
+              life through engaging, child-friendly storytelling and interactive
+              experiences.
+            </Para>
+            <Para style={{ marginTop: 8 }}>
+              From <Bold>Bhagat Singh</Bold> and <Bold>Rani Lakshmibai</Bold> to{" "}
+              <Bold>Subhas Chandra Bose</Bold> and <Bold>Mahatma Gandhi</Bold>,
+              children discover the real heroes whose courage, sacrifice, and
+              determination shaped the India we live in today.
+            </Para>
+            <Para style={{ marginTop: 8 }}>
+              These are not just stories from history. They are{" "}
+              <Bold>lessons in character, courage, and purpose</Bold>.
             </Para>
 
             <View style={styles.divider} />
 
-            <SectionLabel icon="bulb" color={C.saffron} text="Why is this important?" />
+            <SectionLabel icon="heart" color={C.maroon} text="Why Does It Matter?" />
             <Para>
-              Freedom fighters teach us valuable life lessons such as{" "}
-              <Bold>bravery, honesty, discipline, teamwork, and love for our nation</Bold>.
-              Their stories inspire children to become{" "}
-              <Bold>confident, responsible, and caring individuals</Bold>.
+              Today's children are surrounded by cartoons, social media, and
+              endless digital entertainment. They can name dozens of fictional
+              heroes, yet many know very little about the brave men and women who
+              sacrificed everything for our freedom.
+            </Para>
+            <Para style={{ marginTop: 8 }}>
+              For most families, freedom fighters become a topic of conversation
+              only during Independence Day, school projects, or annual events.
+            </Para>
+            <Para style={{ marginTop: 8 }}>
+              But shouldn't our children know the{" "}
+              <Bold>real heroes of our nation</Bold> just as well?
+            </Para>
+            <Para style={{ marginTop: 8 }}>
+              Their stories teach values that remain timeless—<Bold>courage in
+              adversity, resilience in failure, leadership in uncertainty</Bold>,
+              and the strength to stand up for what is right.
             </Para>
 
             <View style={styles.divider} />
 
-            <SectionLabel icon="rocket" color={C.green} text="How will this app help?" />
+            <SectionLabel icon="rocket" color={C.green} text="How Will It Shape Your Child?" />
             <Para>
-              By exploring the journeys of these great heroes, children will
-              develop <Bold>confidence, moral values, curiosity, and positive thinking</Bold>.
-              The app makes learning enjoyable while helping kids build a{" "}
-              <Bold>strong personality, respect for the nation, and pride in India's rich history</Bold>.
-              Every story is a step toward becoming a{" "}
-              <Bold>brave and kind future leader</Bold>.
+              Think of this app as a simple <Bold>10-minute bedtime ritual</Bold>.
             </Para>
+            <Para style={{ marginTop: 8 }}>
+              A few minutes spent together discovering a story, reflecting on a
+              lesson, and asking one simple question:
+            </Para>
+            <View style={styles.quoteBox}>
+              <Text style={styles.quoteTxt}>
+                "What can we learn from this hero today?"
+              </Text>
+            </View>
+            <Para style={{ marginTop: 4 }}>
+              Over time, these small moments can leave a lasting impact. Children
+              begin to develop <Bold>confidence, courage, resilience, leadership</Bold>,
+              and a deeper appreciation for the freedom they enjoy today.
+            </Para>
+            <Para style={{ marginTop: 8 }}>
+              And perhaps these stories are not just for children. As parents,
+              they remind us too—to be <Bold>courageous when life is difficult</Bold>,
+              to stand by our values, and to lead by example. After all, our
+              children learn far more from <Bold>what we do</Bold> than from what
+              we say.
+            </Para>
+            <Para style={{ marginTop: 8 }}>
+              Because <Bold>children become what they admire</Bold>. And when
+              they admire real heroes, they grow into stronger individuals.
+            </Para>
+
+            <View style={styles.closingBox}>
+              <Text style={styles.closingTitle}>
+                10 Minutes Before Bed.{"\n"}A Lifetime of Inspiration.
+              </Text>
+              <Text style={styles.closingSub}>
+                The heroes who won our freedom deserve more than a chapter in a
+                textbook. They deserve a place in every child's heart.
+              </Text>
+            </View>
           </Animated.View>
 
           <Animated.View entering={FadeInUp.delay(700).duration(500)} style={styles.featureRow}>
@@ -192,8 +243,8 @@ export default function Welcome() {
   );
 }
 
-function Para({ children }: any) {
-  return <Text style={styles.para}>{children}</Text>;
+function Para({ children, style }: any) {
+  return <Text style={[styles.para, style]}>{children}</Text>;
 }
 
 function Bold({ children }: any) {
@@ -263,10 +314,10 @@ const styles = StyleSheet.create({
   },
   crownTxt: { color: C.navy, fontWeight: "900", letterSpacing: 1.2, fontSize: 11 },
   heroTitle: {
-    fontSize: 26, fontWeight: "900", color: C.navy,
-    textAlign: "center", marginTop: 12, lineHeight: 32, letterSpacing: -0.5,
+    fontSize: 20, fontWeight: "900", color: C.navy,
+    textAlign: "center", marginTop: 12, lineHeight: 26, letterSpacing: -0.3,
   },
-  heroAccent: { color: C.maroon, fontSize: 28 },
+  heroAccent: { color: C.maroon, fontSize: 22 },
   card: {
     marginTop: 18,
     backgroundColor: "#FFFFFFF7",
@@ -275,6 +326,37 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: C.navy,
     ...SHADOW,
+  },
+  quoteBox: {
+    marginTop: 12,
+    marginBottom: 4,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: "#FFF8EC",
+    borderLeftWidth: 4,
+    borderLeftColor: C.gold,
+    borderRadius: 10,
+  },
+  quoteTxt: {
+    fontSize: 15, fontStyle: "italic", fontWeight: "800",
+    color: C.navy, textAlign: "center", lineHeight: 22,
+  },
+  closingBox: {
+    marginTop: 18,
+    padding: 16,
+    backgroundColor: C.navy,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: C.gold,
+    alignItems: "center",
+  },
+  closingTitle: {
+    fontSize: 16, fontWeight: "900", color: C.gold,
+    textAlign: "center", lineHeight: 22, letterSpacing: 0.3,
+  },
+  closingSub: {
+    fontSize: 12, fontWeight: "600", color: "#FFFFFFE0",
+    textAlign: "center", marginTop: 10, lineHeight: 18,
   },
   para: {
     fontSize: 14,
