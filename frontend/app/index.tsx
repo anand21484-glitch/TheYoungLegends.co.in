@@ -187,30 +187,21 @@ export default function Welcome() {
                 "What can we learn from this hero today?"
               </Text>
             </View>
-            <Para style={{ marginTop: 4 }}>
+            <Para style={{ marginTop: 8 }}>
               Over time, these small moments can leave a lasting impact. Children
               begin to develop <Bold>confidence, courage, resilience, leadership</Bold>,
               and a deeper appreciation for the freedom they enjoy today.
-            </Para>
-            <Para style={{ marginTop: 8 }}>
-              And perhaps these stories are not just for children. As parents,
-              they remind us too—to be <Bold>courageous when life is difficult</Bold>,
-              to stand by our values, and to lead by example. After all, our
-              children learn far more from <Bold>what we do</Bold> than from what
-              we say.
             </Para>
             <Para style={{ marginTop: 8 }}>
               Because <Bold>children become what they admire</Bold>. And when
               they admire real heroes, they grow into stronger individuals.
             </Para>
 
-            <View style={styles.closingBox}>
-              <Text style={styles.closingTitle}>
-                10 Minutes Before Bed.{"\n"}A Lifetime of Inspiration.
-              </Text>
-              <Text style={styles.closingSub}>
-                The heroes who won our freedom deserve more than a chapter in a
-                textbook. They deserve a place in every child's heart.
+            <View style={styles.closingQuote}>
+              <Text style={styles.closingQuoteTxt}>
+                "And perhaps these stories are not just for children. As parents,
+                they remind us too—to be courageous when life is difficult, to
+                stand by our values, and to lead by example."
               </Text>
             </View>
           </Animated.View>
@@ -341,22 +332,18 @@ const styles = StyleSheet.create({
     fontSize: 15, fontStyle: "italic", fontWeight: "800",
     color: C.navy, textAlign: "center", lineHeight: 22,
   },
-  closingBox: {
+  closingQuote: {
     marginTop: 18,
-    padding: 16,
-    backgroundColor: C.navy,
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: C.gold,
-    alignItems: "center",
+    paddingHorizontal: 18,
+    paddingVertical: 16,
+    backgroundColor: "#FFF8EC",
+    borderLeftWidth: 4,
+    borderLeftColor: C.maroon,
+    borderRadius: 12,
   },
-  closingTitle: {
-    fontSize: 16, fontWeight: "900", color: C.gold,
-    textAlign: "center", lineHeight: 22, letterSpacing: 0.3,
-  },
-  closingSub: {
-    fontSize: 12, fontWeight: "600", color: "#FFFFFFE0",
-    textAlign: "center", marginTop: 10, lineHeight: 18,
+  closingQuoteTxt: {
+    fontSize: 14, fontStyle: "italic", fontWeight: "700",
+    color: C.navy, lineHeight: 22, textAlign: "center",
   },
   para: {
     fontSize: 14,
