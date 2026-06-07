@@ -42,10 +42,13 @@ function Chakra({ size = 110 }: { size?: number }) {
   );
 }
 
+// Official Indian flag Ashok Chakra navy
+const CHAKRA_NAVY = "#000080";
+
 const chakraStyles = StyleSheet.create({
   outer: {
     borderWidth: 3,
-    borderColor: C.navy,
+    borderColor: CHAKRA_NAVY,
     backgroundColor: "transparent",
     justifyContent: "center",
     alignItems: "center",
@@ -53,10 +56,10 @@ const chakraStyles = StyleSheet.create({
   },
   spoke: {
     position: "absolute",
-    backgroundColor: C.navy,
+    backgroundColor: CHAKRA_NAVY,
   },
   hub: {
-    backgroundColor: C.navy,
+    backgroundColor: CHAKRA_NAVY,
     position: "absolute",
   },
 });
