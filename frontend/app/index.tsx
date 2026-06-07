@@ -45,7 +45,7 @@ function Chakra({ size = 110 }: { size?: number }) {
 const chakraStyles = StyleSheet.create({
   outer: {
     borderWidth: 3,
-    borderColor: "#0A2E5C",
+    borderColor: C.navy,
     backgroundColor: "transparent",
     justifyContent: "center",
     alignItems: "center",
@@ -53,10 +53,10 @@ const chakraStyles = StyleSheet.create({
   },
   spoke: {
     position: "absolute",
-    backgroundColor: "#0A2E5C",
+    backgroundColor: C.navy,
   },
   hub: {
-    backgroundColor: "#0A2E5C",
+    backgroundColor: C.navy,
     position: "absolute",
   },
 });
