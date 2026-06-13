@@ -207,7 +207,7 @@ export default function Welcome() {
           </Animated.View>
 
           <Animated.View entering={FadeInUp.delay(700).duration(500)} style={styles.featureRow}>
-            <FeaturePill icon="book" label="30 Stories" />
+            <FeaturePill icon="book" label="46 Stories" />
             <FeaturePill icon="trophy" label="3 Hunts" />
             <FeaturePill icon="time" label="Timeline" />
             <FeaturePill icon="chatbubbles" label="AI Veer" />
