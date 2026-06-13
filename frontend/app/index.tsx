@@ -210,7 +210,7 @@ export default function Welcome() {
             <FeaturePill icon="book" label="30 Stories" />
             <FeaturePill icon="trophy" label="3 Hunts" />
             <FeaturePill icon="time" label="Timeline" />
-            <FeaturePill icon="chatbubbles" label="AI Owl" />
+            <FeaturePill icon="chatbubbles" label="AI Veer" />
           </Animated.View>
 
           <Animated.View entering={FadeInUp.delay(900).duration(500)}>
