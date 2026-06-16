@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import {
   View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity,
-  KeyboardAvoidingView, Platform, ActivityIndicator,
+  KeyboardAvoidingView, Platform, ActivityIndicator, Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { API } from "../../src/api";
 import { C, SHADOW } from "../../src/theme";
+import { VEER_AVATAR_URI, VEER_NAME } from "../../src/veer";
 
-type Msg = { who: "azaadi" | "kid"; text: string };
+type Msg = { who: "veer" | "kid"; text: string };
 
 const SUGGESTIONS = [
   "Who was Bhagat Singh?",
@@ -17,9 +18,12 @@ const SUGGESTIONS = [
   "Why is Rani Lakshmibai famous?",
 ];
 
-export default function Azaadi() {
+export default function VeerChat() {
   const [messages, setMessages] = useState<Msg[]>([
-    { who: "azaadi", text: "Hoot hoot! 🦉 I'm Azaadi, your wise owl friend. Ask me anything about India's brave freedom fighters!" },
+    {
+      who: "veer",
+      text: `Namaste! 🇮🇳 I'm ${VEER_NAME}, your freedom story friend. Ask me anything about India's brave freedom fighters!`,
+    },
   ]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -43,9 +47,9 @@ export default function Azaadi() {
     setSending(true);
     try {
       const { data } = await API.post("/chat", { message: msg, language: user?.language || "en" });
-      setMessages((m) => [...m, { who: "azaadi", text: data.reply }]);
+      setMessages((m) => [...m, { who: "veer", text: data.reply }]);
     } catch (e: any) {
-      setMessages((m) => [...m, { who: "azaadi", text: "Oh no, my feathers are tangled. Please try again! 🦉" }]);
+      setMessages((m) => [...m, { who: "veer", text: "Oh no, something went wrong. Please try again! 🇮🇳" }]);
     } finally {
       setSending(false);
       setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 60);
@@ -55,13 +59,18 @@ export default function Azaadi() {
   return (
     <SafeAreaView style={styles.c} edges={["top"]}>
       <View style={styles.header}>
-        <View style={styles.owlAv}>
-          <Text style={{ fontSize: 32 }}>🦉</Text>
+        <View style={styles.veerAv}>
+          <Image
+            source={{ uri: VEER_AVATAR_URI }}
+            style={styles.veerImg}
+            resizeMode="cover"
+          />
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={styles.name}>Azaadi the Owl</Text>
-          <Text style={styles.status}>● Wise & online</Text>
+          <Text style={styles.name}>{VEER_NAME}</Text>
+          <Text style={styles.status}>● Online & ready</Text>
         </View>
+        <Text style={styles.flag}>🇮🇳</Text>
       </View>
 
       <KeyboardAvoidingView
@@ -85,7 +94,7 @@ export default function Azaadi() {
               <View
                 style={[
                   styles.bubble,
-                  m.who === "kid" ? styles.bubbleKid : styles.bubbleAzaadi,
+                  m.who === "kid" ? styles.bubbleKid : styles.bubbleVeer,
                 ]}
               >
                 <Text style={[styles.bubbleTxt, m.who === "kid" && { color: C.white }]}>
@@ -96,9 +105,9 @@ export default function Azaadi() {
           ))}
           {sending && (
             <View style={[styles.bubbleRow, styles.left]}>
-              <View style={[styles.bubble, styles.bubbleAzaadi, { flexDirection: "row", gap: 6 }]}>
+              <View style={[styles.bubble, styles.bubbleVeer, { flexDirection: "row", gap: 6 }]}>
                 <ActivityIndicator size="small" color={C.navy} />
-                <Text style={styles.bubbleTxt}>Azaadi is thinking...</Text>
+                <Text style={styles.bubbleTxt}>{VEER_NAME} is thinking...</Text>
               </View>
             </View>
           )}
@@ -129,7 +138,7 @@ export default function Azaadi() {
             testID="chat-input"
             value={input}
             onChangeText={setInput}
-            placeholder="Ask Azaadi anything..."
+            placeholder={`Ask ${VEER_NAME} anything...`}
             placeholderTextColor={C.textMuted}
             style={styles.input}
             onSubmitEditing={() => send()}
@@ -156,10 +165,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18, paddingVertical: 14,
     backgroundColor: C.white, borderBottomWidth: 2, borderBottomColor: C.navy,
   },
-  owlAv: {
-    width: 52, height: 52, borderRadius: 26, backgroundColor: C.gold,
-    borderWidth: 2, borderColor: C.navy, alignItems: "center", justifyContent: "center",
+  veerAv: {
+    width: 52, height: 52, borderRadius: 26,
+    overflow: "hidden",
+    borderWidth: 2, borderColor: C.navy,
+    backgroundColor: C.gold,
   },
+  veerImg: { width: "100%", height: "100%" },
+  flag: { fontSize: 22 },
   name: { fontSize: 18, fontWeight: "900", color: C.navy },
   status: { fontSize: 12, color: C.green, fontWeight: "700" },
   bubbleRow: { flexDirection: "row", marginVertical: 5 },
@@ -169,7 +182,7 @@ const styles = StyleSheet.create({
     maxWidth: "82%", paddingHorizontal: 14, paddingVertical: 10,
     borderRadius: 20, borderWidth: 2, borderColor: C.navy,
   },
-  bubbleAzaadi: { backgroundColor: C.gold, borderTopLeftRadius: 4 },
+  bubbleVeer: { backgroundColor: C.gold, borderTopLeftRadius: 4 },
   bubbleKid: { backgroundColor: C.saffron, borderTopRightRadius: 4 },
   bubbleTxt: { fontSize: 15, lineHeight: 21, color: C.navy, fontWeight: "600" },
   suggestion: {

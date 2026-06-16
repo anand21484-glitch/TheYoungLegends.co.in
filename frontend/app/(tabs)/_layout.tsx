@@ -39,7 +39,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="azaadi"
         options={{
-          title: "Azaadi",
+          title: "Veer",
           tabBarButtonTestID: "tab-azaadi",
           tabBarIcon: ({ color, size }) => <Ionicons name="chatbubbles" size={size} color={color} />,
         }}

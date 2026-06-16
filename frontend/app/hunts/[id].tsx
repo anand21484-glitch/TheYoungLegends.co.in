@@ -230,7 +230,7 @@ export default function HuntDetail() {
         {feedback === "correct" && (
           <Animated.View entering={FadeIn} style={styles.rightPill}>
             <Ionicons name="checkmark-circle" size={18} color={C.green} />
-            <Text style={styles.rightTxt}>Correct! +5 XP 🦉</Text>
+            <Text style={styles.rightTxt}>Correct! +5 XP 🇮🇳</Text>
           </Animated.View>
         )}
       </ScrollView>

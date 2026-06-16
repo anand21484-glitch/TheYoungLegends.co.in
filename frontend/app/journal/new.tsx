@@ -30,7 +30,7 @@ export default function NewPost() {
     try {
       const { data } = await API.post("/journal", { text: text.trim(), story_id: storyId });
       if (!data.ok) {
-        Alert.alert("Azaadi says 🦉", data.message + "\n\nReason: " + data.reason);
+        Alert.alert("Veer says 🇮🇳", data.message + "\n\nReason: " + data.reason);
       } else {
         const msg = data.status === "pending"
           ? "Sent to your parent for approval ✅"
@@ -61,7 +61,7 @@ export default function NewPost() {
             <Text style={styles.tipTitle}>💡 Reflection Prompts</Text>
             <Text style={styles.tipTxt}>• What did you learn from this hero?</Text>
             <Text style={styles.tipTxt}>• How will you apply this in your life today?</Text>
-            <Text style={styles.tipTxt}>• Share kindly — Azaadi reviews every post 🦉</Text>
+            <Text style={styles.tipTxt}>• Share kindly — Veer reviews every post 🇮🇳</Text>
           </View>
 
           <Text style={styles.label}>About which story? (optional)</Text>

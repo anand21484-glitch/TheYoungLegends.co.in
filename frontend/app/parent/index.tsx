@@ -199,7 +199,7 @@ export default function ParentHome() {
                     </View>
                     <Text style={styles.reviewTxt}>{p.text}</Text>
                     {p.moderation_reason && (
-                      <Text style={styles.modNote}>🦉 Azaadi: {p.moderation_reason}</Text>
+                      <Text style={styles.modNote}>🇮🇳 Veer: {p.moderation_reason}</Text>
                     )}
                     <View style={styles.reviewActions}>
                       <TouchableOpacity

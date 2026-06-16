@@ -262,7 +262,7 @@ export default function FreedomMap() {
       <ScrollView contentContainerStyle={styles.scroll} testID="map-scroll">
         <Animated.View entering={FadeInUp.duration(400)} style={styles.intro}>
           <Text style={styles.introTxt}>
-            🦉 Tap the glowing dots to discover heroes from every corner of India!
+            🇮🇳 Tap the glowing dots to discover heroes from every corner of India!
           </Text>
           <Text style={styles.introHint}>
             ⭐ Visited heroes turn into gold stars

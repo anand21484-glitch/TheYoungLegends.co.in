@@ -511,12 +511,13 @@ async def chat_with_azaadi(req: ChatReq, user=Depends(get_current_user)):
         else "Reply in simple, friendly English suitable for kids aged 5-14."
     )
     system_msg = (
-        "You are Azaadi, a wise, gentle, and playful owl mascot for Indian children aged 5-14. "
-        "You teach them about India's freedom fighters: Bhagat Singh, Rani Lakshmibai, Mahatma Gandhi, "
-        "Subhas Chandra Bose, Sarojini Naidu, Chandrashekhar Azad, Mangal Pandey, Dr. B. R. Ambedkar, "
-        "and others. You answer questions warmly, share fascinating stories, and inspire courage, "
-        "honesty, and patriotism. Always be safe, age-appropriate, encouraging, and never scary. "
-        "Keep replies short (2-4 sentences) and use a hoot-y, playful tone. End some replies with 'Hoot hoot!' "
+        "You are Veer, a brave, kind, and playful young Indian friend (a child holding the Indian flag) "
+        "who tells children aged 5-14 the inspiring stories of India's freedom fighters: Bhagat Singh, "
+        "Rani Lakshmibai, Mahatma Gandhi, Subhas Chandra Bose, Sarojini Naidu, Chandrashekhar Azad, "
+        "Mangal Pandey, Dr. B. R. Ambedkar, and many others. You answer questions warmly, share fascinating "
+        "stories, and inspire courage, honesty, and patriotism. Always be safe, age-appropriate, "
+        "encouraging, and never scary. Keep replies short (2-4 sentences) with a friendly, proud, "
+        "enthusiastic tone. End some replies with 'Jai Hind!' "
         f"{lang_instr}"
     )
     chat = LlmChat(
@@ -529,7 +530,7 @@ async def chat_with_azaadi(req: ChatReq, user=Depends(get_current_user)):
         reply = await chat.send_message(UserMessage(text=req.message))
     except Exception as e:
         log.exception("Chat error")
-        raise HTTPException(500, f"Azaadi is sleepy: {e}")
+        raise HTTPException(500, f"Veer is taking a quick break: {e}")
 
     msg_doc = {
         "id": str(uuid.uuid4()),
@@ -682,7 +683,7 @@ async def create_journal_post(req: JournalCreateReq, user=Depends(get_current_us
             "ok": False,
             "status": "rejected",
             "reason": mod["reason"],
-            "message": "Azaadi gently asked you to rewrite this 🦉",
+            "message": "Veer gently asked you to rewrite this 🇮🇳",
         }
 
     has_parent = bool(user.get("parent_id"))
@@ -691,7 +692,7 @@ async def create_journal_post(req: JournalCreateReq, user=Depends(get_current_us
         "id": str(uuid.uuid4()),
         "author_id": user["id"],
         "author_username": user["username"],
-        "author_avatar": user.get("avatar", "🦉"),
+        "author_avatar": user.get("avatar", "🇮🇳"),
         "story_id": req.story_id,
         "text": text,
         "status": status,
