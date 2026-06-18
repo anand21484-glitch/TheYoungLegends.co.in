@@ -91,13 +91,14 @@ async function buildMe() {
 
 // Return story list metadata (no full content for performance).
 function listStories() {
-  const progress = (async () => await getProgress())();
   return STORIES.map((s) => ({
     id: s.id,
+    name: s.name,
+    era: s.era,
     title_en: s.title_en,
     title_hi: s.title_hi,
-    summary_en: s.summary_en,
-    summary_hi: s.summary_hi,
+    tagline_en: s.tagline_en,
+    tagline_hi: s.tagline_hi,
     theme: s.theme,
     color: s.color || HERO_VISUALS[s.id]?.color,
     region: s.region,
