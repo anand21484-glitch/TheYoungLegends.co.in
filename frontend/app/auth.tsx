@@ -5,7 +5,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { API, saveAuth } from "../src/api";
+import { API, saveAuth, describeApiError, BASE_URL } from "../src/api";
 import { C, SHADOW } from "../src/theme";
 import { UserAvatar, HERO_AVATARS } from "../src/components/UserAvatar";
 
@@ -21,10 +21,12 @@ export default function Auth() {
   const [avatar, setAvatar] = useState(AVATARS[0]);
   const [language, setLanguage] = useState<"en" | "hi">("en");
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const submit = async () => {
+    setErrorMsg(null);
     if (!username.trim() || !password.trim()) {
-      Alert.alert("Oops!", "Please fill in username and password");
+      setErrorMsg("Please fill in both username and password.");
       return;
     }
     setLoading(true);
@@ -39,12 +41,25 @@ export default function Auth() {
           body.language = language;
         }
       }
+      // eslint-disable-next-line no-console
+      console.log("[Auth] POST", `${BASE_URL}/api${path}`, "username=", body.username);
       const { data } = await API.post(path, body);
+      if (!data?.token) {
+        throw new Error("Server returned no token");
+      }
       await saveAuth(data.token, data.user);
       if (data.user.role === "parent") router.replace("/parent" as any);
       else router.replace("/(tabs)");
     } catch (e: any) {
-      Alert.alert("Hoot!", e?.response?.data?.detail || "Something went wrong");
+      const friendly = describeApiError(e);
+      // eslint-disable-next-line no-console
+      console.warn("[Auth] error:", friendly, e);
+      setErrorMsg(friendly);
+      // Also pop a quick alert so it's impossible to miss on phones
+      Alert.alert(
+        mode === "signup" ? "Sign-up failed" : "Login failed",
+        friendly,
+      );
     } finally {
       setLoading(false);
     }
@@ -105,6 +120,13 @@ export default function Auth() {
           )}
 
           <View style={styles.card}>
+            {errorMsg && (
+              <View style={styles.errorBanner} testID="auth-error">
+                <Text style={styles.errorTitle}>⚠️ Couldn&apos;t continue</Text>
+                <Text style={styles.errorTxt}>{errorMsg}</Text>
+                <Text style={styles.errorMeta}>Server: {BASE_URL}</Text>
+              </View>
+            )}
             <Text style={styles.label}>Username</Text>
             <TextInput
               testID="input-username"
@@ -224,6 +246,32 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: C.white, borderRadius: 24, padding: 20, borderWidth: 2,
     borderColor: C.navy, ...SHADOW,
+  },
+  errorBanner: {
+    backgroundColor: "#FFE9E5",
+    borderColor: "#D72638",
+    borderWidth: 2,
+    borderRadius: 14,
+    padding: 12,
+    marginBottom: 14,
+  },
+  errorTitle: {
+    fontSize: 14,
+    fontWeight: "900",
+    color: "#7A1216",
+    marginBottom: 4,
+  },
+  errorTxt: {
+    fontSize: 13,
+    color: "#7A1216",
+    lineHeight: 18,
+    fontWeight: "600",
+  },
+  errorMeta: {
+    fontSize: 10,
+    color: "#7A1216AA",
+    marginTop: 6,
+    fontFamily: Platform.OS === "ios" ? "Menlo" : "monospace",
   },
   label: { fontSize: 13, fontWeight: "800", color: C.navy, marginTop: 14, marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 },
   input: {
