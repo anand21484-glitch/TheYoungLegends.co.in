@@ -5,7 +5,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { API } from "../../src/api";
+import { API, PORTRAITS } from "../../src/api";
 import { C, SHADOW } from "../../src/theme";
 
 const BASE = process.env.EXPO_PUBLIC_BACKEND_URL;
@@ -20,8 +20,8 @@ export default function JigsawList() {
       const r = await API.get("/jigsaw");
       setPuzzles(r.data);
     } catch (e: any) {
-      if (e?.response?.status === 401) router.replace("/auth");
-    } finally { setLoading(false); }
+      // (offline: no auth)
+} finally { setLoading(false); }
   };
 
   useEffect(() => { load(); }, []);
@@ -57,7 +57,7 @@ export default function JigsawList() {
               style={[styles.card, { borderColor: p.color }]}
             >
               <Image
-                source={{ uri: `${BASE}${p.portrait_url}` }}
+                source={PORTRAITS[p.id] || ({ uri: `${BASE}${p.portrait_url}` } as any)}
                 style={[styles.thumb, { borderColor: p.color }]}
               />
               <View style={{ flex: 1 }}>

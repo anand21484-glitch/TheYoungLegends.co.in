@@ -12,7 +12,7 @@ import Animated, {
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { API } from "../../src/api";
+import { API, PORTRAITS } from "../../src/api";
 import { C, SHADOW } from "../../src/theme";
 
 const BASE = process.env.EXPO_PUBLIC_BACKEND_URL;
@@ -125,8 +125,8 @@ export default function JigsawPlay() {
           }
         }, 250);
       } catch (e: any) {
-        if (e?.response?.status === 401) router.replace("/auth");
-      }
+        // (offline: no auth)
+}
     })();
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
@@ -241,7 +241,7 @@ export default function JigsawPlay() {
         <ConfettiBurst color={puzzle.color} />
         <View style={styles.celebrateBox}>
           <Animated.View entering={ZoomIn.duration(450)}>
-            <Image source={{ uri: `${BASE}${puzzle.portrait_url}` }} style={styles.celebrateImg} />
+            <Image source={PORTRAITS[puzzle.id] || ({ uri: `${BASE}${puzzle.portrait_url}` } as any)} style={styles.celebrateImg} />
           </Animated.View>
           <Animated.Text entering={FadeInUp.delay(200)} style={styles.celTitle}>
             Puzzle Solved! 🎉
@@ -347,7 +347,7 @@ export default function JigsawPlay() {
             exiting={FadeOut.duration(200)}
             style={styles.previewBox}
           >
-            <Image source={{ uri: `${BASE}${puzzle.portrait_url}` }} style={styles.previewImg} />
+            <Image source={PORTRAITS[puzzle.id] || ({ uri: `${BASE}${puzzle.portrait_url}` } as any)} style={styles.previewImg} />
             <Text style={styles.previewLabel}>🎯 Goal: match this picture</Text>
           </Animated.View>
         )}
@@ -361,7 +361,7 @@ export default function JigsawPlay() {
         >
           {/* Ghost preview behind the board */}
           <Image
-            source={{ uri: `${BASE}${puzzle.portrait_url}` }}
+            source={PORTRAITS[puzzle.id] || ({ uri: `${BASE}${puzzle.portrait_url}` } as any)}
             style={{
               position: "absolute",
               left: boardPadding, top: boardPadding,
@@ -380,7 +380,7 @@ export default function JigsawPlay() {
               pieceSize={pieceSize}
               selected={selected === slot}
               correct={pieceIdx === slot}
-              portraitUri={`${BASE}${puzzle.portrait_url}`}
+              portraitAsset={PORTRAITS[puzzle.id]} portraitUri={`${BASE}${puzzle.portrait_url}`}
               onTap={() => onTap(slot)}
             />
           ))}

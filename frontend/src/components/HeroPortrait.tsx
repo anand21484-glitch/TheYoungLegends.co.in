@@ -9,14 +9,21 @@ import Animated, {
 } from "react-native-reanimated";
 import Svg, { Defs, RadialGradient, Stop, Circle } from "react-native-svg";
 import { C } from "../theme";
-
-const BASE = process.env.EXPO_PUBLIC_BACKEND_URL;
+import { PORTRAITS } from "../data";
 
 export function HeroPortrait({ storyId, name, color, size = 160 }: {
-  storyId: string; name: string; color: string; size?: number;
+  storyId: string; name?: string; color: string; size?: number;
 }) {
-  const [src, setSrc] = useState<string | null>(null);
+  const portraitAsset = PORTRAITS[storyId];
   const [errored, setErrored] = useState(false);
+  const safeName = name || storyId.replace(/-/g, " ");
+  const initials = safeName
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
 
   // Animated breathing / glow halo
   const breathe = useSharedValue(0);
@@ -32,22 +39,8 @@ export function HeroPortrait({ storyId, name, color, size = 160 }: {
         withTiming(1, { duration: 1800, easing: Easing.inOut(Easing.quad) }),
         withTiming(0, { duration: 1800, easing: Easing.inOut(Easing.quad) })
       ), -1, false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // Pre-load the image and set src only if ok
-  useEffect(() => {
-    let cancelled = false;
-    const url = `${BASE}/api/stories/${storyId}/portrait`;
-    fetch(url, { method: "GET" }).then((r) => {
-      if (cancelled) return;
-      if (r.ok && r.headers.get("content-type")?.startsWith("image/")) {
-        setSrc(url + `?v=1`);
-      } else {
-        setErrored(true);
-      }
-    }).catch(() => !cancelled && setErrored(true));
-    return () => { cancelled = true; };
-  }, [storyId]);
 
   const breatheStyle = useAnimatedStyle(() => ({
     transform: [{ scale: 1 + breathe.value * 0.04 }],
@@ -57,7 +50,7 @@ export function HeroPortrait({ storyId, name, color, size = 160 }: {
     transform: [{ scale: 1 + halo.value * 0.15 }],
   }));
 
-  const initials = name.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+  // initials is computed above from safeName
 
   return (
     <View style={[styles.wrap, { width: size, height: size }]} pointerEvents="none">
@@ -76,9 +69,9 @@ export function HeroPortrait({ storyId, name, color, size = 160 }: {
 
       {/* Animated portrait body */}
       <Animated.View style={[styles.body, { backgroundColor: color, borderRadius: size / 2 }, breatheStyle]}>
-        {src && !errored ? (
+        {portraitAsset && !errored ? (
           <Image
-            source={{ uri: src }}
+            source={portraitAsset}
             style={{ width: size - 12, height: size - 12, borderRadius: (size - 12) / 2 }}
             onError={() => setErrored(true)}
           />

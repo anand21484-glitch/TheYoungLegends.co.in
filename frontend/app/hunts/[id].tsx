@@ -43,8 +43,8 @@ export default function HuntDetail() {
       const startIdx = r.data.clues.findIndex((c: Clue) => !solved.has(c.id));
       setIdx(startIdx === -1 ? 0 : startIdx);
     } catch (e: any) {
-      if (e?.response?.status === 401) router.replace("/auth");
-    }
+      // (offline: no auth)
+}
   };
   useEffect(() => { load(); }, [id]);
 

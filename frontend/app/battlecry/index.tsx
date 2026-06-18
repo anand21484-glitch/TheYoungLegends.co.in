@@ -6,7 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, { FadeInUp } from "react-native-reanimated";
-import { API } from "../../src/api";
+import { API, PORTRAITS } from "../../src/api";
 import { C, SHADOW } from "../../src/theme";
 
 const BASE = process.env.EXPO_PUBLIC_BACKEND_URL;
@@ -36,8 +36,8 @@ export default function BattleCryWall() {
       setFvUnlocked(r.data.freedom_voice_unlocked);
       setThreshold(r.data.freedom_voice_threshold);
     } catch (e: any) {
-      if (e?.response?.status === 401) router.replace("/auth");
-    } finally {
+      // (offline: no auth)
+} finally {
       setLoading(false);
     }
   }, [router]);
@@ -105,8 +105,12 @@ export default function BattleCryWall() {
                   { borderColor: c.hero_color },
                 ]}
               >
-                {c.portrait_url ? (
-                  <Image source={{ uri: `${BASE}${c.portrait_url}` }} style={styles.portrait} />
+                {PORTRAITS[c.hero_id] || c.portrait_url ? (
+                  <Image
+                    source={PORTRAITS[c.hero_id] || ({ uri: `${BASE}${c.portrait_url}` } as any)}
+                    style={styles.portrait}
+                  />
+                ) : null}
                 ) : (
                   <View style={[styles.portrait, { backgroundColor: c.hero_color }]} />
                 )}

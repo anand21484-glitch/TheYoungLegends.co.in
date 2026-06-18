@@ -12,7 +12,7 @@ import Animated, {
   runOnJS,
 } from "react-native-reanimated";
 import { Audio } from "expo-av";
-import { API } from "../../src/api";
+import { API, PORTRAITS } from "../../src/api";
 import { C, SHADOW } from "../../src/theme";
 
 const BASE = process.env.EXPO_PUBLIC_BACKEND_URL;
@@ -95,8 +95,8 @@ export default function BattleCryScreen() {
           chimeSoundRef.current = ch.sound;
         } catch {}
       } catch (e: any) {
-        if (e?.response?.status === 401) router.replace("/auth");
-        else if (e?.response?.status === 404) {
+        // (offline: no auth)
+        if (e?.response?.status === 404) {
           Alert.alert("No battle cry", "This hero doesn't have a battle cry.");
           router.back();
         }
@@ -342,8 +342,12 @@ export default function BattleCryScreen() {
       <ScrollView contentContainerStyle={styles.scroll} testID="cry-scroll">
         {/* Hero portrait */}
         <Animated.View style={[styles.portraitWrap, portraitAnim, { borderColor: data.hero_color }]}>
-          {data.portrait_url ? (
-            <Image source={{ uri: `${BASE}${data.portrait_url}` }} style={styles.portrait} />
+          {data.portrait_url || PORTRAITS[data.hero_id] ? (
+            <Image
+              source={PORTRAITS[data.hero_id] || ({ uri: `${BASE}${data.portrait_url}` } as any)}
+              style={styles.portrait}
+            />
+          ) : null}
           ) : (
             <View style={[styles.portrait, { backgroundColor: data.hero_color }]} />
           )}

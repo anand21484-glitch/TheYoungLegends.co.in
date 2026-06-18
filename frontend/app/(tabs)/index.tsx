@@ -21,8 +21,8 @@ export default function Home() {
       setUser(me.data);
       setStories(sts.data);
     } catch (e: any) {
-      if (e?.response?.status === 401) router.replace("/auth");
-    }
+      // (offline: no auth)
+}
   };
 
   useEffect(() => { load(); }, []);
@@ -53,9 +53,9 @@ export default function Home() {
           <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
             <UserAvatar avatar={user.avatar} size={52} />
             <View>
-              <Text style={styles.hello}>Namaste,</Text>
+              <Text style={styles.hello}>{user.streak > 1 ? "Welcome back," : "Namaste,"}</Text>
               <Text style={styles.name} testID="home-username">
-                {user.username}{!isHeroAvatar(user.avatar) ? ` ${user.avatar || "🦉"}` : ""}
+                {user.name || user.username} 🇮🇳
               </Text>
             </View>
           </View>

@@ -107,8 +107,8 @@ export default function Timeline() {
         setUser(meRes.data);
         setStories(sts.data);
       } catch (e: any) {
-        if (e?.response?.status === 401) router.replace("/auth");
-      } finally {
+        // (offline: no auth)
+} finally {
         setLoading(false);
       }
     })();

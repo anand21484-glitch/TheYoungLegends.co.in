@@ -5,7 +5,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { API, clearAuth } from "../../src/api";
+import { API, Local } from "../../src/api";
 import { C, SHADOW } from "../../src/theme";
 import { UserAvatar } from "../../src/components/UserAvatar";
 
@@ -18,23 +18,70 @@ export default function Profile() {
     try {
       const [me, b] = await Promise.all([API.get("/me"), API.get("/badges")]);
       setUser(me.data);
-      setAllBadges(b.data);
-    } catch (e: any) {
-      if (e?.response?.status === 401) router.replace("/auth");
+      setAllBadges(Array.isArray(b.data) ? b.data : b.data?.badges || []);
+    } catch (e) {
+      // No backend dependency now — purely local
+      // eslint-disable-next-line no-console
+      console.warn("[Profile] load failed", e);
     }
   };
 
   useEffect(() => { load(); }, []);
   useFocusEffect(useCallback(() => { load(); }, []));
 
-  const logout = async () => {
-    Alert.alert("Log Out?", "See you soon, brave heart!", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Log Out", style: "destructive",
-        onPress: async () => { await clearAuth(); router.replace("/auth"); },
-      },
-    ]);
+  const resetProgress = async () => {
+    Alert.alert(
+      "🧹 Reset Progress?",
+      "This will erase your XP, badges, completed stories and journal entries on this device. Your name will stay. You cannot undo this.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Reset",
+          style: "destructive",
+          onPress: async () => {
+            // Keep profile (name) but wipe progress only
+            const cur = await import("../../src/data/localStore").then((m) => m.getProgress());
+            void cur; // not used; just ensures local import compiles
+            // Wipe progress by re-saving defaults
+            await import("../../src/data/localStore").then(async (m) => {
+              await m.setProgress({
+                xp: 0,
+                badges: [],
+                completed_stories: [],
+                quizzes_taken: {},
+                discovered_heroes: [],
+                battle_cries_done: [],
+                jigsaw_done: [],
+                journal: [],
+                streak: 1,
+                last_open: new Date().toISOString().slice(0, 10),
+                daily_goal: 1,
+              });
+            });
+            await load();
+            Alert.alert("Done", "All progress has been reset. Time for a fresh adventure! 🇮🇳");
+          },
+        },
+      ],
+    );
+  };
+
+  const clearEverything = async () => {
+    Alert.alert(
+      "❗️ Start Over Completely?",
+      "This will also erase your name and send you back to the welcome screen. Are you sure?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Yes, start over",
+          style: "destructive",
+          onPress: async () => {
+            await Local.reset();
+            router.replace("/" as any);
+          },
+        },
+      ],
+    );
   };
 
   if (!user) return <View style={styles.c} />;
@@ -46,12 +93,13 @@ export default function Profile() {
       <ScrollView contentContainerStyle={{ padding: 18, paddingBottom: 40 }}>
         <View style={styles.heroCard}>
           <UserAvatar avatar={user.avatar} size={120} borderColor={C.gold} borderWidth={4} />
-          <Text style={styles.username} testID="profile-username">{user.username}</Text>
-          <Text style={styles.age}>Age {user.age} · {user.language === "hi" ? "हिंदी" : "English"}</Text>
-
+          <Text style={styles.username} testID="profile-username">
+            {user.name || user.username}
+          </Text>
+          <Text style={styles.age}>Level {user.level} · {user.level_name}</Text>
           <View style={styles.levelBadge}>
             <Ionicons name="ribbon" size={18} color={C.navy} />
-            <Text style={styles.levelTxt}>Level {user.level} · {user.level_name}</Text>
+            <Text style={styles.levelTxt}>{user.xp} XP earned</Text>
           </View>
         </View>
 
@@ -81,10 +129,40 @@ export default function Profile() {
           })}
         </View>
 
-        <TouchableOpacity testID="logout-btn" style={styles.logoutBtn} onPress={logout}>
-          <Ionicons name="log-out" size={18} color={C.red} />
-          <Text style={styles.logoutTxt}>Log Out</Text>
-        </TouchableOpacity>
+        {/* ===== Settings ===== */}
+        <Text style={styles.section}>⚙️ Settings</Text>
+
+        <View style={styles.settingsCard}>
+          <SettingRow
+            icon="people"
+            iconColor={C.navy}
+            title="Parent View"
+            subtitle="See your child's full progress at a glance"
+            onPress={() => router.push("/parent-view" as any)}
+          />
+          <View style={styles.settingsDivider} />
+          <SettingRow
+            icon="refresh"
+            iconColor={C.saffron}
+            title="Reset Progress"
+            subtitle="Clear XP, badges, stories & journal (keep name)"
+            onPress={resetProgress}
+            testID="reset-progress"
+          />
+          <View style={styles.settingsDivider} />
+          <SettingRow
+            icon="trash"
+            iconColor={C.red}
+            title="Start Over"
+            subtitle="Erase everything including your name"
+            onPress={clearEverything}
+            testID="clear-everything"
+          />
+        </View>
+
+        <Text style={styles.footerNote}>
+          Azaadi Tales · Works fully offline · v1.0
+        </Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -100,15 +178,31 @@ function Stat({ icon, color, n, label }: any) {
   );
 }
 
+function SettingRow({ icon, iconColor, title, subtitle, onPress, testID }: any) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      testID={testID}
+      style={styles.settingRow}
+      activeOpacity={0.7}
+    >
+      <View style={[styles.settingIcon, { backgroundColor: iconColor + "22" }]}>
+        <Ionicons name={icon} size={20} color={iconColor} />
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.settingTitle}>{title}</Text>
+        <Text style={styles.settingSub}>{subtitle}</Text>
+      </View>
+      <Ionicons name="chevron-forward" size={18} color={C.textMuted} />
+    </TouchableOpacity>
+  );
+}
+
 const styles = StyleSheet.create({
   c: { flex: 1, backgroundColor: C.cream },
   heroCard: {
     backgroundColor: C.white, borderRadius: 28, padding: 22,
     borderWidth: 2, borderColor: C.navy, alignItems: "center", ...SHADOW,
-  },
-  avatarBig: {
-    width: 110, height: 110, borderRadius: 55, backgroundColor: C.gold,
-    borderWidth: 3, borderColor: C.navy, alignItems: "center", justifyContent: "center",
   },
   username: { fontSize: 24, fontWeight: "900", color: C.navy, marginTop: 12 },
   age: { fontSize: 13, color: C.textMuted, fontWeight: "700", marginTop: 2 },
@@ -137,9 +231,31 @@ const styles = StyleSheet.create({
   },
   badgeName: { fontSize: 12, fontWeight: "900", color: C.navy, marginTop: 6, textAlign: "center" },
   badgeDesc: { fontSize: 10, color: C.textMuted, fontWeight: "600", textAlign: "center", marginTop: 2 },
-  logoutBtn: {
-    flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8,
-    marginTop: 26, padding: 14, borderRadius: 999, borderWidth: 2, borderColor: C.red, backgroundColor: C.white,
+
+  settingsCard: {
+    backgroundColor: C.white,
+    borderRadius: 18,
+    borderWidth: 2,
+    borderColor: C.navy,
+    overflow: "hidden",
+    ...SHADOW,
   },
-  logoutTxt: { color: C.red, fontWeight: "900", fontSize: 15 },
+  settingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    padding: 16,
+  },
+  settingIcon: {
+    width: 40, height: 40, borderRadius: 12,
+    alignItems: "center", justifyContent: "center",
+  },
+  settingTitle: { fontSize: 15, fontWeight: "800", color: C.navy },
+  settingSub: { fontSize: 11, color: C.textMuted, fontWeight: "600", marginTop: 2 },
+  settingsDivider: { height: 1, backgroundColor: C.navy + "11" },
+
+  footerNote: {
+    fontSize: 11, color: C.textMuted, fontWeight: "600",
+    textAlign: "center", marginTop: 26,
+  },
 });

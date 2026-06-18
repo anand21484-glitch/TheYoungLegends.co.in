@@ -1,0 +1,102 @@
+{
+  "badges": [
+    {
+      "id": "first_story",
+      "name": "First Step",
+      "icon": "footsteps",
+      "desc": "Read your first story"
+    },
+    {
+      "id": "five_stories",
+      "name": "Story Explorer",
+      "icon": "book",
+      "desc": "Read 5 stories"
+    },
+    {
+      "id": "all_stories",
+      "name": "Freedom Champion",
+      "icon": "trophy",
+      "desc": "Read all 46 stories"
+    },
+    {
+      "id": "perfect_quiz",
+      "name": "Truth Seeker",
+      "icon": "star",
+      "desc": "Score 100% on a quiz"
+    },
+    {
+      "id": "three_quizzes",
+      "name": "Quiz Master",
+      "icon": "school",
+      "desc": "Complete 3 quizzes"
+    },
+    {
+      "id": "streak_3",
+      "name": "Brave Heart",
+      "icon": "flame",
+      "desc": "Maintain a 3-day streak"
+    },
+    {
+      "id": "chat_azaadi",
+      "name": "Wise Companion",
+      "icon": "chatbubbles",
+      "desc": "Chat with Azaadi"
+    },
+    {
+      "id": "hunt_1857",
+      "name": "1857 Detective",
+      "icon": "flame",
+      "desc": "Solve the Great Revolt hunt"
+    },
+    {
+      "id": "hunt_women",
+      "name": "Veerangana",
+      "icon": "rose",
+      "desc": "Solve the Women Warriors hunt"
+    },
+    {
+      "id": "hunt_youth",
+      "name": "Young Tiger",
+      "icon": "flash",
+      "desc": "Solve the Young Revolutionaries hunt"
+    },
+    {
+      "id": "jigsaw_master",
+      "name": "Jigsaw Master",
+      "icon": "extension-puzzle",
+      "desc": "Solve all 5 hero jigsaw puzzles"
+    }
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "name": "Young Patriot",
+      "min_xp": 0
+    },
+    {
+      "level": 2,
+      "name": "Curious Explorer",
+      "min_xp": 50
+    },
+    {
+      "level": 3,
+      "name": "Brave Cadet",
+      "min_xp": 150
+    },
+    {
+      "level": 4,
+      "name": "Story Hero",
+      "min_xp": 300
+    },
+    {
+      "level": 5,
+      "name": "Truth Warrior",
+      "min_xp": 500
+    },
+    {
+      "level": 6,
+      "name": "Freedom Champion",
+      "min_xp": 800
+    }
+  ]
+}

@@ -6,8 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, { FadeIn, FadeInUp, ZoomIn } from "react-native-reanimated";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getStoredToken } from "../src/api";
+import { hasProfile } from "../src/data/localStore";
 import { C, SHADOW } from "../src/theme";
 
 const { width: SCREEN_W } = Dimensions.get("window");
@@ -67,27 +66,28 @@ const chakraStyles = StyleSheet.create({
 export default function Welcome() {
   const router = useRouter();
   const [checking, setChecking] = useState(true);
-  const [routeAfter, setRouteAfter] = useState<"tabs" | "parent" | "auth">("auth");
+  const [routeAfter, setRouteAfter] = useState<"tabs" | "name">("name");
 
   useEffect(() => {
     (async () => {
       try {
-        const t = await getStoredToken();
-        const raw = await AsyncStorage.getItem("user");
-        const u = raw ? JSON.parse(raw) : null;
-        if (t && u?.role === "parent") setRouteAfter("parent");
-        else if (t) setRouteAfter("tabs");
-        else setRouteAfter("auth");
+        const has = await hasProfile();
+        if (has) {
+          // Returning user → skip welcome entirely
+          router.replace("/(tabs)" as any);
+          return;
+        }
+        setRouteAfter("name");
       } finally {
         setChecking(false);
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const proceed = () => {
-    if (routeAfter === "parent") router.replace("/parent" as any);
-    else if (routeAfter === "tabs") router.replace("/(tabs)" as any);
-    else router.replace("/auth" as any);
+    if (routeAfter === "tabs") router.replace("/(tabs)" as any);
+    else router.replace("/name" as any);
   };
 
   return (

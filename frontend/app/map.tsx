@@ -15,7 +15,7 @@ import Animated, {
   useSharedValue, useAnimatedProps, withRepeat, withTiming, withSequence,
   FadeIn, FadeInUp, ZoomIn, FadeOut, Easing,
 } from "react-native-reanimated";
-import { API } from "../src/api";
+import { API, PORTRAITS } from "../src/api";
 import { C, SHADOW } from "../src/theme";
 
 const BASE = process.env.EXPO_PUBLIC_BACKEND_URL;
@@ -170,8 +170,8 @@ export default function FreedomMap() {
       setDiscoveredCount(data.discovered_count);
       setTotal(data.total);
     } catch (e: any) {
-      if (e?.response?.status === 401) router.replace("/auth");
-    } finally {
+      // (offline: no auth)
+} finally {
       setLoading(false);
     }
   }, [router]);
@@ -326,11 +326,14 @@ export default function FreedomMap() {
 
                 <View style={styles.portraitWrap}>
                   <Image
-                    source={{
-                      uri: selected.has_story
-                        ? `${BASE}${selected.portrait_url}`
-                        : selected.portrait_url,
-                    }}
+                    source={
+                      PORTRAITS[selected.id] ||
+                      ({
+                        uri: selected.has_story
+                          ? `${BASE}${selected.portrait_url}`
+                          : selected.portrait_url,
+                      } as any)
+                    }
                     style={styles.portrait}
                   />
                 </View>

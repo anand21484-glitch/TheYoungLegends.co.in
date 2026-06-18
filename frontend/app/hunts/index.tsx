@@ -22,8 +22,8 @@ export default function HuntsList() {
       const r = await API.get("/hunts");
       setHunts(r.data);
     } catch (e: any) {
-      if (e?.response?.status === 401) router.replace("/auth");
-    } finally {
+      // (offline: no auth)
+} finally {
       setLoading(false);
     }
   };
