@@ -18,7 +18,8 @@ const battleCriesData: Record<string, any> = require("./battle_cries.json");
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const huntsData: any[] = require("./hunts.json");
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const heroQAData: Record<string, { name: string; questions: any[] }> = require("./hero_qa.json");
+const heroQAData: Record<string, { name: string; questions: any[] }> =
+  require("../../assets/data/heroes_qa_combined.json");
 
 export const STORIES: any[] = storiesData;
 export const BADGES: any[] = badgesData.badges || [];

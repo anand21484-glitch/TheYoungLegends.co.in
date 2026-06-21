@@ -1,0 +1,1336 @@
+{
+  "bhagat-singh": {
+    "name": "Bhagat Singh",
+    "questions": [
+      {
+        "id": "bs_q1",
+        "question": "Why were you so brave?",
+        "answer": "I was brave because I loved India more than I loved myself! When you believe in something truly important, fear just disappears.",
+        "badge": "Courage Unlocked! 🔥"
+      },
+      {
+        "id": "bs_q2",
+        "question": "What did you study?",
+        "answer": "I loved reading books about freedom and justice from all over the world! I believed that knowledge was the most powerful weapon of all.",
+        "badge": "Bookworm Badge! 📚"
+      },
+      {
+        "id": "bs_q3",
+        "question": "What were you like as a kid?",
+        "answer": "I was a very curious and serious child! Even at 12, I visited a battlefield and promised myself I would free India one day.",
+        "badge": "Young Hero! ⭐"
+      },
+      {
+        "id": "bs_q4",
+        "question": "What is Inquilab Zindabad?",
+        "answer": "It means Long Live the Revolution! I wanted every Indian to rise up and fight for freedom together. Say it loud — Inquilab Zindabad!",
+        "badge": "Battle Cry Learned! 🎤"
+      }
+    ]
+  },
+  "rani-lakshmibai": {
+    "name": "Rani Lakshmibai",
+    "questions": [
+      {
+        "id": "rl_q1",
+        "question": "Why did you fight for Jhansi?",
+        "answer": "Jhansi was my home and my people needed me! A true leader never abandons their family when they are in danger.",
+        "badge": "Protector Badge! 🛡️"
+      },
+      {
+        "id": "rl_q2",
+        "question": "Did you really ride a horse?",
+        "answer": "Yes! I learned to ride horses, use a sword and shoot arrows when I was young — just like you learn your school lessons! Practice makes perfect.",
+        "badge": "Warrior Spirit! ⚔️"
+      },
+      {
+        "id": "rl_q3",
+        "question": "What were you like as a kid?",
+        "answer": "I was a very energetic and fearless girl! I trained with boys in sword fighting and horse riding instead of sitting quietly. I believed girls could do anything!",
+        "badge": "Girl Power! 🌸"
+      },
+      {
+        "id": "rl_q4",
+        "question": "What does Main apni Jhansi nahi doongi mean?",
+        "answer": "It means I will not give up my Jhansi! I said this to tell the British that I would never surrender my kingdom or my people to anyone.",
+        "badge": "Battle Cry Learned! 🎤"
+      }
+    ]
+  },
+  "mahatma-gandhi": {
+    "name": "Mahatma Gandhi",
+    "questions": [
+      {
+        "id": "mg_q1",
+        "question": "Why did you never use weapons?",
+        "answer": "Because I believed love and truth are stronger than any weapon! When you fight with kindness and peace, you win not just the battle but also the hearts of people.",
+        "badge": "Peace Champion! 🕊️"
+      },
+      {
+        "id": "mg_q2",
+        "question": "What is the Salt March?",
+        "answer": "I walked 240 miles to the sea to make salt from seawater! It was my way of telling the British that Indians would not follow unjust rules anymore.",
+        "badge": "March On! 👣"
+      },
+      {
+        "id": "mg_q3",
+        "question": "What were you like as a kid?",
+        "answer": "I was a very shy and quiet child who was even afraid of the dark! But I learned that courage is not about being fearless — it is about doing what is right even when you are scared.",
+        "badge": "Brave Heart! 💚"
+      },
+      {
+        "id": "mg_q4",
+        "question": "What does Do or Die mean?",
+        "answer": "It means we must either win freedom or give everything trying! I said this to inspire every Indian to be completely committed to independence.",
+        "badge": "Battle Cry Learned! 🎤"
+      }
+    ]
+  },
+  "subhas-bose": {
+    "name": "Subhas Chandra Bose",
+    "questions": [
+      {
+        "id": "scb_q1",
+        "question": "Why did you build your own army?",
+        "answer": "Because I believed freedom had to be fought for with full strength! I formed the Indian National Army so Indians could stand up and fight together as soldiers.",
+        "badge": "Army Builder! 🦁"
+      },
+      {
+        "id": "scb_q2",
+        "question": "How did you escape from house arrest?",
+        "answer": "I disguised myself and secretly traveled thousands of miles across countries to build support for India's freedom! It was the greatest adventure of my life.",
+        "badge": "Escape Artist! 🌟"
+      },
+      {
+        "id": "scb_q3",
+        "question": "What were you like as a kid?",
+        "answer": "I was an excellent student who topped my university exams! But I loved India so much that I gave up a very comfortable government job to fight for freedom instead.",
+        "badge": "Brilliant Mind! 🎓"
+      },
+      {
+        "id": "scb_q4",
+        "question": "What does Give me blood mean?",
+        "answer": "I said give me blood and I will give you freedom! I meant that if Indians committed fully to the fight, together we would definitely win independence for our great nation.",
+        "badge": "Battle Cry Learned! 🎤"
+      }
+    ]
+  },
+  "sarojini-naidu": {
+    "name": "Sarojini Naidu",
+    "questions": [
+      {
+        "id": "sn_q1",
+        "question": "Why are you called the Nightingale of India?",
+        "answer": "Because my poems were as beautiful as a nightingale's song! I used my writing to inspire Indians and show the world how wonderful our country truly is.",
+        "badge": "Poet's Heart! 🎵"
+      },
+      {
+        "id": "sn_q2",
+        "question": "How did you fight for freedom?",
+        "answer": "I gave powerful speeches, led marches and organized people across India! I believed that words and unity were the most powerful tools for change.",
+        "badge": "Voice of India! 📢"
+      },
+      {
+        "id": "sn_q3",
+        "question": "What were you like as a kid?",
+        "answer": "I was a child who loved reading and writing poems in many languages! I wrote my first long poem when I was just 12 years old — not much older than you!",
+        "badge": "Child Prodigy! ✨"
+      },
+      {
+        "id": "sn_q4",
+        "question": "What is Vande Mataram?",
+        "answer": "It means I bow to thee Mother India! It is our beautiful song of love for India that filled every freedom fighter's heart with pride and courage.",
+        "badge": "Battle Cry Learned! 🎤"
+      }
+    ]
+  },
+  "chandrashekhar-azad": {
+    "name": "Chandrashekhar Azad",
+    "questions": [
+      {
+        "id": "ca_q1",
+        "question": "Why did you call yourself Azad?",
+        "answer": "Azad means free! When a judge asked my name in court I said Azad, my father's name is Independence and my home is jail — because I refused to be a prisoner in my own country!",
+        "badge": "Freedom Name! 🕊️"
+      },
+      {
+        "id": "ca_q2",
+        "question": "What made you so fearless?",
+        "answer": "I made a promise to myself that I would never be captured alive by the British! When you make a promise you truly mean, it gives you the strength of ten people.",
+        "badge": "Unbreakable! 💪"
+      },
+      {
+        "id": "ca_q3",
+        "question": "What were you like as a kid?",
+        "answer": "I was a wild and adventurous boy who loved climbing trees and running faster than anyone! My energy and speed later helped me outsmart the British many times.",
+        "badge": "Wild Child! 🌿"
+      },
+      {
+        "id": "ca_q4",
+        "question": "What is your most famous promise?",
+        "answer": "I promised I would never be caught alive — and I kept that promise until my very last day! A person who keeps their promises is the bravest person of all.",
+        "badge": "Promise Keeper! 🌟"
+      }
+    ]
+  },
+  "mangal-pandey": {
+    "name": "Mangal Pandey",
+    "questions": [
+      {
+        "id": "mp_q1",
+        "question": "Why are you called the first spark?",
+        "answer": "Because I was one of the first soldiers to stand up and say no to the British in 1857! One small spark can start a great fire of freedom.",
+        "badge": "First Spark! 🔥"
+      },
+      {
+        "id": "mp_q2",
+        "question": "What made you stand up to the British?",
+        "answer": "I was a proud Indian soldier and I refused to follow orders that hurt my beliefs and dignity! Self-respect is more important than any job or reward.",
+        "badge": "Self Respect! 🏅"
+      },
+      {
+        "id": "mp_q3",
+        "question": "What were you like as a soldier?",
+        "answer": "I was a very dedicated and disciplined soldier who took my duties very seriously! But I believed that duty to my country was more important than duty to a foreign ruler.",
+        "badge": "Brave Soldier! ⚔️"
+      },
+      {
+        "id": "mp_q4",
+        "question": "Why do we remember you today?",
+        "answer": "Because I showed that one ordinary person standing up for what is right can change history forever! You are never too small to make a big difference.",
+        "badge": "History Maker! 📖"
+      }
+    ]
+  },
+  "tilak": {
+    "name": "Bal Gangadhar Tilak",
+    "questions": [
+      {
+        "id": "bgt_q1",
+        "question": "What does Swaraj is my birthright mean?",
+        "answer": "It means freedom belongs to every Indian simply because we were born here! Nobody can take away what is naturally and rightfully yours.",
+        "badge": "Battle Cry Learned! 🎤"
+      },
+      {
+        "id": "bgt_q2",
+        "question": "How did you use festivals for freedom?",
+        "answer": "I turned the Ganesh festival into huge community gatherings where thousands of Indians could meet, talk and plan together! Celebrations can be powerful tools for change.",
+        "badge": "Festival Power! 🎊"
+      },
+      {
+        "id": "bgt_q3",
+        "question": "What were you like as a kid?",
+        "answer": "I was a very sharp student who loved mathematics and Sanskrit! I believed education was the key to everything — and I spent my whole life teaching and learning.",
+        "badge": "Scholar Badge! 📐"
+      },
+      {
+        "id": "bgt_q4",
+        "question": "Why did you start a newspaper?",
+        "answer": "Because I wanted to spread the message of freedom to every corner of India! A newspaper reaches thousands of people and powerful words can change the world.",
+        "badge": "Word Power! 📰"
+      }
+    ]
+  },
+  "sardar-patel": {
+    "name": "Sardar Vallabhbhai Patel",
+    "questions": [
+      {
+        "id": "sp_q1",
+        "question": "Why are you called the Iron Man?",
+        "answer": "Because I was as strong and determined as iron! When I made up my mind to do something for India, absolutely nothing could stop me.",
+        "badge": "Iron Will! 💪"
+      },
+      {
+        "id": "sp_q2",
+        "question": "How did you unite India?",
+        "answer": "After independence I convinced over 500 small kingdoms to join together as one India! I used patience, strength and love for my country to bring everyone together.",
+        "badge": "Unifier! 🗺️"
+      },
+      {
+        "id": "sp_q3",
+        "question": "What were you like as a kid?",
+        "answer": "I was a very determined child who faced every challenge without complaining! Once I had a painful boil but I treated it myself with a hot iron rod — that is how tough I was!",
+        "badge": "Tough as Iron! 🔩"
+      },
+      {
+        "id": "sp_q4",
+        "question": "What is the Statue of Unity?",
+        "answer": "It is the world's tallest statue built to honour me in Gujarat! It stands 182 metres tall — as tall as my dream of a united and strong India.",
+        "badge": "Giant Legacy! 🗽"
+      }
+    ]
+  },
+  "birsa-munda": {
+    "name": "Birsa Munda",
+    "questions": [
+      {
+        "id": "bm_q1",
+        "question": "Why do people call you Bhagwan?",
+        "answer": "The people of my tribe called me Bhagwan because I fought so hard to protect them and their forests! When you dedicate your life to helping others they see something divine in you.",
+        "badge": "Forest God! 🌿"
+      },
+      {
+        "id": "bm_q2",
+        "question": "What did you fight for?",
+        "answer": "I fought for my people's land, their forests and their right to live freely! The British were taking everything from tribal people and I said enough — this must stop.",
+        "badge": "Land Guardian! 🌍"
+      },
+      {
+        "id": "bm_q3",
+        "question": "What were you like as a kid?",
+        "answer": "I was a playful boy who loved roaming the forests and playing the flute! The forest was my school and every tree and animal was my teacher.",
+        "badge": "Forest Child! 🎵"
+      },
+      {
+        "id": "bm_q4",
+        "question": "What is your biggest legacy?",
+        "answer": "I showed that tribal people deserve the same rights and respect as everyone else! Today Jharkhand celebrates my birthday as a public holiday — that makes me very proud.",
+        "badge": "Tribal Hero! 🏹"
+      }
+    ]
+  },
+  "rani-gaidinliu": {
+    "name": "Rani Gaidinliu",
+    "questions": [
+      {
+        "id": "rg_q1",
+        "question": "How old were you when you started fighting?",
+        "answer": "I was only 13 years old when I joined the freedom movement! Age is just a number — what matters is the fire in your heart.",
+        "badge": "Young Warrior! ⭐"
+      },
+      {
+        "id": "rg_q2",
+        "question": "What did you fight for?",
+        "answer": "I fought for the freedom and culture of my Naga people in the Northeast! Every community in India deserves to be free and proud of who they are.",
+        "badge": "Culture Keeper! 🌺"
+      },
+      {
+        "id": "rg_q3",
+        "question": "What were you like as a teenager?",
+        "answer": "I was a fearless teenager who inspired thousands of adults to follow me! I proved that young people can lead and make a real difference in the world.",
+        "badge": "Teen Leader! 🌟"
+      },
+      {
+        "id": "rg_q4",
+        "question": "What did Nehru call you?",
+        "answer": "Jawaharlal Nehru called me the Daughter of the Hills! He recognised my bravery and gave me the title Rani which means Queen — and I wore that name with great pride.",
+        "badge": "Queen of Hills! 👑"
+      }
+    ]
+  },
+  "matangini-hazra": {
+    "name": "Matangini Hazra",
+    "questions": [
+      {
+        "id": "mh_q1",
+        "question": "How old were you when you became a hero?",
+        "answer": "I was 73 years old! It is never too late to be brave and do something great for your country. Age never stopped me from loving India.",
+        "badge": "Ageless Courage! 🌸"
+      },
+      {
+        "id": "mh_q2",
+        "question": "What happened when you carried the flag?",
+        "answer": "Even when I was hurt I kept holding the Indian flag high and kept walking forward! I kept saying Vande Mataram with every step because I would not let the flag fall.",
+        "badge": "Flag Bearer! 🇮🇳"
+      },
+      {
+        "id": "mh_q3",
+        "question": "Why do people call you Gandhi Buri?",
+        "answer": "Gandhi Buri means Old Lady Gandhi! People called me this because I followed Gandhiji's peaceful path with my whole heart and soul.",
+        "badge": "Gandhi's Spirit! 🕊️"
+      },
+      {
+        "id": "mh_q4",
+        "question": "What is your message for kids?",
+        "answer": "Never think you are too small, too young or too old to do something amazing! I was a grandmother who became a hero — and so can you in your own special way.",
+        "badge": "Inspiration! ✨"
+      }
+    ]
+  },
+  "tantia-tope": {
+    "name": "Tantia Tope",
+    "questions": [
+      {
+        "id": "tt_q1",
+        "question": "Why were you such a great general?",
+        "answer": "Because I never gave up even when things looked impossible! A great leader finds a new way forward when one path is blocked — I always found another way to fight.",
+        "badge": "Master General! ⚔️"
+      },
+      {
+        "id": "tt_q2",
+        "question": "How did you help Rani Lakshmibai?",
+        "answer": "I was her most trusted commander and fought alongside her to defend Jhansi! True friendship means standing with someone in their most difficult moment.",
+        "badge": "Loyal Friend! 🤝"
+      },
+      {
+        "id": "tt_q3",
+        "question": "What made you a great warrior?",
+        "answer": "I could move my army very quickly and surprise the enemy when they least expected it! In battle, being clever is just as important as being strong.",
+        "badge": "Swift Warrior! 💨"
+      },
+      {
+        "id": "tt_q4",
+        "question": "What is your biggest legacy?",
+        "answer": "I showed that ordinary Indians could take on the most powerful army in the world and make them struggle! Courage and clever thinking can overcome any obstacle.",
+        "badge": "Clever Hero! 🧠"
+      }
+    ]
+  },
+  "alluri-sitarama-raju": {
+    "name": "Alluri Sitarama Raju",
+    "questions": [
+      {
+        "id": "asr_q1",
+        "question": "Why did you fight from the forest?",
+        "answer": "The forest was my home and my strength! I knew every tree and path in the jungle and used that knowledge to protect my tribal people from the British.",
+        "badge": "Forest Fighter! 🌳"
+      },
+      {
+        "id": "asr_q2",
+        "question": "Who were you fighting to protect?",
+        "answer": "I fought for the Adivasi tribal people of Andhra Pradesh whose land and rights were being taken away! Protecting the weak is the duty of every strong person.",
+        "badge": "Protector! 🛡️"
+      },
+      {
+        "id": "asr_q3",
+        "question": "What were you like as a young man?",
+        "answer": "I was a very spiritual and fearless young man who people believed had special powers! My courage inspired thousands of tribal people to rise up and fight together.",
+        "badge": "Mystic Hero! 🌟"
+      },
+      {
+        "id": "asr_q4",
+        "question": "What do people call you?",
+        "answer": "People call me Manyam Veerudu which means Hero of the Jungle! I am so proud that my people remember me with so much love and respect even today.",
+        "badge": "Jungle Hero! 🏹"
+      }
+    ]
+  },
+  "kanaklata-barua": {
+    "name": "Kanaklata Barua",
+    "questions": [
+      {
+        "id": "kb_q1",
+        "question": "How old were you when you became a hero?",
+        "answer": "I was only 17 years old! I carried the Indian flag in a procession and walked forward even when it was dangerous because I loved India with all my heart.",
+        "badge": "Teen Hero! ⭐"
+      },
+      {
+        "id": "kb_q2",
+        "question": "Why did you carry the flag?",
+        "answer": "Because the Indian flag represents our freedom and dignity! Whoever carries the flag carries the hopes and dreams of every single Indian — that gave me great strength.",
+        "badge": "Flag Pride! 🇮🇳"
+      },
+      {
+        "id": "kb_q3",
+        "question": "What were you like as a teenager?",
+        "answer": "I was a passionate and patriotic young girl who dreamed of a free India! I believed young people have a special responsibility to fight for a better future.",
+        "badge": "Patriot! 🌺"
+      },
+      {
+        "id": "kb_q4",
+        "question": "What is your message for kids?",
+        "answer": "Your age does not limit your courage! I was a teenager just like you will be one day — and I showed that young people can be true heroes for their country.",
+        "badge": "Young Legend! 🏅"
+      }
+    ]
+  },
+  "kunwar-singh": {
+    "name": "Kunwar Singh",
+    "questions": [
+      {
+        "id": "ks_q1",
+        "question": "How old were you when you went to war?",
+        "answer": "I was nearly 80 years old! People thought I was too old to fight but I showed them that the spirit of a warrior never grows old.",
+        "badge": "Ageless Warrior! 💪"
+      },
+      {
+        "id": "ks_q2",
+        "question": "What is your most amazing story?",
+        "answer": "When my arm was hurt in battle I cut it off myself and offered it to Mother Ganga before fighting on! That is how strong my will to fight for India truly was.",
+        "badge": "Incredible Strength! 🔥"
+      },
+      {
+        "id": "ks_q3",
+        "question": "What made you fight at 80?",
+        "answer": "Love for my country has no age limit! When your motherland needs you, you answer the call no matter how old or young you are.",
+        "badge": "Forever Young! ❤️"
+      },
+      {
+        "id": "ks_q4",
+        "question": "What is Har Har Mahadev?",
+        "answer": "It is the ancient battle cry meaning Victory to Lord Shiva! My soldiers and I shouted it as we charged into battle — it filled our hearts with fearless energy.",
+        "badge": "Battle Cry Learned! 🎤"
+      }
+    ]
+  },
+  "veer-surendra-sai": {
+    "name": "Veer Surendra Sai",
+    "questions": [
+      {
+        "id": "vss_q1",
+        "question": "How long did you fight the British?",
+        "answer": "I fought for over 40 years — almost my entire life! True dedication means never giving up even when the struggle takes a very very long time.",
+        "badge": "Lifelong Fighter! ⏳"
+      },
+      {
+        "id": "vss_q2",
+        "question": "What did you fight for?",
+        "answer": "I fought for Odisha's independence and the rights of my people! Every region of India has its own heroes who protected their land with great love.",
+        "badge": "Odisha's Pride! 🌊"
+      },
+      {
+        "id": "vss_q3",
+        "question": "What made you a hero?",
+        "answer": "I never accepted defeat no matter how many times the British tried to stop me! Persistence — never giving up — is the most powerful quality any person can have.",
+        "badge": "Never Give Up! 🏆"
+      },
+      {
+        "id": "vss_q4",
+        "question": "What is your message for kids?",
+        "answer": "Never let anyone tell you that your dreams are too big or your fight is impossible! I proved that one determined person can keep the flame of freedom burning for decades.",
+        "badge": "Eternal Flame! 🔥"
+      }
+    ]
+  },
+  "pazhassi-raja": {
+    "name": "Pazhassi Raja",
+    "questions": [
+      {
+        "id": "pr_q1",
+        "question": "Why are you called the Lion of Kerala?",
+        "answer": "Because I was as fierce and proud as a lion protecting his territory! I fought from the deep forests of Kerala with the roar of a true jungle king.",
+        "badge": "Lion's Roar! 🦁"
+      },
+      {
+        "id": "pr_q2",
+        "question": "How did you fight the British?",
+        "answer": "I used guerrilla warfare — hiding in forests and striking when the enemy least expected it! Sometimes being clever and quick is better than having the biggest army.",
+        "badge": "Clever Warrior! 🌿"
+      },
+      {
+        "id": "pr_q3",
+        "question": "What made Kerala proud of you?",
+        "answer": "I was one of the first rulers in all of India to seriously challenge the British East India Company! Kerala has always been a land of brave and brilliant people.",
+        "badge": "Kerala's Pride! 🥥"
+      },
+      {
+        "id": "pr_q4",
+        "question": "What is your biggest lesson?",
+        "answer": "Know your home ground better than anyone else! I used Kerala's forests and hills as my greatest weapon — your strengths are always your best tools.",
+        "badge": "Home Advantage! 🏔️"
+      }
+    ]
+  },
+  "kattabomman": {
+    "name": "Veerapandiya Kattabomman",
+    "questions": [
+      {
+        "id": "vpk_q1",
+        "question": "Why did you refuse to pay taxes?",
+        "answer": "Because paying taxes to foreign rulers meant accepting that they owned our land! I said no because Tamil Nadu belongs to Tamil people — not to anyone who sails in from far away.",
+        "badge": "Defiant Hero! 💪"
+      },
+      {
+        "id": "vpk_q2",
+        "question": "What made you a great chieftain?",
+        "answer": "I was loyal to my people and bold in standing up for their rights! A true leader puts the welfare of their people before their own comfort and safety.",
+        "badge": "People's Chief! 👑"
+      },
+      {
+        "id": "vpk_q3",
+        "question": "Why is Tamil Nadu proud of you?",
+        "answer": "Because I was one of the first leaders in South India to openly defy the British! My bravery inspired generations of freedom fighters who came after me.",
+        "badge": "Tamil Pride! 🌺"
+      },
+      {
+        "id": "vpk_q4",
+        "question": "What is your famous quote?",
+        "answer": "I said I will not surrender! These three words carry the spirit of every freedom fighter who ever lived — never bow to injustice no matter what.",
+        "badge": "Battle Cry Learned! 🎤"
+      }
+    ]
+  },
+  "tirot-sing": {
+    "name": "U Tirot Sing",
+    "questions": [
+      {
+        "id": "uts_q1",
+        "question": "Where did you come from?",
+        "answer": "I was a brave chief from the Khasi Hills of Meghalaya in Northeast India! Every corner of our great country has heroes who fought with equal passion for freedom.",
+        "badge": "Northeast Pride! 🏔️"
+      },
+      {
+        "id": "uts_q2",
+        "question": "How did you protect your people?",
+        "answer": "I used the misty hills and forests of Meghalaya as my shield and fought to keep my people free! Nature can be your greatest ally when you know how to use it.",
+        "badge": "Hill Guardian! 🌫️"
+      },
+      {
+        "id": "uts_q3",
+        "question": "Why do we remember you?",
+        "answer": "Because I showed that even small communities in faraway hills stood up to the British with great dignity and pride! Every act of bravery matters in history.",
+        "badge": "Hills Hero! ⭐"
+      },
+      {
+        "id": "uts_q4",
+        "question": "What is your message for kids?",
+        "answer": "No matter where you come from — big city or small village, plains or mountains — you can be a hero for your people! India's strength is in every one of its children.",
+        "badge": "Every Hero Counts! 🇮🇳"
+      }
+    ]
+  },
+  "begum-hazrat-mahal": {
+    "name": "Begum Hazrat Mahal",
+    "questions": [
+      {
+        "id": "bhm_q1",
+        "question": "How did you become a leader?",
+        "answer": "When the British took my husband away I stepped forward and led Lucknow myself! True leaders rise up exactly when their people need them most.",
+        "badge": "Rising Leader! 👑"
+      },
+      {
+        "id": "bhm_q2",
+        "question": "What did you fight for?",
+        "answer": "I fought for Lucknow and for the dignity of every Indian! I refused to accept that a foreign power could simply walk in and take over our beautiful land.",
+        "badge": "City Defender! 🏰"
+      },
+      {
+        "id": "bhm_q3",
+        "question": "What made you special among freedom fighters?",
+        "answer": "I was a woman who led an entire army at a time when people thought only men could be warriors! I proved that courage has nothing to do with whether you are a boy or a girl.",
+        "badge": "Barrier Breaker! 🌟"
+      },
+      {
+        "id": "bhm_q4",
+        "question": "What is your message for girls?",
+        "answer": "Never let anyone tell you what you cannot do because you are a girl! I led soldiers, made decisions and fought for my people — and so can you in your own amazing way.",
+        "badge": "Girl Power! 🌸"
+      }
+    ]
+  },
+  "kittur-chennamma": {
+    "name": "Kittur Chennamma",
+    "questions": [
+      {
+        "id": "kc_q1",
+        "question": "Why are you a pioneer?",
+        "answer": "Because I was the first woman in India to take up arms against the British — long before many other famous freedom fighters were even born! Being first takes the most courage.",
+        "badge": "Trailblazer! 🔥"
+      },
+      {
+        "id": "kc_q2",
+        "question": "What did you defend?",
+        "answer": "I defended my kingdom of Kittur in Karnataka with everything I had! A true ruler fights for their kingdom and their people until their very last breath.",
+        "badge": "Kingdom Defender! 🛡️"
+      },
+      {
+        "id": "kc_q3",
+        "question": "What made you brave?",
+        "answer": "My love for my people was stronger than my fear! When you truly love something you find a courage inside yourself that you never knew existed.",
+        "badge": "Love's Courage! ❤️"
+      },
+      {
+        "id": "kc_q4",
+        "question": "What is Karnataka's pride in you?",
+        "answer": "Karnataka celebrates me as a true daughter who fought with honour! Every state in India has heroes — knowing your local heroes makes you even more proud of where you come from.",
+        "badge": "Karnataka's Queen! 🌺"
+      }
+    ]
+  },
+  "ram-prasad-bismil": {
+    "name": "Ram Prasad Bismil",
+    "questions": [
+      {
+        "id": "rpb_q1",
+        "question": "Why were you a poet and a warrior?",
+        "answer": "Because I believed the pen and the sword both serve freedom! My poems inspired thousands of people while my actions showed that I meant every single word I wrote.",
+        "badge": "Poet Warrior! ✍️"
+      },
+      {
+        "id": "rpb_q2",
+        "question": "What is Sarfaroshi ki Tamanna?",
+        "answer": "It is my most famous poem meaning the desire for revolution burns in our hearts! These words became the anthem of young freedom fighters all across India.",
+        "badge": "Battle Cry Learned! 🎤"
+      },
+      {
+        "id": "rpb_q3",
+        "question": "What were you like as a young man?",
+        "answer": "I was a deeply passionate young man who felt India's pain in my heart every single day! That pain turned into poetry and that poetry turned into action.",
+        "badge": "Passionate Soul! 🔥"
+      },
+      {
+        "id": "rpb_q4",
+        "question": "What is your biggest legacy?",
+        "answer": "My poems are still sung today — over 100 years later! Words written with true feeling last forever and continue to inspire people long after the writer is gone.",
+        "badge": "Eternal Words! 📜"
+      }
+    ]
+  },
+  "ashfaqulla-khan": {
+    "name": "Ashfaqullah Khan",
+    "questions": [
+      {
+        "id": "ak_q1",
+        "question": "Why is your friendship with Bismil so famous?",
+        "answer": "Because Ram Prasad Bismil and I were best friends who belonged to different religions but shared one dream — a free India! True friendship knows no religion or caste.",
+        "badge": "Unity Badge! 🤝"
+      },
+      {
+        "id": "ak_q2",
+        "question": "What did you fight for?",
+        "answer": "I fought for an India where Hindus and Muslims would live together as brothers forever! Unity between all Indians was my deepest dream and my greatest hope.",
+        "badge": "Unity Hero! 🌈"
+      },
+      {
+        "id": "ak_q3",
+        "question": "What were you like as a person?",
+        "answer": "I was warm, loving and completely devoted to my friends and my country! I believed that the love between friends of different backgrounds is India's true superpower.",
+        "badge": "Loving Heart! ❤️"
+      },
+      {
+        "id": "ak_q4",
+        "question": "What is your message for kids?",
+        "answer": "Be friends with everyone regardless of their religion, language or background! India's greatest strength has always been its beautiful unity in diversity.",
+        "badge": "Friend of All! 🌟"
+      }
+    ]
+  },
+  "sukhdev": {
+    "name": "Sukhdev Thapar",
+    "questions": [
+      {
+        "id": "st_q1",
+        "question": "Why are you always with Bhagat Singh?",
+        "answer": "Because Bhagat Singh and I were inseparable best friends who shared everything — our dreams, our plans and our love for India! The best friendships are built on shared values.",
+        "badge": "Best Friends! 🤝"
+      },
+      {
+        "id": "st_q2",
+        "question": "What did you do for freedom?",
+        "answer": "I organized revolutionary activities and inspired young people across Punjab to join the freedom movement! One passionate person can light the fire in a thousand hearts.",
+        "badge": "Organizer! 📣"
+      },
+      {
+        "id": "st_q3",
+        "question": "What were you like as a young man?",
+        "answer": "I was deeply serious about freedom from a very young age! While other young men thought about careers I thought about how to free my beloved country from foreign rule.",
+        "badge": "Dedicated Soul! 💪"
+      },
+      {
+        "id": "st_q4",
+        "question": "What is your biggest lesson?",
+        "answer": "Choose your friends wisely and stand by them always! Bhagat Singh, Rajguru and I stood together until the very end — that bond of friendship made us stronger than any army.",
+        "badge": "Loyal Forever! ⭐"
+      }
+    ]
+  },
+  "rajguru": {
+    "name": "Rajguru",
+    "questions": [
+      {
+        "id": "rj_q1",
+        "question": "Why were you called a sharpshooter?",
+        "answer": "Because I was extremely skilled and precise in everything I did! Whatever mission I took on for India I gave it my complete focus and energy.",
+        "badge": "Sharp Focus! 🎯"
+      },
+      {
+        "id": "rj_q2",
+        "question": "What did you share with Bhagat Singh?",
+        "answer": "Bhagat Singh, Sukhdev and I shared everything — our friendship, our mission, our courage and our complete love for India! Together we were unstoppable.",
+        "badge": "Trio of Heroes! 🔥"
+      },
+      {
+        "id": "rj_q3",
+        "question": "What were you like as a young man?",
+        "answer": "I was energetic, bold and always ready for action! I had trained my body and mind to be completely ready to serve India whenever my country needed me.",
+        "badge": "Ready Always! ⚡"
+      },
+      {
+        "id": "rj_q4",
+        "question": "What is your message for kids?",
+        "answer": "Train yourself every day — your mind, your body and your character! When the moment comes to do something great you want to be completely ready for it.",
+        "badge": "Be Ready! 💪"
+      }
+    ]
+  },
+  "lala-lajpat-rai": {
+    "name": "Lala Lajpat Rai",
+    "questions": [
+      {
+        "id": "llr_q1",
+        "question": "Why are you called Punjab Kesari?",
+        "answer": "Punjab Kesari means Lion of Punjab! I was given this name because I roared like a lion against injustice and never backed down no matter how powerful my opponents were.",
+        "badge": "Lion of Punjab! 🦁"
+      },
+      {
+        "id": "llr_q2",
+        "question": "What happened during the Simon Commission?",
+        "answer": "I led a peaceful protest against the all-British Simon Commission and was beaten by police. I said every blow they give me will become a nail in the coffin of British rule — and I was right!",
+        "badge": "Unbreakable Spirit! 💪"
+      },
+      {
+        "id": "llr_q3",
+        "question": "What did you do for education?",
+        "answer": "I believed education was the most powerful weapon for freedom! I started schools and wrote books because I knew an educated India would never accept being ruled by foreigners.",
+        "badge": "Education Hero! 📚"
+      },
+      {
+        "id": "llr_q4",
+        "question": "What is your most famous quote?",
+        "answer": "I said they may crush my body but not my spirit! No force in the world can defeat a person whose spirit and determination remain completely unbroken.",
+        "badge": "Battle Cry Learned! 🎤"
+      }
+    ]
+  },
+  "bipin-pal": {
+    "name": "Bipin Chandra Pal",
+    "questions": [
+      {
+        "id": "bcp_q1",
+        "question": "Who were the Lal Bal Pal trio?",
+        "answer": "Lala Lajpat Rai, Bal Gangadhar Tilak and I — Bipin Chandra Pal — were three great leaders who together shook the entire British empire with our powerful voices!",
+        "badge": "Trio of Power! ⚡"
+      },
+      {
+        "id": "bcp_q2",
+        "question": "How did you fight for freedom?",
+        "answer": "I used my powerful speeches and writings to awaken millions of Indians! Words spoken with passion and truth can move mountains and change the course of history.",
+        "badge": "Word Warrior! 📢"
+      },
+      {
+        "id": "bcp_q3",
+        "question": "What did you believe in?",
+        "answer": "I believed Indians should be completely self-reliant and not depend on the British for anything! True freedom begins when you believe in your own strength and abilities.",
+        "badge": "Self Reliance! 🌟"
+      },
+      {
+        "id": "bcp_q4",
+        "question": "What is your message for kids?",
+        "answer": "Learn to speak up for what you believe in! Your voice is your most powerful gift — use it wisely, use it boldly and use it always in the service of truth.",
+        "badge": "Speak Up! 🎙️"
+      }
+    ]
+  },
+  "aurobindo-ghosh": {
+    "name": "Aurobindo Ghosh",
+    "questions": [
+      {
+        "id": "ag_q1",
+        "question": "How were you both a warrior and a saint?",
+        "answer": "I started as a fierce freedom fighter and later became a great spiritual teacher! I discovered that the inner revolution of the mind is just as important as the outer revolution for freedom.",
+        "badge": "Warrior Saint! 🌸"
+      },
+      {
+        "id": "ag_q2",
+        "question": "What made you so brilliant?",
+        "answer": "I studied thirteen languages and topped every exam I ever took! But I always believed that wisdom — knowing how to use knowledge — is even more valuable than information alone.",
+        "badge": "Genius! 🧠"
+      },
+      {
+        "id": "ag_q3",
+        "question": "What were you like as a student?",
+        "answer": "I was an extraordinary student who mastered Greek, Latin and English literature as a young boy in England! I proved that Indian minds are among the finest in the entire world.",
+        "badge": "Scholar Supreme! 🎓"
+      },
+      {
+        "id": "ag_q4",
+        "question": "What is your message for kids?",
+        "answer": "Develop your mind, your heart and your spirit equally! A truly free person is free on the inside as well as the outside — that inner freedom is something nobody can ever take from you.",
+        "badge": "Inner Freedom! ✨"
+      }
+    ]
+  },
+  "veer-savarkar": {
+    "name": "Vinayak Damodar Savarkar",
+    "questions": [
+      {
+        "id": "vds_q1",
+        "question": "Why is your escape from a ship famous?",
+        "answer": "I jumped from a moving ship into the sea and swam to shore to try to escape to freedom! It was one of the most daring escapes in the entire history of India's freedom struggle.",
+        "badge": "Daring Escape! 🌊"
+      },
+      {
+        "id": "vds_q2",
+        "question": "What did you do in prison?",
+        "answer": "Even in the toughest prison I kept writing poems by scratching them on the prison walls with a thorn! The creative spirit can never be imprisoned no matter what.",
+        "badge": "Thorn Poet! ✍️"
+      },
+      {
+        "id": "vds_q3",
+        "question": "What were you like as a young man?",
+        "answer": "I was an extremely passionate and daring young man who organized revolutionary activities even as a student! My fearlessness inspired countless young Indians to join the freedom movement.",
+        "badge": "Student Rebel! 🔥"
+      },
+      {
+        "id": "vds_q4",
+        "question": "What is your biggest legacy?",
+        "answer": "I showed that the creative mind and the brave heart together can overcome any obstacle! Even the most powerful prison could not silence my voice or stop my pen.",
+        "badge": "Unstoppable! 💪"
+      }
+    ]
+  },
+  "uyyalawada-narasimha-reddy": {
+    "name": "Uyyalawada Narasimha Reddy",
+    "questions": [
+      {
+        "id": "unr_q1",
+        "question": "Why are you called the first rebel?",
+        "answer": "Because I stood up against the British in 1846 — over ten years before the famous revolt of 1857! Being first takes extraordinary courage when nobody else has done it before.",
+        "badge": "First Rebel! ⚔️"
+      },
+      {
+        "id": "unr_q2",
+        "question": "What did you fight for?",
+        "answer": "I fought for the farmers and poor people of Andhra Pradesh whose lands were being taken away by the British! Protecting the helpless is the highest duty of any leader.",
+        "badge": "Farmers Friend! 🌾"
+      },
+      {
+        "id": "unr_q3",
+        "question": "Why is Andhra Pradesh proud of you?",
+        "answer": "Because I showed that the spirit of resistance against injustice was burning in South India long before many people knew about it! Every region of India has its early heroes.",
+        "badge": "Andhra's Pride! 🌺"
+      },
+      {
+        "id": "unr_q4",
+        "question": "What is your message for kids?",
+        "answer": "Do not wait for someone else to stand up first! Be the one who starts the change even if you stand alone at the beginning — others will follow your brave example.",
+        "badge": "Stand First! 🌟"
+      }
+    ]
+  },
+  "tara-rani-srivastava": {
+    "name": "Tara Rani Srivastava",
+    "questions": [
+      {
+        "id": "trs_q1",
+        "question": "What makes your story so touching?",
+        "answer": "My husband was hurt during our freedom march but I bandaged his wounds, told him to rest and carried on marching with the flag myself! India's freedom was bigger than any personal grief.",
+        "badge": "Unshakeable! 🇮🇳"
+      },
+      {
+        "id": "trs_q2",
+        "question": "How did you show such strength?",
+        "answer": "I found strength in my love for India! When your purpose is bigger than yourself you discover a courage and strength inside you that you never knew was there.",
+        "badge": "Inner Strength! 💪"
+      },
+      {
+        "id": "trs_q3",
+        "question": "Why do we remember you?",
+        "answer": "Because I showed that ordinary Indian women had extraordinary courage! I was not a queen or a princess — I was a common woman who did an uncommon thing.",
+        "badge": "Common Hero! ⭐"
+      },
+      {
+        "id": "trs_q4",
+        "question": "What is your message for kids?",
+        "answer": "Even in your saddest moments you can find the strength to keep going for something you truly love! Grief and courage can exist in the same heart at the same time.",
+        "badge": "Keep Going! 🌸"
+      }
+    ]
+  },
+  "abbakka-chowta": {
+    "name": "Abbakka Chowta",
+    "questions": [
+      {
+        "id": "ac_q1",
+        "question": "How many times did you defeat the Portuguese?",
+        "answer": "I defeated the Portuguese not once, not twice but four times! Each victory showed that a determined defender can beat a much more powerful invader again and again.",
+        "badge": "Four Time Winner! 🏆"
+      },
+      {
+        "id": "ac_q2",
+        "question": "Why are you called the Fearless Queen?",
+        "answer": "Because I led my soldiers personally into battle on the beaches of Ullal! A fearless leader who fights alongside their people inspires ten times the courage in every soldier.",
+        "badge": "Fearless Queen! 👑"
+      },
+      {
+        "id": "ac_q3",
+        "question": "What made you special as a ruler?",
+        "answer": "I formed alliances with neighbouring kingdoms and local communities to fight together! I understood that unity and cooperation are far stronger than any single warrior alone.",
+        "badge": "Alliance Builder! 🤝"
+      },
+      {
+        "id": "ac_q4",
+        "question": "What is your message for kids?",
+        "answer": "Never be intimidated by someone bigger or more powerful than you! I faced the mighty Portuguese navy with a small coastal kingdom — and I won because I was smarter and braver.",
+        "badge": "David vs Goliath! ⚡"
+      }
+    ]
+  },
+  "puli-thevar": {
+    "name": "Puli Thevar",
+    "questions": [
+      {
+        "id": "pt_q1",
+        "question": "Why are you the first rebel of South India?",
+        "answer": "Because I was one of the very first rulers in South India to directly confront the British East India Company! Standing up first when everyone is silent is the bravest act of all.",
+        "badge": "South India's First! 🌟"
+      },
+      {
+        "id": "pt_q2",
+        "question": "What did Puli mean?",
+        "answer": "Puli means Tiger in Tamil! I was given this name because of my fierce and fearless nature — like a tiger I protected my territory and my people with absolute ferocity.",
+        "badge": "Tiger Spirit! 🐯"
+      },
+      {
+        "id": "pt_q3",
+        "question": "What did you fight to protect?",
+        "answer": "I fought to protect the independence and dignity of my kingdom Nerkattumseval in Tamil Nadu! Every inch of India's soil is worth protecting with everything you have.",
+        "badge": "Territory Guardian! 🛡️"
+      },
+      {
+        "id": "pt_q4",
+        "question": "What is Tamil Nadu's pride in you?",
+        "answer": "I am remembered as a pioneering freedom fighter who showed that Tamil people would never accept foreign domination! Tamil Nadu's spirit of independence goes back centuries.",
+        "badge": "Tamil Tiger! 🌺"
+      }
+    ]
+  },
+  "kushal-konwar": {
+    "name": "Kushal Konwar",
+    "questions": [
+      {
+        "id": "kk_q1",
+        "question": "Why is Assam so proud of you?",
+        "answer": "Because I gave my life for India's freedom and became Assam's greatest martyr! Every state in India has heroes who gave everything — knowing them makes us truly understand our freedom.",
+        "badge": "Assam's Pride! 🌿"
+      },
+      {
+        "id": "kk_q2",
+        "question": "What did you do for freedom?",
+        "answer": "I was deeply involved in the Quit India Movement of 1942 when millions of Indians rose up together and said loudly — British must leave India now!",
+        "badge": "Quit India Hero! 🇮🇳"
+      },
+      {
+        "id": "kk_q3",
+        "question": "What were you like as a person?",
+        "answer": "I was a calm and deeply principled man who believed strongly in doing what was right! Quiet people with strong principles often make the most lasting impact on history.",
+        "badge": "Principled Soul! ⭐"
+      },
+      {
+        "id": "kk_q4",
+        "question": "What is your message for kids?",
+        "answer": "Remember the heroes of your own state and city — not just the famous national leaders! Every corner of India has brave people whose stories deserve to be heard and celebrated.",
+        "badge": "Local Heroes Matter! 🏅"
+      }
+    ]
+  },
+  "bhima-bhoi": {
+    "name": "Bhima Bhoi",
+    "questions": [
+      {
+        "id": "bb_q1",
+        "question": "How did you inspire people even though you were blind?",
+        "answer": "I could not see with my eyes but I saw the truth in my heart! My poems and songs opened the eyes of thousands of people and inspired them to fight for justice and freedom.",
+        "badge": "Inner Vision! 👁️"
+      },
+      {
+        "id": "bb_q2",
+        "question": "What did your poems say?",
+        "answer": "My poems said that every human being deserves dignity and freedom regardless of who they are! I believed in equality for all people long before it became a common idea.",
+        "badge": "Equality Hero! 🌈"
+      },
+      {
+        "id": "bb_q3",
+        "question": "What makes your story special?",
+        "answer": "I proved that physical limitations can never limit the power of your spirit and mind! I could not see yet I created beautiful works that moved an entire generation of people.",
+        "badge": "Spirit Unbound! ✨"
+      },
+      {
+        "id": "bb_q4",
+        "question": "What is your message for kids?",
+        "answer": "Never let any challenge or difficulty make you feel less capable! Your mind, your heart and your spirit are your greatest gifts — and nobody can ever take them from you.",
+        "badge": "Limitless! 🌟"
+      }
+    ]
+  },
+  "subramania-bharati": {
+    "name": "Subramania Bharati",
+    "questions": [
+      {
+        "id": "sb_q1",
+        "question": "Why are you called Bharati the Great?",
+        "answer": "Because my Tamil poems were so beautiful and powerful that they inspired an entire generation of freedom fighters! Poetry that touches the soul is one of the most powerful forces for change.",
+        "badge": "Tamil Poet! 🎵"
+      },
+      {
+        "id": "sb_q2",
+        "question": "What did your poems talk about?",
+        "answer": "I wrote about freedom, women's rights, unity among Indians and the beauty of India! I believed poetry should not just be beautiful — it should also make people think and act.",
+        "badge": "Poet of Change! ✍️"
+      },
+      {
+        "id": "sb_q3",
+        "question": "What were you like as a child?",
+        "answer": "I was a child prodigy who was writing beautiful Tamil poetry by the age of 11! The community recognised my talent and gave me the title Bharati meaning blessed with brilliance.",
+        "badge": "Child Poet! ⭐"
+      },
+      {
+        "id": "sb_q4",
+        "question": "What is your message for kids?",
+        "answer": "Express yourself through art, music, writing or whatever creative form you love! Creativity is not just a hobby — it is a powerful way to change hearts and change the world.",
+        "badge": "Create Change! 🌟"
+      }
+    ]
+  },
+  "tilka-manjhi": {
+    "name": "Tantya Bhil",
+    "questions": [
+      {
+        "id": "tb_q1",
+        "question": "Why do people call you Robin Hood of India?",
+        "answer": "Because I took from the rich British rulers and gave to the poor tribal people who were starving! I believed that wealth stolen from the poor must be returned to them.",
+        "badge": "Robin Hood! 🏹"
+      },
+      {
+        "id": "tb_q2",
+        "question": "Who did you fight for?",
+        "answer": "I fought for the poor Bhil tribal people of Madhya Pradesh whose lives were being destroyed by unfair British taxes and laws! Standing for the poorest people is the noblest cause.",
+        "badge": "Poor People's Hero! 🌿"
+      },
+      {
+        "id": "tb_q3",
+        "question": "What made you impossible to catch?",
+        "answer": "I knew the jungles and hills of my region better than anyone alive! When you know your home ground completely it becomes your greatest protection and your most powerful weapon.",
+        "badge": "Jungle Master! 🌳"
+      },
+      {
+        "id": "tb_q4",
+        "question": "What is your message for kids?",
+        "answer": "Always share with those who have less than you and stand up for those who are being treated unfairly! The measure of a great person is how they treat the most vulnerable people around them.",
+        "badge": "Share and Care! ❤️"
+      }
+    ]
+  },
+  "aruna-asaf-ali": {
+    "name": "Aruna Asaf Ali",
+    "questions": [
+      {
+        "id": "aaa_q1",
+        "question": "Why are you called the Grand Old Lady of India?",
+        "answer": "Because I served India with complete dedication from my youth until my very old age! I proved that the love of country and the desire to serve never diminish with time.",
+        "badge": "Grand Legacy! 👑"
+      },
+      {
+        "id": "aaa_q2",
+        "question": "What did you do in the Quit India Movement?",
+        "answer": "I hoisted the Indian National Flag at Gowalia Tank in Mumbai in 1942 which became one of the most iconic moments of the entire freedom struggle! One brave act can inspire a nation.",
+        "badge": "Flag Moment! 🇮🇳"
+      },
+      {
+        "id": "aaa_q3",
+        "question": "What were you like as a young woman?",
+        "answer": "I was fearless and refused to follow rules that I believed were unjust! Even when the British put a price on my head I continued working for India's freedom from hiding.",
+        "badge": "Fearless Woman! 🔥"
+      },
+      {
+        "id": "aaa_q4",
+        "question": "What is your message for girls?",
+        "answer": "Do not be afraid to stand in the front row and take action! Women have always been at the heart of India's greatest moments — your place is always at the centre of the action.",
+        "badge": "Front Row! 🌟"
+      }
+    ]
+  },
+  "bagha-jatin": {
+    "name": "Bagha Jatin",
+    "questions": [
+      {
+        "id": "bj_q1",
+        "question": "Why are you called Bagha Jatin?",
+        "answer": "Bagha means Tiger! I earned this name because I once fought a Royal Bengal Tiger with my bare hands to protect villagers. After that everyone called me the Tiger Man of Bengal!",
+        "badge": "Tiger Man! 🐯"
+      },
+      {
+        "id": "bj_q2",
+        "question": "What did you do for freedom?",
+        "answer": "I led the revolutionary movement in Bengal and organised brave young Indians to fight for independence! I believed that a free India was worth every sacrifice a person could make.",
+        "badge": "Bengal's Lion! 🔥"
+      },
+      {
+        "id": "bj_q3",
+        "question": "What were you like as a young man?",
+        "answer": "I was incredibly strong, fearless and deeply kind at the same time! I trained my body to be powerful but always used my strength to protect others rather than to harm anyone.",
+        "badge": "Strong and Kind! 💪"
+      },
+      {
+        "id": "bj_q4",
+        "question": "What is your biggest lesson for kids?",
+        "answer": "True strength is always used to protect others never to frighten them! Build yourself strong in body and mind — then use that strength in the service of people who need you.",
+        "badge": "Strength with Heart! ❤️"
+      }
+    ]
+  },
+  "bhimrao-ambedkar": {
+    "name": "Dr. B.R. Ambedkar",
+    "questions": [
+      {
+        "id": "bra_q1",
+        "question": "What is the Constitution of India?",
+        "answer": "The Constitution is the most important rulebook of our country — it tells us the rights every Indian has and how our government must work! I wrote it and it protects every single one of you.",
+        "badge": "Constitution Maker! 📜"
+      },
+      {
+        "id": "bra_q2",
+        "question": "Why did you fight so hard for equal rights?",
+        "answer": "Because I believed every single Indian deserves to be treated with dignity and respect no matter who they are or where they come from! Equality is not a gift — it is every person's birthright.",
+        "badge": "Equality Champion! ⚖️"
+      },
+      {
+        "id": "bra_q3",
+        "question": "What were you like as a student?",
+        "answer": "I faced many difficulties as a child but I never stopped studying! I became one of the most educated people in the entire world — with degrees from the best universities in India, America and England.",
+        "badge": "Education Hero! 🎓"
+      },
+      {
+        "id": "bra_q4",
+        "question": "What is your message for every child in India?",
+        "answer": "Educate yourself, organise with others and never stop fighting for justice! I rose from very difficult circumstances to write the rules that protect all Indians — and so can you.",
+        "badge": "Jai Bhim! 🌟"
+      }
+    ]
+  },
+  "kalpana-datta": {
+    "name": "Kalpana Datta",
+    "questions": [
+      {
+        "id": "kd_q1",
+        "question": "What made you join the freedom movement?",
+        "answer": "I was a young college student who felt so strongly about India's freedom that I put down my books and picked up the cause! I believed young people had a special duty to act.",
+        "badge": "Student Fighter! 📚"
+      },
+      {
+        "id": "kd_q2",
+        "question": "Who did you fight alongside?",
+        "answer": "I fought alongside the great Surya Sen and his brave group of revolutionaries in Chittagong! Working with determined people multiplies your own strength and courage many times over.",
+        "badge": "Brave Companion! 🤝"
+      },
+      {
+        "id": "kd_q3",
+        "question": "What were you like as a young woman?",
+        "answer": "I was bold, determined and completely unafraid! At a time when many thought women should stay home I went out and fought for India with the same fire as any man.",
+        "badge": "Fearless Woman! 🔥"
+      },
+      {
+        "id": "kd_q4",
+        "question": "What is your message for girls?",
+        "answer": "Never let anyone decide your boundaries for you! I was a girl from Bengal who took on the British Empire — your dreams and your courage have absolutely no limits.",
+        "badge": "No Limits! 🌟"
+      }
+    ]
+  },
+  "khudiram-bose": {
+    "name": "Khudiram Bose",
+    "questions": [
+      {
+        "id": "kb_q1",
+        "question": "How old were you when you became a freedom fighter?",
+        "answer": "I was just 15 years old when I first joined the freedom movement and only 18 when I gave my life for India! Age is never a barrier when love for your country is in your heart.",
+        "badge": "Youngest Martyr! ⭐"
+      },
+      {
+        "id": "kb_q2",
+        "question": "What made you so fearless at such a young age?",
+        "answer": "I believed so completely in India's freedom that fear simply had no place in my heart! When your purpose is clear and your love is true nothing in the world can make you afraid.",
+        "badge": "Pure Courage! 🔥"
+      },
+      {
+        "id": "kb_q3",
+        "question": "What were you like as a teenager?",
+        "answer": "I was a passionate and determined teenager who distributed revolutionary pamphlets and refused to be scared by British policemen! I believed young people could change history.",
+        "badge": "Teen Revolutionary! 💪"
+      },
+      {
+        "id": "kb_q4",
+        "question": "What is your message for kids?",
+        "answer": "You are never too young to love your country and do something meaningful for it! I was a teenager just like you will be — and I showed the world what a young Indian heart is made of.",
+        "badge": "Young and Brave! 🇮🇳"
+      }
+    ]
+  },
+  "madam-cama": {
+    "name": "Madam Bhikaji Cama",
+    "questions": [
+      {
+        "id": "mc_q1",
+        "question": "What amazing thing did you do in Germany?",
+        "answer": "I unfurled the Indian national flag at an international conference in Stuttgart Germany in 1907 — the very first time our flag was ever waved on foreign soil! That moment gave India's struggle a global voice.",
+        "badge": "First Flag Abroad! 🇮🇳"
+      },
+      {
+        "id": "mc_q2",
+        "question": "Why do you call yourself Mother India?",
+        "answer": "Because I dedicated my entire life to India's freedom even while living abroad in Europe! A true mother protects and fights for her children from anywhere in the world.",
+        "badge": "Mother India! 🌸"
+      },
+      {
+        "id": "mc_q3",
+        "question": "What were you like as a freedom fighter?",
+        "answer": "I was bold, articulate and completely passionate about making the whole world hear India's voice! I travelled across Europe telling everyone about the injustice of British rule in India.",
+        "badge": "Global Voice! 📢"
+      },
+      {
+        "id": "mc_q4",
+        "question": "What is your message for kids?",
+        "answer": "You can fight for your country from anywhere in the world! Love for India is not limited by distance — carry your country in your heart wherever life takes you.",
+        "badge": "India Everywhere! 🌍"
+      }
+    ]
+  },
+  "surya-sen": {
+    "name": "Surya Sen",
+    "questions": [
+      {
+        "id": "ss_q1",
+        "question": "Why are you called Master Da?",
+        "answer": "Because I was a beloved school teacher before becoming a freedom fighter! My students called me Master Da which means respected teacher — and I tried to teach courage as well as lessons.",
+        "badge": "Teacher Hero! 📚"
+      },
+      {
+        "id": "ss_q2",
+        "question": "What was the Chittagong Armoury Raid?",
+        "answer": "I led a brave group of young Indians who raided the British armoury in Chittagong in 1930! It was one of the most daring acts of the entire freedom struggle — a small group taking on a mighty empire.",
+        "badge": "Daring Raid! ⚔️"
+      },
+      {
+        "id": "ss_q3",
+        "question": "What were you like as a teacher?",
+        "answer": "I inspired my students not just with books but with the fire of patriotism! I believed the greatest lesson a teacher can give is the courage to stand up for what is right.",
+        "badge": "Inspiring Teacher! 🌟"
+      },
+      {
+        "id": "ss_q4",
+        "question": "What is your message for kids?",
+        "answer": "Your teachers can be your greatest heroes — listen to them with your whole heart! And remember that knowledge combined with courage is the most powerful combination in the world.",
+        "badge": "Learn and Be Brave! 💪"
+      }
+    ]
+  },
+  "velu-thampi": {
+    "name": "Velu Thampi Dalawa",
+    "questions": [
+      {
+        "id": "vtd_q1",
+        "question": "Who were you?",
+        "answer": "I was the Prime Minister of the kingdom of Travancore in Kerala — and I refused to let the British take over our beautiful land! I stood up for Kerala's independence with every breath I took.",
+        "badge": "Kerala's Guardian! 🥥"
+      },
+      {
+        "id": "vtd_q2",
+        "question": "What is the Kundara Proclamation?",
+        "answer": "It was my powerful declaration calling all people of Kerala to rise up and fight against British interference in our kingdom! It was one of the earliest calls to armed resistance in all of South India.",
+        "badge": "First Call! 📜"
+      },
+      {
+        "id": "vtd_q3",
+        "question": "What made you a great leader?",
+        "answer": "I was an extremely skilled administrator who also had the courage to fight when diplomacy failed! The best leaders know when to talk and when to take a firm stand for their people.",
+        "badge": "Wise and Bold! 👑"
+      },
+      {
+        "id": "vtd_q4",
+        "question": "What is your message for kids?",
+        "answer": "Be proud of your home state and learn about its local heroes! Kerala has a magnificent history of brave people — knowing your roots makes you stronger and more confident.",
+        "badge": "Know Your Roots! 🌿"
+      }
+    ]
+  }
+}

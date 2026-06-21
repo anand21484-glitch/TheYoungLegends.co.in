@@ -310,16 +310,16 @@ const styles = StyleSheet.create({
   finishTxt: { color: C.white, fontWeight: "900", fontSize: 16 },
   askBtn: {
     flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 10,
-    backgroundColor: "#7C5AC2", paddingVertical: 16, borderRadius: 999,
-    borderWidth: 3, borderColor: C.gold, marginTop: 12,
+    backgroundColor: "#FF9933", height: 56, borderRadius: 28,
+    borderWidth: 3, borderColor: "#FFD700", marginTop: 12,
     position: "relative", overflow: "hidden", ...SHADOW,
   },
   askGlow: {
-    position: "absolute", left: -30, right: -30, top: -30, bottom: -30,
-    backgroundColor: "#FFD93D33",
+    position: "absolute", left: -50, right: -50, top: -50, bottom: -50,
+    backgroundColor: "#FFD93D55",
   },
-  askTxt: { color: C.white, fontSize: 17, fontWeight: "900", letterSpacing: 0.3 },
-  askEmoji: { fontSize: 18 },
+  askTxt: { color: "#FFFFFF", fontSize: 18, fontWeight: "900", letterSpacing: 0.4 },
+  askEmoji: { fontSize: 20 },
   celebrate: {
     backgroundColor: C.white, borderRadius: 24, padding: 24, alignItems: "center",
     borderWidth: 2, borderColor: C.navy, marginTop: 22, ...SHADOW,

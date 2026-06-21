@@ -21,6 +21,8 @@ export type Progress = {
   discovered_heroes: string[];    // freedom-map nodes tapped
   battle_cries_done: string[];    // battle-cry hero ids completed
   jigsaw_done: string[];          // story ids whose jigsaw was solved
+  hero_experts: string[];         // hero ids where all 4 ask-the-hero Qs answered
+  asked: Record<string, string[]>; // hero_id → array of answered question ids
   journal: JournalEntry[];        // local-only journal
   streak: number;                 // consecutive days opened
   last_open: string;              // ISO date of last app open
@@ -43,6 +45,8 @@ const DEFAULT_PROGRESS: Progress = {
   discovered_heroes: [],
   battle_cries_done: [],
   jigsaw_done: [],
+  hero_experts: [],
+  asked: {},
   journal: [],
   streak: 0,
   last_open: "",
@@ -165,6 +169,31 @@ export const Local = {
         xp: p.xp + xpAward,
       };
     });
+  },
+
+  // ----- Ask the Hero -----
+  // Mark a single question as asked for a given hero. Returns whether the
+  // hero is now an "Expert" (all 4 questions answered for the first time).
+  async markAsked(heroId: string, questionId: string) {
+    let becameExpert = false;
+    const next = await patch((p) => {
+      const already = (p.asked[heroId] || []).includes(questionId);
+      if (already) return p;
+      const updatedAsked = {
+        ...p.asked,
+        [heroId]: [...(p.asked[heroId] || []), questionId],
+      };
+      const totalForHero = updatedAsked[heroId].length;
+      let hero_experts = p.asked[heroId]?.length === 4 ? p.hero_experts : p.hero_experts;
+      const isFirstExpert = totalForHero >= 4 && !p.hero_experts.includes(heroId);
+      if (isFirstExpert) {
+        becameExpert = true;
+        hero_experts = [...p.hero_experts, heroId];
+      }
+      // +2 XP per new question answered
+      return { ...p, asked: updatedAsked, hero_experts, xp: p.xp + 2 };
+    });
+    return { progress: next, becameExpert };
   },
 
   async addJournalEntry(text: string, storyId?: string) {

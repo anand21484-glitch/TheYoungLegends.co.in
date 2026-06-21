@@ -71,7 +71,9 @@ for uid, sid in unmatched:
     print(f"  - {uid}  →  normalized to '{sid}' (not in stories)")
 
 # Save bundle
-out_path = "/app/frontend/src/data/hero_qa.json"
+out_path = "/app/frontend/assets/data/heroes_qa_combined.json"
+import os
+os.makedirs(os.path.dirname(out_path), exist_ok=True)
 with open(out_path, "w", encoding="utf-8") as f:
     json.dump(output, f, ensure_ascii=False, indent=2)
 print(f"\n📦 Wrote {out_path} ({Path(out_path).stat().st_size:,} bytes)")
