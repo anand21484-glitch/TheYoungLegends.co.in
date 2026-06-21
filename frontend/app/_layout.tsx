@@ -22,6 +22,7 @@ export default function RootLayout() {
         <Stack.Screen name="battlecry/[id]" />
         <Stack.Screen name="map" />
         <Stack.Screen name="parent-view" />
+        <Stack.Screen name="ask/[id]" />
       </Stack>
     </SafeAreaProvider>
   );

@@ -17,6 +17,8 @@ const freedomMapData: { viewBox: { w: number; h: number }; fighters: any[] } =
 const battleCriesData: Record<string, any> = require("./battle_cries.json");
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const huntsData: any[] = require("./hunts.json");
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const heroQAData: Record<string, { name: string; questions: any[] }> = require("./hero_qa.json");
 
 export const STORIES: any[] = storiesData;
 export const BADGES: any[] = badgesData.badges || [];
@@ -26,6 +28,7 @@ export const FREEDOM_MAP: { viewBox: { w: number; h: number }; fighters: any[] }
   freedomMapData;
 export const BATTLE_CRIES: Record<string, any> = battleCriesData;
 export const HUNTS: any[] = huntsData;
+export const HERO_QA: Record<string, { name: string; questions: any[] }> = heroQAData;
 
 // ---------- Portrait map ----------
 // Statically `require()` every portrait so Metro bundles them.

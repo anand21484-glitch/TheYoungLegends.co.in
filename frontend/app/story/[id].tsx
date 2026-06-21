@@ -147,12 +147,26 @@ export default function StoryReader() {
           )}
 
           {!completed ? (
-            <TouchableOpacity testID="finish-btn" style={styles.finishBtn} onPress={finishStory}>
-              <Ionicons name="checkmark-circle" size={22} color={C.white} />
-              <Text style={styles.finishTxt}>
-                {lang === "hi" ? "मैंने पढ़ लिया! +20 XP" : "I Finished Reading! +20 XP"}
-              </Text>
-            </TouchableOpacity>
+            <>
+              <TouchableOpacity testID="finish-btn" style={styles.finishBtn} onPress={finishStory}>
+                <Ionicons name="checkmark-circle" size={22} color={C.white} />
+                <Text style={styles.finishTxt}>
+                  {lang === "hi" ? "मैंने पढ़ लिया! +20 XP" : "I Finished Reading! +20 XP"}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                testID="ask-hero-btn"
+                style={styles.askBtn}
+                onPress={() => router.push(`/ask/${id}` as any)}
+              >
+                <View style={styles.askGlow} />
+                <Ionicons name="chatbubbles" size={22} color={C.white} />
+                <Text style={styles.askTxt}>
+                  {lang === "hi" ? "मुझसे पूछो!" : "Ask Me!"}
+                </Text>
+                <Text style={styles.askEmoji}>💬</Text>
+              </TouchableOpacity>
+            </>
           ) : (
             <>
               <View style={styles.celebrate} testID="celebrate-box">
@@ -188,6 +202,18 @@ export default function StoryReader() {
                 <Text style={styles.quizCtaTxt}>
                   {lang === "hi" ? "क्विज़ खेलें 🎯" : "Take the Quiz 🎯"}
                 </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                testID="ask-hero-btn-done"
+                style={styles.askBtn}
+                onPress={() => router.push(`/ask/${id}` as any)}
+              >
+                <View style={styles.askGlow} />
+                <Ionicons name="chatbubbles" size={22} color={C.white} />
+                <Text style={styles.askTxt}>
+                  {lang === "hi" ? "मुझसे पूछो!" : "Ask Me Anything!"}
+                </Text>
+                <Text style={styles.askEmoji}>💬</Text>
               </TouchableOpacity>
             </>
           )}
@@ -282,6 +308,18 @@ const styles = StyleSheet.create({
     borderWidth: 2, borderColor: C.navy, marginTop: 22, ...SHADOW,
   },
   finishTxt: { color: C.white, fontWeight: "900", fontSize: 16 },
+  askBtn: {
+    flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 10,
+    backgroundColor: "#7C5AC2", paddingVertical: 16, borderRadius: 999,
+    borderWidth: 3, borderColor: C.gold, marginTop: 12,
+    position: "relative", overflow: "hidden", ...SHADOW,
+  },
+  askGlow: {
+    position: "absolute", left: -30, right: -30, top: -30, bottom: -30,
+    backgroundColor: "#FFD93D33",
+  },
+  askTxt: { color: C.white, fontSize: 17, fontWeight: "900", letterSpacing: 0.3 },
+  askEmoji: { fontSize: 18 },
   celebrate: {
     backgroundColor: C.white, borderRadius: 24, padding: 24, alignItems: "center",
     borderWidth: 2, borderColor: C.navy, marginTop: 22, ...SHADOW,
