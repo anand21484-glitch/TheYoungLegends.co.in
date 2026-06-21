@@ -35,8 +35,9 @@ def load(p):
 
 f1 = load("/tmp/heroes_qa_1.json")
 f2 = load("/tmp/heroes_qa_2.json")
-combined = {**f1, **f2}
-print(f"Loaded {len(f1)} + {len(f2)} = {len(combined)} hero entries\n")
+f3 = load("/tmp/heroes_qa_3.json")
+combined = {**f1, **f2, **f3}
+print(f"Loaded {len(f1)} + {len(f2)} + {len(f3)} = {len(combined)} hero entries\n")
 
 # Load my story IDs for matching
 with open("/app/frontend/src/data/stories.json") as f:

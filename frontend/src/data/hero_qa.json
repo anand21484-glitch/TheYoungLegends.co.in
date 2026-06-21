@@ -1129,5 +1129,208 @@
         "badge": "Front Row! 🌟"
       }
     ]
+  },
+  "bagha-jatin": {
+    "name": "Bagha Jatin",
+    "questions": [
+      {
+        "id": "bj_q1",
+        "question": "Why are you called Bagha Jatin?",
+        "answer": "Bagha means Tiger! I earned this name because I once fought a Royal Bengal Tiger with my bare hands to protect villagers. After that everyone called me the Tiger Man of Bengal!",
+        "badge": "Tiger Man! 🐯"
+      },
+      {
+        "id": "bj_q2",
+        "question": "What did you do for freedom?",
+        "answer": "I led the revolutionary movement in Bengal and organised brave young Indians to fight for independence! I believed that a free India was worth every sacrifice a person could make.",
+        "badge": "Bengal's Lion! 🔥"
+      },
+      {
+        "id": "bj_q3",
+        "question": "What were you like as a young man?",
+        "answer": "I was incredibly strong, fearless and deeply kind at the same time! I trained my body to be powerful but always used my strength to protect others rather than to harm anyone.",
+        "badge": "Strong and Kind! 💪"
+      },
+      {
+        "id": "bj_q4",
+        "question": "What is your biggest lesson for kids?",
+        "answer": "True strength is always used to protect others never to frighten them! Build yourself strong in body and mind — then use that strength in the service of people who need you.",
+        "badge": "Strength with Heart! ❤️"
+      }
+    ]
+  },
+  "bhimrao-ambedkar": {
+    "name": "Dr. B.R. Ambedkar",
+    "questions": [
+      {
+        "id": "bra_q1",
+        "question": "What is the Constitution of India?",
+        "answer": "The Constitution is the most important rulebook of our country — it tells us the rights every Indian has and how our government must work! I wrote it and it protects every single one of you.",
+        "badge": "Constitution Maker! 📜"
+      },
+      {
+        "id": "bra_q2",
+        "question": "Why did you fight so hard for equal rights?",
+        "answer": "Because I believed every single Indian deserves to be treated with dignity and respect no matter who they are or where they come from! Equality is not a gift — it is every person's birthright.",
+        "badge": "Equality Champion! ⚖️"
+      },
+      {
+        "id": "bra_q3",
+        "question": "What were you like as a student?",
+        "answer": "I faced many difficulties as a child but I never stopped studying! I became one of the most educated people in the entire world — with degrees from the best universities in India, America and England.",
+        "badge": "Education Hero! 🎓"
+      },
+      {
+        "id": "bra_q4",
+        "question": "What is your message for every child in India?",
+        "answer": "Educate yourself, organise with others and never stop fighting for justice! I rose from very difficult circumstances to write the rules that protect all Indians — and so can you.",
+        "badge": "Jai Bhim! 🌟"
+      }
+    ]
+  },
+  "kalpana-datta": {
+    "name": "Kalpana Datta",
+    "questions": [
+      {
+        "id": "kd_q1",
+        "question": "What made you join the freedom movement?",
+        "answer": "I was a young college student who felt so strongly about India's freedom that I put down my books and picked up the cause! I believed young people had a special duty to act.",
+        "badge": "Student Fighter! 📚"
+      },
+      {
+        "id": "kd_q2",
+        "question": "Who did you fight alongside?",
+        "answer": "I fought alongside the great Surya Sen and his brave group of revolutionaries in Chittagong! Working with determined people multiplies your own strength and courage many times over.",
+        "badge": "Brave Companion! 🤝"
+      },
+      {
+        "id": "kd_q3",
+        "question": "What were you like as a young woman?",
+        "answer": "I was bold, determined and completely unafraid! At a time when many thought women should stay home I went out and fought for India with the same fire as any man.",
+        "badge": "Fearless Woman! 🔥"
+      },
+      {
+        "id": "kd_q4",
+        "question": "What is your message for girls?",
+        "answer": "Never let anyone decide your boundaries for you! I was a girl from Bengal who took on the British Empire — your dreams and your courage have absolutely no limits.",
+        "badge": "No Limits! 🌟"
+      }
+    ]
+  },
+  "khudiram-bose": {
+    "name": "Khudiram Bose",
+    "questions": [
+      {
+        "id": "kb_q1",
+        "question": "How old were you when you became a freedom fighter?",
+        "answer": "I was just 15 years old when I first joined the freedom movement and only 18 when I gave my life for India! Age is never a barrier when love for your country is in your heart.",
+        "badge": "Youngest Martyr! ⭐"
+      },
+      {
+        "id": "kb_q2",
+        "question": "What made you so fearless at such a young age?",
+        "answer": "I believed so completely in India's freedom that fear simply had no place in my heart! When your purpose is clear and your love is true nothing in the world can make you afraid.",
+        "badge": "Pure Courage! 🔥"
+      },
+      {
+        "id": "kb_q3",
+        "question": "What were you like as a teenager?",
+        "answer": "I was a passionate and determined teenager who distributed revolutionary pamphlets and refused to be scared by British policemen! I believed young people could change history.",
+        "badge": "Teen Revolutionary! 💪"
+      },
+      {
+        "id": "kb_q4",
+        "question": "What is your message for kids?",
+        "answer": "You are never too young to love your country and do something meaningful for it! I was a teenager just like you will be — and I showed the world what a young Indian heart is made of.",
+        "badge": "Young and Brave! 🇮🇳"
+      }
+    ]
+  },
+  "madam-cama": {
+    "name": "Madam Bhikaji Cama",
+    "questions": [
+      {
+        "id": "mc_q1",
+        "question": "What amazing thing did you do in Germany?",
+        "answer": "I unfurled the Indian national flag at an international conference in Stuttgart Germany in 1907 — the very first time our flag was ever waved on foreign soil! That moment gave India's struggle a global voice.",
+        "badge": "First Flag Abroad! 🇮🇳"
+      },
+      {
+        "id": "mc_q2",
+        "question": "Why do you call yourself Mother India?",
+        "answer": "Because I dedicated my entire life to India's freedom even while living abroad in Europe! A true mother protects and fights for her children from anywhere in the world.",
+        "badge": "Mother India! 🌸"
+      },
+      {
+        "id": "mc_q3",
+        "question": "What were you like as a freedom fighter?",
+        "answer": "I was bold, articulate and completely passionate about making the whole world hear India's voice! I travelled across Europe telling everyone about the injustice of British rule in India.",
+        "badge": "Global Voice! 📢"
+      },
+      {
+        "id": "mc_q4",
+        "question": "What is your message for kids?",
+        "answer": "You can fight for your country from anywhere in the world! Love for India is not limited by distance — carry your country in your heart wherever life takes you.",
+        "badge": "India Everywhere! 🌍"
+      }
+    ]
+  },
+  "surya-sen": {
+    "name": "Surya Sen",
+    "questions": [
+      {
+        "id": "ss_q1",
+        "question": "Why are you called Master Da?",
+        "answer": "Because I was a beloved school teacher before becoming a freedom fighter! My students called me Master Da which means respected teacher — and I tried to teach courage as well as lessons.",
+        "badge": "Teacher Hero! 📚"
+      },
+      {
+        "id": "ss_q2",
+        "question": "What was the Chittagong Armoury Raid?",
+        "answer": "I led a brave group of young Indians who raided the British armoury in Chittagong in 1930! It was one of the most daring acts of the entire freedom struggle — a small group taking on a mighty empire.",
+        "badge": "Daring Raid! ⚔️"
+      },
+      {
+        "id": "ss_q3",
+        "question": "What were you like as a teacher?",
+        "answer": "I inspired my students not just with books but with the fire of patriotism! I believed the greatest lesson a teacher can give is the courage to stand up for what is right.",
+        "badge": "Inspiring Teacher! 🌟"
+      },
+      {
+        "id": "ss_q4",
+        "question": "What is your message for kids?",
+        "answer": "Your teachers can be your greatest heroes — listen to them with your whole heart! And remember that knowledge combined with courage is the most powerful combination in the world.",
+        "badge": "Learn and Be Brave! 💪"
+      }
+    ]
+  },
+  "velu-thampi": {
+    "name": "Velu Thampi Dalawa",
+    "questions": [
+      {
+        "id": "vtd_q1",
+        "question": "Who were you?",
+        "answer": "I was the Prime Minister of the kingdom of Travancore in Kerala — and I refused to let the British take over our beautiful land! I stood up for Kerala's independence with every breath I took.",
+        "badge": "Kerala's Guardian! 🥥"
+      },
+      {
+        "id": "vtd_q2",
+        "question": "What is the Kundara Proclamation?",
+        "answer": "It was my powerful declaration calling all people of Kerala to rise up and fight against British interference in our kingdom! It was one of the earliest calls to armed resistance in all of South India.",
+        "badge": "First Call! 📜"
+      },
+      {
+        "id": "vtd_q3",
+        "question": "What made you a great leader?",
+        "answer": "I was an extremely skilled administrator who also had the courage to fight when diplomacy failed! The best leaders know when to talk and when to take a firm stand for their people.",
+        "badge": "Wise and Bold! 👑"
+      },
+      {
+        "id": "vtd_q4",
+        "question": "What is your message for kids?",
+        "answer": "Be proud of your home state and learn about its local heroes! Kerala has a magnificent history of brave people — knowing your roots makes you stronger and more confident.",
+        "badge": "Know Your Roots! 🌿"
+      }
+    ]
   }
 }
