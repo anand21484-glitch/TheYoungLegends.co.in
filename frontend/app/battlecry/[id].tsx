@@ -347,7 +347,6 @@ export default function BattleCryScreen() {
               source={PORTRAITS[data.hero_id] || ({ uri: `${BASE}${data.portrait_url}` } as any)}
               style={styles.portrait}
             />
-          ) : null}
           ) : (
             <View style={[styles.portrait, { backgroundColor: data.hero_color }]} />
           )}

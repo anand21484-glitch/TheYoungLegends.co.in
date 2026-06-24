@@ -149,10 +149,6 @@ async function handle(method: string, path: string, body?: any): Promise<any> {
   }
 
   // ----- QUIZZES -----
-  const quizGet = pathOnly.match(/^\/quizzes\/([^/]+)$/);
-  if (quizGet && method === "GET") {
-    return { story_id: quizGet[1], questions: quizFor(quizGet[1]) };
-  }
   const quizSub = pathOnly.match(/^\/quizzes\/([^/]+)\/submit$/);
   if (quizSub && method === "POST") {
     const sid = quizSub[1];
@@ -164,9 +160,10 @@ async function handle(method: string, path: string, body?: any): Promise<any> {
     });
     const updated = await Local.saveQuiz(sid, score, questions.length);
     return {
-      score,
+      correct: score,
       total: questions.length,
-      xp_earned: score * 5,
+      percent: Math.round((score / questions.length) * 100),
+      xp_awarded: score * 5,
       xp_total: updated.xp,
       perfect: score === questions.length,
     };

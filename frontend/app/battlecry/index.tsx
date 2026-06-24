@@ -110,7 +110,6 @@ export default function BattleCryWall() {
                     source={PORTRAITS[c.hero_id] || ({ uri: `${BASE}${c.portrait_url}` } as any)}
                     style={styles.portrait}
                   />
-                ) : null}
                 ) : (
                   <View style={[styles.portrait, { backgroundColor: c.hero_color }]} />
                 )}

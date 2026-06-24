@@ -7,7 +7,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, { FadeIn, FadeInUp } from "react-native-reanimated";
 import { API } from "../../src/api";
-import { C, SHADOW } from "../../src/theme";
+import { C, FF, SHADOW } from "../../src/theme";
 import { Monument } from "../../src/components/Monument";
 import { FloatingDecor } from "../../src/components/FloatingDecor";
 import { FloatingMonuments } from "../../src/components/FloatingMonuments";
@@ -21,6 +21,7 @@ export default function StoryReader() {
   const [user, setUser] = useState<any>(null);
   const [lang, setLang] = useState<"en" | "hi">("en");
   const [completed, setCompleted] = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -29,13 +30,15 @@ export default function StoryReader() {
         setStory(s.data);
         setUser(me.data);
         setLang((me.data.language as any) || "en");
-      } catch {}
+      } catch {
+        setLoadError(true);
+      }
     })();
   }, [id]);
 
   const finishStory = async () => {
     try {
-      await API.post("/stories/complete", { story_id: id });
+      await API.post(`/stories/${id}/complete`, {});
       setCompleted(true);
       // Auto-trigger battle cry screen for heroes that have one
       const HEROES_WITH_CRY = new Set([
@@ -56,6 +59,20 @@ export default function StoryReader() {
   const switchLang = (newLang: "en" | "hi") => {
     setLang(newLang);
   };
+
+  if (loadError) {
+    return (
+      <View style={[styles.c, { alignItems: "center", justifyContent: "center", padding: 24 }]}>
+        <Text style={{ fontSize: 40 }}>😔</Text>
+        <Text style={{ fontSize: 18, fontWeight: "900", color: C.navy, marginTop: 12, textAlign: "center" }}>
+          Couldn't load this story
+        </Text>
+        <TouchableOpacity onPress={() => router.back()} style={{ marginTop: 18, backgroundColor: C.saffron, paddingHorizontal: 24, paddingVertical: 14, borderRadius: 999, borderWidth: 2, borderColor: C.navy }}>
+          <Text style={{ color: C.white, fontWeight: "900", fontSize: 15 }}>Go Back</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   if (!story) {
     return (
@@ -272,11 +289,11 @@ const styles = StyleSheet.create({
     borderRadius: 24, padding: 22, borderWidth: 2, borderColor: C.navy,
     ...SHADOW, marginBottom: 18,
   },
-  heroEra: { color: C.gold, fontSize: 11, fontWeight: "900", letterSpacing: 1 },
-  heroName: { color: C.gold, fontSize: 14, fontWeight: "900", letterSpacing: 1, marginTop: 4 },
-  heroTitle: { color: C.white, fontSize: 24, fontWeight: "900", lineHeight: 30, marginTop: 6 },
+  heroEra: { color: C.gold, fontSize: 11, fontFamily: FF.bodyBlack, letterSpacing: 1 },
+  heroName: { color: C.gold, fontSize: 14, fontFamily: FF.bodyBlack, letterSpacing: 1, marginTop: 4 },
+  heroTitle: { color: C.white, fontSize: 24, fontFamily: FF.heading, lineHeight: 30, marginTop: 6 },
   body: {
-    fontSize: 17, lineHeight: 28, color: C.text, fontWeight: "500",
+    fontSize: 17, lineHeight: 28, color: C.text, fontFamily: FF.body,
     backgroundColor: C.white, padding: 20, borderRadius: 20,
     borderWidth: 2, borderColor: C.navy, ...SHADOW,
   },
@@ -289,8 +306,8 @@ const styles = StyleSheet.create({
     flexDirection: "row", justifyContent: "space-between", alignItems: "center",
   },
   lessonsTitleRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  lessonsTitle: { fontSize: 18, fontWeight: "900", color: C.navy },
-  lessonsSubtitle: { fontSize: 12, color: C.textSecondary, fontWeight: "700", marginTop: 4, marginBottom: 12 },
+  lessonsTitle: { fontSize: 18, fontFamily: FF.heading, color: C.navy },
+  lessonsSubtitle: { fontSize: 12, color: C.textSecondary, fontFamily: FF.bodyBold, marginTop: 4, marginBottom: 12 },
   lessonRow: {
     flexDirection: "row", gap: 12, marginTop: 12,
     backgroundColor: C.white, padding: 12, borderRadius: 14,
@@ -307,7 +324,7 @@ const styles = StyleSheet.create({
     backgroundColor: C.green, padding: 18, borderRadius: 999,
     borderWidth: 2, borderColor: C.navy, marginTop: 22, ...SHADOW,
   },
-  finishTxt: { color: C.white, fontWeight: "900", fontSize: 16 },
+  finishTxt: { color: C.white, fontFamily: FF.heading, fontSize: 16 },
   askBtn: {
     flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 10,
     backgroundColor: "#FF9933", height: 56, borderRadius: 28,
@@ -324,8 +341,8 @@ const styles = StyleSheet.create({
     backgroundColor: C.white, borderRadius: 24, padding: 24, alignItems: "center",
     borderWidth: 2, borderColor: C.navy, marginTop: 22, ...SHADOW,
   },
-  celTitle: { fontSize: 26, fontWeight: "900", color: C.navy, marginTop: 4 },
-  celSub: { fontSize: 14, color: C.textSecondary, fontWeight: "600", textAlign: "center", marginTop: 4, lineHeight: 20 },
+  celTitle: { fontSize: 26, fontFamily: FF.heading, color: C.navy, marginTop: 4 },
+  celSub: { fontSize: 14, color: C.textSecondary, fontFamily: FF.bodySemi, textAlign: "center", marginTop: 4, lineHeight: 20 },
   recapCard: {
     backgroundColor: C.navy, borderRadius: 20, padding: 18, marginTop: 14,
     borderWidth: 2, borderColor: C.navy, ...SHADOW,
@@ -337,5 +354,5 @@ const styles = StyleSheet.create({
     backgroundColor: C.saffron, padding: 18, borderRadius: 999, alignItems: "center",
     marginTop: 14, borderWidth: 2, borderColor: C.navy, ...SHADOW,
   },
-  quizCtaTxt: { color: C.white, fontWeight: "900", fontSize: 16 },
+  quizCtaTxt: { color: C.white, fontFamily: FF.heading, fontSize: 16 },
 });

@@ -21,6 +21,9 @@ export const SHADOW = {
 };
 
 export const FF = {
-  heading: "System",
-  body: "System",
+  heading: "FredokaOne_400Regular",
+  bodyBold: "Nunito_700Bold",
+  bodyBlack: "Nunito_900Black",
+  bodySemi: "Nunito_600SemiBold",
+  body: "Nunito_400Regular",
 };

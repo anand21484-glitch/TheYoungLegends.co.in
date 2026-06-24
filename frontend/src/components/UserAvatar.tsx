@@ -6,8 +6,7 @@
 import React from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
 import { C } from "../theme";
-
-const BASE = process.env.EXPO_PUBLIC_BACKEND_URL;
+import { PORTRAITS } from "../data";
 
 // The 6 hero IDs offered as avatar choices on signup. Keep in sync with auth.tsx.
 export const HERO_AVATARS: { id: string; name: string; color: string }[] = [
@@ -41,7 +40,7 @@ export function UserAvatar({
   const isHero = isHeroAvatar(avatar);
 
   if (isHero) {
-    const uri = `${BASE}/api/stories/${avatar}/portrait`;
+    const source = PORTRAITS[avatar as string];
     return (
       <View
         style={[
@@ -56,10 +55,15 @@ export function UserAvatar({
           },
         ]}
       >
-        <Image
-          source={{ uri }}
-          style={{ width: size - borderWidth * 2, height: size - borderWidth * 2, borderRadius: (size - borderWidth * 2) / 2 }}
-        />
+        {source ? (
+          <Image
+            source={source}
+            style={{ width: size - borderWidth * 2, height: size - borderWidth * 2, borderRadius: (size - borderWidth * 2) / 2 }}
+            resizeMode="cover"
+          />
+        ) : (
+          <Text style={{ fontSize: size * 0.45 }}>🦁</Text>
+        )}
       </View>
     );
   }

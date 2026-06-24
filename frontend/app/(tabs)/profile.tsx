@@ -5,8 +5,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { API, Local } from "../../src/api";
-import { C, SHADOW } from "../../src/theme";
+import { API } from "../../src/api";
+import { Local } from "../../src/data/localStore";
+import { C, FF, SHADOW } from "../../src/theme";
 import { UserAvatar } from "../../src/components/UserAvatar";
 
 export default function Profile() {
@@ -48,10 +49,12 @@ export default function Profile() {
                 xp: 0,
                 badges: [],
                 completed_stories: [],
-                quizzes_taken: {},
+                quizzes_taken: {} as Record<string, { score: number; total: number; at: string }>,
                 discovered_heroes: [],
                 battle_cries_done: [],
                 jigsaw_done: [],
+                hero_experts: [],
+                asked: {} as Record<string, string[]>,
                 journal: [],
                 streak: 1,
                 last_open: new Date().toISOString().slice(0, 10),
@@ -204,8 +207,8 @@ const styles = StyleSheet.create({
     backgroundColor: C.white, borderRadius: 28, padding: 22,
     borderWidth: 2, borderColor: C.navy, alignItems: "center", ...SHADOW,
   },
-  username: { fontSize: 24, fontWeight: "900", color: C.navy, marginTop: 12 },
-  age: { fontSize: 13, color: C.textMuted, fontWeight: "700", marginTop: 2 },
+  username: { fontSize: 24, fontFamily: FF.heading, color: C.navy, marginTop: 12 },
+  age: { fontSize: 13, color: C.textMuted, fontFamily: FF.bodyBold, marginTop: 2 },
   levelBadge: {
     flexDirection: "row", alignItems: "center", gap: 6,
     backgroundColor: C.gold, paddingHorizontal: 14, paddingVertical: 8,
@@ -217,9 +220,9 @@ const styles = StyleSheet.create({
     flex: 1, backgroundColor: C.white, borderRadius: 18, padding: 14,
     borderWidth: 2, borderColor: C.navy, alignItems: "center", ...SHADOW,
   },
-  statN: { fontSize: 22, fontWeight: "900", color: C.navy, marginTop: 4 },
-  statLabel: { fontSize: 10, fontWeight: "700", color: C.textMuted, textTransform: "uppercase", textAlign: "center" },
-  section: { fontSize: 18, fontWeight: "900", color: C.navy, marginTop: 24, marginBottom: 12 },
+  statN: { fontSize: 22, fontFamily: FF.heading, color: C.navy, marginTop: 4 },
+  statLabel: { fontSize: 10, fontFamily: FF.bodyBold, color: C.textMuted, textTransform: "uppercase", textAlign: "center" },
+  section: { fontSize: 18, fontFamily: FF.heading, color: C.navy, marginTop: 24, marginBottom: 12 },
   badgeGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
   badge: {
     width: "31.5%", backgroundColor: C.white, padding: 12,

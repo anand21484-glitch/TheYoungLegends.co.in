@@ -10,7 +10,7 @@ import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { setProfile, Local } from "../src/data/localStore";
-import { C, SHADOW } from "../src/theme";
+import { C, FF, SHADOW } from "../src/theme";
 import { VEER_AVATAR_URI } from "../src/veer";
 
 export default function NameScreen() {
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     backgroundColor: C.saffron, borderWidth: 2, borderColor: C.navy,
   },
   brand: {
-    fontSize: 22, fontWeight: "900", color: C.navy, letterSpacing: -0.5,
+    fontSize: 22, fontFamily: FF.heading, color: C.navy, letterSpacing: 0,
   },
   heroCircle: {
     width: 180, height: 180, borderRadius: 90, overflow: "hidden",
@@ -128,10 +128,10 @@ const styles = StyleSheet.create({
     backgroundColor: C.gold, ...SHADOW,
   },
   heroImg: { width: "100%", height: "100%" },
-  greet: { fontSize: 22, color: C.navy, fontWeight: "800", marginTop: 22, textAlign: "center" },
+  greet: { fontSize: 22, color: C.navy, fontFamily: FF.bodyBold, marginTop: 22, textAlign: "center" },
   question: {
-    fontSize: 28, color: C.maroon, fontWeight: "900",
-    marginTop: 8, textAlign: "center", letterSpacing: -0.3,
+    fontSize: 28, color: C.maroon, fontFamily: FF.heading,
+    marginTop: 8, textAlign: "center",
   },
   inputWrap: { width: "100%", marginTop: 28 },
   input: {
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 16,
     fontSize: 18,
-    fontWeight: "700",
+    fontFamily: FF.bodyBold,
     color: C.navy,
     textAlign: "center",
     ...SHADOW,
@@ -158,12 +158,12 @@ const styles = StyleSheet.create({
     borderColor: C.navy,
     ...SHADOW,
   },
-  goTxt: { fontSize: 22, fontWeight: "900", color: C.white, letterSpacing: 0.5 },
+  goTxt: { fontSize: 22, fontFamily: FF.heading, color: C.white },
   privacy: {
     marginTop: 28,
     fontSize: 12,
     color: C.textMuted,
-    fontWeight: "600",
+    fontFamily: FF.bodySemi,
     textAlign: "center",
     paddingHorizontal: 12,
   },

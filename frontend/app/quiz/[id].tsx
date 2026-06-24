@@ -6,7 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { API } from "../../src/api";
-import { C, SHADOW } from "../../src/theme";
+import { C, FF, SHADOW } from "../../src/theme";
 
 export default function Quiz() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -37,7 +37,7 @@ export default function Quiz() {
 
   const submitNow = async (allAnswers: number[]) => {
     try {
-      const { data } = await API.post("/quiz/submit", { story_id: id, answers: allAnswers });
+      const { data } = await API.post(`/quizzes/${id}/submit`, { answers: allAnswers });
       setResult(data);
     } catch {}
   };
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     width: 42, height: 42, borderRadius: 21, backgroundColor: C.white,
     borderWidth: 2, borderColor: C.navy, alignItems: "center", justifyContent: "center",
   },
-  headerTitle: { fontSize: 16, fontWeight: "900", color: C.navy },
+  headerTitle: { fontSize: 16, fontFamily: FF.heading, color: C.navy },
   progressWrap: { paddingHorizontal: 18, marginBottom: 8 },
   progressBg: {
     height: 14, backgroundColor: C.white, borderRadius: 999,
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     backgroundColor: C.navy, borderRadius: 24, padding: 22, marginBottom: 18,
     borderWidth: 2, borderColor: C.navy, ...SHADOW,
   },
-  qText: { fontSize: 19, fontWeight: "800", color: C.white, lineHeight: 26 },
+  qText: { fontSize: 19, fontFamily: FF.bodyBold, color: C.white, lineHeight: 26 },
   opt: {
     flexDirection: "row", alignItems: "center", gap: 14,
     backgroundColor: C.white, padding: 14, borderRadius: 18,
@@ -203,21 +203,21 @@ const styles = StyleSheet.create({
     backgroundColor: C.green, padding: 18, borderRadius: 999, alignItems: "center",
     borderWidth: 2, borderColor: C.navy, marginTop: 14, ...SHADOW,
   },
-  nextTxt: { color: C.white, fontWeight: "900", fontSize: 16 },
+  nextTxt: { color: C.white, fontFamily: FF.heading, fontSize: 16 },
   resultBox: {
     flex: 1, alignItems: "center", justifyContent: "center", padding: 28,
   },
-  resultTitle: { fontSize: 36, fontWeight: "900", color: C.navy, marginTop: 8 },
-  resultScore: { fontSize: 18, color: C.textSecondary, fontWeight: "700", marginTop: 4 },
+  resultTitle: { fontSize: 36, fontFamily: FF.heading, color: C.navy, marginTop: 8 },
+  resultScore: { fontSize: 18, color: C.textSecondary, fontFamily: FF.bodyBold, marginTop: 4 },
   percentBig: {
     backgroundColor: C.gold, paddingHorizontal: 30, paddingVertical: 16,
     borderRadius: 999, borderWidth: 2, borderColor: C.navy, marginTop: 16, ...SHADOW,
   },
-  percentBigTxt: { fontSize: 36, fontWeight: "900", color: C.navy },
-  resultXp: { fontSize: 16, fontWeight: "800", color: C.green, marginTop: 14 },
+  percentBigTxt: { fontSize: 36, fontFamily: FF.heading, color: C.navy },
+  resultXp: { fontSize: 16, fontFamily: FF.bodyBold, color: C.green, marginTop: 14 },
   homeBtn: {
     marginTop: 22, backgroundColor: C.saffron, paddingHorizontal: 28, paddingVertical: 14,
     borderRadius: 999, borderWidth: 2, borderColor: C.navy, ...SHADOW, alignSelf: "stretch", alignItems: "center",
   },
-  homeBtnTxt: { color: C.white, fontWeight: "900", fontSize: 16 },
+  homeBtnTxt: { color: C.white, fontFamily: FF.heading, fontSize: 16 },
 });
