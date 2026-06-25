@@ -1332,5 +1332,34 @@
         "badge": "Know Your Roots! 🌿"
       }
     ]
+  },
+  "lachit-borphukan": {
+    "name": "Lachit Borphukan",
+    "questions": [
+      {
+        "id": "lb_q1",
+        "question": "How did you win when you were so sick?",
+        "answer": "Love for my motherland Assam was stronger than any illness! When your soldiers see you fighting despite everything they find ten times their own courage.",
+        "badge": "Unstoppable! 💪"
+      },
+      {
+        "id": "lb_q2",
+        "question": "Why did you remove your own uncle from duty?",
+        "answer": "Because no one — not even family — is more important than the safety of our people! A true leader holds everyone equally responsible including those closest to them.",
+        "badge": "Duty First! ⚔️"
+      },
+      {
+        "id": "lb_q3",
+        "question": "What is the Battle of Saraighat?",
+        "answer": "It was the greatest naval battle ever fought on the Brahmaputra river! My small fleet defeated the mighty Mughal navy and kept Assam free and proud forever.",
+        "badge": "Saraighat Victor! 🚢"
+      },
+      {
+        "id": "lb_q4",
+        "question": "What is your message for the children of Assam?",
+        "answer": "Be proud of where you come from! Assam was never conquered for 600 years because of brave people who loved their land with everything they had. You carry that same spirit!",
+        "badge": "Assam's Pride! 🌿"
+      }
+    ]
   }
 }
