@@ -37,17 +37,11 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="azaadi"
+        name="map"
         options={{
-          href: null, // hidden from bottom nav — "Ask the Hero" lives on each story screen
-        }}
-      />
-      <Tabs.Screen
-        name="journal"
-        options={{
-          title: "Journal",
-          tabBarButtonTestID: "tab-journal",
-          tabBarIcon: ({ color, size }) => <Ionicons name="journal" size={size} color={color} />,
+          title: "Map",
+          tabBarButtonTestID: "tab-map",
+          tabBarIcon: ({ color, size }) => <Ionicons name="map" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -58,6 +52,9 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => <Ionicons name="person-circle" size={size} color={color} />,
         }}
       />
+      {/* Hidden from bottom nav — accessible via deep links / push navigation */}
+      <Tabs.Screen name="azaadi" options={{ href: null }} />
+      <Tabs.Screen name="journal" options={{ href: null }} />
     </Tabs>
   );
 }

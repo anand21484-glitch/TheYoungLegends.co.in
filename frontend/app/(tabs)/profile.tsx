@@ -137,6 +137,15 @@ export default function Profile() {
 
         <View style={styles.settingsCard}>
           <SettingRow
+            icon="journal"
+            iconColor={C.green}
+            title="Freedom Journal"
+            subtitle="Read and write your thoughts on heroes"
+            onPress={() => router.push("/(tabs)/journal" as any)}
+            testID="open-journal"
+          />
+          <View style={styles.settingsDivider} />
+          <SettingRow
             icon="people"
             iconColor={C.navy}
             title="Parent View"
