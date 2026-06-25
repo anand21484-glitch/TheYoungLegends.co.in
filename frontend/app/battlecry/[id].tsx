@@ -327,15 +327,38 @@ export default function BattleCryScreen() {
     ringScale1.value = withTiming(0, { duration: 200 });
     ringScale2.value = withTiming(0, { duration: 200 });
 
-    // Get URI BEFORE stopping
-    const uri = recordingRef.current?.getURI() || null;
-    try { await recordingRef.current?.stopAndUnloadAsync(); } catch {}
+    console.log("=== STOP AND PROCESS CALLED ===");
+
+    // Keep reference alive so we can query URI after unload
+    const rec = recordingRef.current;
     recordingRef.current = null;
 
+    const uriBeforeStop = rec?.getURI() || null;
+    console.log("=== URI BEFORE STOP:", uriBeforeStop, "===");
+
+    try { await rec?.stopAndUnloadAsync(); } catch {}
+    console.log("=== AFTER STOP AND UNLOAD ===");
+
+    // getURI() is more reliably populated AFTER stopAndUnloadAsync on many expo-av versions
+    const uriAfterStop = rec?.getURI() || null;
+    console.log("=== URI AFTER STOP:", uriAfterStop, "===");
+
+    const rawUri = uriAfterStop || uriBeforeStop;
+    // Android sometimes returns a bare path without file:// scheme
+    const uri = rawUri && !rawUri.startsWith("file://") && !rawUri.startsWith("http")
+      ? `file://${rawUri}`
+      : rawUri;
+    console.log("=== FINAL URI:", uri, "===");
+
     setRecordingUri(uri);
+    console.log("=== SET RECORDING URI CALLED WITH:", uri, "===");
+
     setPhase("processing");
 
-    setTimeout(() => celebrate(), 1300);
+    // Give React one tick to commit the recordingUri state before celebration renders
+    await new Promise<void>((resolve) => setTimeout(resolve, 100));
+
+    setTimeout(() => celebrate(), 1200);
   };
 
   // ── Celebrate ─────────────────────────────────────────────────────────────
@@ -612,6 +635,11 @@ export default function BattleCryScreen() {
                 </View>
               </Animated.View>
             )}
+
+            {/* DEBUG — remove after confirming URI capture */}
+            <Text style={{ color: recordingUri ? "#22C55E" : "#FF4444", fontSize: 11, fontWeight: "900", marginTop: 4 }}>
+              URI: {recordingUri ? "FOUND ✅" : "NULL ❌"}
+            </Text>
 
             {/* Waveform + replay */}
             {recordingUri && (
