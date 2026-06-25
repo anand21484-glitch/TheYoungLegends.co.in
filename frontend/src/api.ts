@@ -270,11 +270,12 @@ async function handle(method: string, path: string, body?: any): Promise<any> {
 
   // ----- JIGSAW (list + detail) -----
   const JIGSAW_HEROES = [
-    "sarojini-naidu",
-    "bhimrao-ambedkar",
+    "bhagat-singh",
+    "rani-lakshmibai",
     "mahatma-gandhi",
-    "tilak",
-    "sardar-patel",
+    "subhas-bose",
+    "birsa-munda",
+    "rani-gaidinliu",
   ];
   if (pathOnly === "/jigsaw" && method === "GET") {
     const progress = await getProgress();
