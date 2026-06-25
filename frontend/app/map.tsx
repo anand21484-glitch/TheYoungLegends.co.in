@@ -17,9 +17,31 @@ import Animated, {
 } from "react-native-reanimated";
 import { API, PORTRAITS } from "../src/api";
 import { C, SHADOW } from "../src/theme";
+import LOCAL_MAP from "../src/data/freedom_map.json";
 
 const BASE = process.env.EXPO_PUBLIC_BACKEND_URL;
 const { width: SW, height: SH } = Dimensions.get("window");
+
+// Replicate the same equirectangular projection used by the backend
+const LON_MIN = 68, LON_MAX = 97, LAT_MIN = 8, LAT_MAX = 37;
+function latLonToXY(lat: number, lon: number, dx: number, dy: number) {
+  const x = (lon - LON_MIN) / (LON_MAX - LON_MIN) * SVG_VIEW_W + dx;
+  const y = (LAT_MAX - lat) / (LAT_MAX - LAT_MIN) * SVG_VIEW_H + dy;
+  return { x: Math.round(x * 10) / 10, y: Math.round(y * 10) / 10 };
+}
+
+// Build heroes from bundled JSON — works 100% offline
+const LOCAL_HEROES: Hero[] = (LOCAL_MAP.fighters as any[]).map((f) => {
+  const [hero_id, name, state, lat, lon, short_line, dx, dy, story_id] = f;
+  const { x, y } = latLonToXY(lat, lon, dx, dy);
+  return {
+    hero_id, name, state, x, y, short_line,
+    has_story: story_id !== null && story_id !== undefined,
+    story_id: story_id ?? null,
+    portrait_url: "",
+    discovered: false,
+  };
+});
 
 const SVG_VIEW_W = 612;
 const SVG_VIEW_H = 696;
@@ -163,18 +185,25 @@ export default function FreedomMap() {
   const mapHeight = mapWidth * (SVG_VIEW_H / SVG_VIEW_W);
 
   const load = useCallback(async () => {
+    // Always start with local bundled heroes so map shows instantly
+    setHeroes(LOCAL_HEROES);
+    setTotal(LOCAL_HEROES.length);
     try {
       const r = await API.get("/freedom-map");
       const data = r.data as { heroes: Hero[]; discovered_count: number; total: number };
-      setHeroes(data.heroes);
+      // Merge discovered status from server into local heroes
+      const discoveredSet = new Set(
+        (data.heroes as Hero[]).filter((h) => h.discovered).map((h) => h.hero_id)
+      );
+      setHeroes(LOCAL_HEROES.map((h) => ({ ...h, discovered: discoveredSet.has(h.hero_id) })));
       setDiscoveredCount(data.discovered_count);
-      setTotal(data.total);
-    } catch (e: any) {
-      // (offline: no auth)
-} finally {
+      setTotal(data.total || LOCAL_HEROES.length);
+    } catch {
+      // Offline — local heroes with no discovered state
+    } finally {
       setLoading(false);
     }
-  }, [router]);
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -226,7 +255,7 @@ export default function FreedomMap() {
 
   const progressPct = total > 0 ? (discoveredCount / total) * 100 : 0;
 
-  if (loading || !indiaSvg) {
+  if (loading) {
     return (
       <SafeAreaView style={[styles.c, { justifyContent: "center", alignItems: "center" }]}>
         <ActivityIndicator size="large" color={C.saffron} />
@@ -327,7 +356,7 @@ export default function FreedomMap() {
                 <View style={styles.portraitWrap}>
                   <Image
                     source={
-                      PORTRAITS[selected.id] ||
+                      PORTRAITS[selected.hero_id] ||
                       ({
                         uri: selected.has_story
                           ? `${BASE}${selected.portrait_url}`
