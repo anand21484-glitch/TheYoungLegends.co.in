@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, ActivityIndicator,
   Modal, Pressable, Dimensions, Platform,
@@ -6,29 +6,38 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import Svg, { Circle, G, Defs, RadialGradient, Stop, Path } from "react-native-svg";
+import Svg, { Circle, G, Path } from "react-native-svg";
 import { SvgXml } from "react-native-svg";
 import { Asset } from "expo-asset";
 import * as FileSystem from "expo-file-system";
 import { Audio } from "expo-av";
 import Animated, {
-  useSharedValue, useAnimatedProps, withRepeat, withTiming, withSequence,
-  FadeIn, FadeInUp, ZoomIn, FadeOut, Easing,
+  useSharedValue, useAnimatedProps, withRepeat, withTiming,
+  FadeInUp, ZoomIn, Easing,
 } from "react-native-reanimated";
-import { API, PORTRAITS } from "../src/api";
-import { C, SHADOW } from "../src/theme";
-import LOCAL_MAP from "../src/data/freedom_map.json";
+import { API, PORTRAITS } from "../../src/api";
+import { C, SHADOW } from "../../src/theme";
+import LOCAL_MAP from "../../src/data/freedom_map.json";
 
 const BASE = process.env.EXPO_PUBLIC_BACKEND_URL;
 const { width: SW, height: SH } = Dimensions.get("window");
 
+const SVG_VIEW_W = 612;
+const SVG_VIEW_H = 696;
+
 // Replicate the same equirectangular projection used by the backend
-const LON_MIN = 68, LON_MAX = 97, LAT_MIN = 8, LAT_MAX = 37;
+const LON_MIN = 68, LON_MAX = 97, LAT_MAX = 37, LAT_MIN = 8;
 function latLonToXY(lat: number, lon: number, dx: number, dy: number) {
   const x = (lon - LON_MIN) / (LON_MAX - LON_MIN) * SVG_VIEW_W + dx;
   const y = (LAT_MAX - lat) / (LAT_MAX - LAT_MIN) * SVG_VIEW_H + dy;
   return { x: Math.round(x * 10) / 10, y: Math.round(y * 10) / 10 };
 }
+
+type Hero = {
+  hero_id: string; name: string; state: string; x: number; y: number;
+  short_line: string; has_story: boolean; story_id: string | null;
+  portrait_url: string; discovered: boolean;
+};
 
 // Build heroes from bundled JSON — works 100% offline
 const LOCAL_HEROES: Hero[] = (LOCAL_MAP.fighters as any[]).map((f) => {
@@ -43,54 +52,31 @@ const LOCAL_HEROES: Hero[] = (LOCAL_MAP.fighters as any[]).map((f) => {
   };
 });
 
-const SVG_VIEW_W = 612;
-const SVG_VIEW_H = 696;
-
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
-
-type Hero = {
-  hero_id: string; name: string; state: string; x: number; y: number;
-  short_line: string; has_story: boolean; story_id: string | null;
-  portrait_url: string; discovered: boolean;
-};
-
 // -- Sounds ----------------------------------------------------------------
-const chimeMod = require("../assets/audio/chime.mp3");
-const winMod = require("../assets/audio/win.mp3");
+const chimeMod = require("../../assets/audio/chime.mp3");
+const winMod = require("../../assets/audio/win.mp3");
 let _chime: Audio.Sound | null = null;
 let _win: Audio.Sound | null = null;
 
 async function loadSounds() {
   try {
-    if (!_chime) {
-      const { sound } = await Audio.Sound.createAsync(chimeMod, { volume: 0.7 });
-      _chime = sound;
-    }
-    if (!_win) {
-      const { sound } = await Audio.Sound.createAsync(winMod, { volume: 0.9 });
-      _win = sound;
-    }
+    if (!_chime) { const { sound } = await Audio.Sound.createAsync(chimeMod, { volume: 0.7 }); _chime = sound; }
+    if (!_win) { const { sound } = await Audio.Sound.createAsync(winMod, { volume: 0.9 }); _win = sound; }
   } catch {}
 }
 async function unloadSounds() {
   try { await _chime?.unloadAsync(); _chime = null; } catch {}
   try { await _win?.unloadAsync(); _win = null; } catch {}
 }
-async function playChime() {
-  if (Platform.OS === "web") return;
-  try { await _chime?.replayAsync(); } catch {}
-}
-async function playWin() {
-  if (Platform.OS === "web") return;
-  try { await _win?.replayAsync(); } catch {}
-}
+async function playChime() { if (Platform.OS === "web") return; try { await _chime?.replayAsync(); } catch {} }
+async function playWin() { if (Platform.OS === "web") return; try { await _win?.replayAsync(); } catch {} }
 
 // -- India SVG cached as string --------------------------------------------
 let _indiaSvgCache: string | null = null;
 async function loadIndiaSvg(): Promise<string> {
   if (_indiaSvgCache) return _indiaSvgCache;
   try {
-    const asset = Asset.fromModule(require("../assets/map/india.svg"));
+    const asset = Asset.fromModule(require("../../assets/map/india.svg"));
     await asset.downloadAsync();
     const uri = asset.localUri || asset.uri;
     let raw: string;
@@ -99,56 +85,36 @@ async function loadIndiaSvg(): Promise<string> {
     } else {
       raw = await FileSystem.readAsStringAsync(uri);
     }
-    // Style every state path with our pastel palette
     raw = raw.replace(
       /<path\b/g,
       '<path fill="#FFF1D6" stroke="#3D2914" stroke-width="0.8" stroke-linejoin="round"'
     );
     _indiaSvgCache = raw;
     return raw;
-  } catch (e) {
-    return "";
-  }
+  } catch { return ""; }
 }
 
 // -- Pulsing dot -----------------------------------------------------------
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+
 function PulsingDot({ hero, onPress }: { hero: Hero; onPress: () => void }) {
   const pulse = useSharedValue(0);
   useEffect(() => {
-    pulse.value = withRepeat(
-      withTiming(1, { duration: 1600, easing: Easing.inOut(Easing.ease) }),
-      -1,
-      true
-    );
+    pulse.value = withRepeat(withTiming(1, { duration: 1600, easing: Easing.inOut(Easing.ease) }), -1, true);
   }, [pulse]);
 
-  const outerProps = useAnimatedProps(() => ({
-    r: 14 + pulse.value * 10,
-    opacity: 0.55 - pulse.value * 0.45,
-  }));
-  const midProps = useAnimatedProps(() => ({
-    r: 9 + pulse.value * 4,
-    opacity: 0.75 - pulse.value * 0.25,
-  }));
+  const outerProps = useAnimatedProps(() => ({ r: 14 + pulse.value * 10, opacity: 0.55 - pulse.value * 0.45 }));
+  const midProps = useAnimatedProps(() => ({ r: 9 + pulse.value * 4, opacity: 0.75 - pulse.value * 0.25 }));
 
   if (hero.discovered) {
-    // Gold star sparkle
     return (
       <G onPress={onPress}>
         <AnimatedCircle cx={hero.x} cy={hero.y} fill="#FFD93D" animatedProps={outerProps} />
         <Circle cx={hero.x} cy={hero.y} r={10} fill="#FFD93D" stroke="#3D2914" strokeWidth={1.2} />
-        {/* Tiny star using a path */}
-        <Path
-          d={starPath(hero.x, hero.y, 7, 3)}
-          fill="#FFFFFF"
-          stroke="#3D2914"
-          strokeWidth={0.6}
-        />
+        <Path d={starPath(hero.x, hero.y, 7, 3)} fill="#FFFFFF" stroke="#3D2914" strokeWidth={0.6} />
       </G>
     );
   }
-
-  // Saffron glowing dot
   return (
     <G onPress={onPress}>
       <AnimatedCircle cx={hero.x} cy={hero.y} fill="#FF7A1A" animatedProps={outerProps} />
@@ -174,7 +140,7 @@ export default function FreedomMap() {
   const router = useRouter();
   const [heroes, setHeroes] = useState<Hero[]>([]);
   const [discoveredCount, setDiscoveredCount] = useState(0);
-  const [total, setTotal] = useState(35);
+  const [total, setTotal] = useState(LOCAL_HEROES.length);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Hero | null>(null);
   const [indiaSvg, setIndiaSvg] = useState<string>("");
@@ -185,13 +151,11 @@ export default function FreedomMap() {
   const mapHeight = mapWidth * (SVG_VIEW_H / SVG_VIEW_W);
 
   const load = useCallback(async () => {
-    // Always start with local bundled heroes so map shows instantly
     setHeroes(LOCAL_HEROES);
     setTotal(LOCAL_HEROES.length);
     try {
       const r = await API.get("/freedom-map");
       const data = r.data as { heroes: Hero[]; discovered_count: number; total: number };
-      // Merge discovered status from server into local heroes
       const discoveredSet = new Set(
         (data.heroes as Hero[]).filter((h) => h.discovered).map((h) => h.hero_id)
       );
@@ -199,7 +163,7 @@ export default function FreedomMap() {
       setDiscoveredCount(data.discovered_count);
       setTotal(data.total || LOCAL_HEROES.length);
     } catch {
-      // Offline — local heroes with no discovered state
+      // Offline — show local heroes undiscovered
     } finally {
       setLoading(false);
     }
@@ -218,26 +182,17 @@ export default function FreedomMap() {
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
-  const onTapDot = (h: Hero) => {
-    playChime();
-    setSelected(h);
-  };
-
+  const onTapDot = (h: Hero) => { playChime(); setSelected(h); };
   const closePopup = () => setSelected(null);
 
   const onMeetHero = async () => {
     if (!selected) return;
-    const heroId = selected.hero_id;
-    const storyId = selected.story_id;
-    const hasStory = selected.has_story;
+    const { hero_id: heroId, story_id: storyId, has_story: hasStory } = selected;
     try {
       const r = await API.post(`/freedom-map/discover/${heroId}`);
       const justAll = r.data.discovered_count >= total && !celebrated;
       setDiscoveredCount(r.data.discovered_count);
-      // Optimistically mark hero discovered locally
-      setHeroes((prev) =>
-        prev.map((x) => (x.hero_id === heroId ? { ...x, discovered: true } : x))
-      );
+      setHeroes((prev) => prev.map((x) => (x.hero_id === heroId ? { ...x, discovered: true } : x)));
       if (justAll) {
         playWin();
         setCelebrated(true);
@@ -247,10 +202,7 @@ export default function FreedomMap() {
       }
     } catch {}
     setSelected(null);
-    if (hasStory && storyId) {
-      router.push(`/story/${storyId}` as any);
-    }
-    // else: just dismiss popup; "Coming soon" already communicated visually
+    if (hasStory && storyId) router.push(`/story/${storyId}` as any);
   };
 
   const progressPct = total > 0 ? (discoveredCount / total) * 100 : 0;
@@ -259,20 +211,15 @@ export default function FreedomMap() {
     return (
       <SafeAreaView style={[styles.c, { justifyContent: "center", alignItems: "center" }]}>
         <ActivityIndicator size="large" color={C.saffron} />
-        <Text style={{ marginTop: 12, color: C.navy, fontWeight: "700" }}>
-          Loading the map of India…
-        </Text>
+        <Text style={{ marginTop: 12, color: C.navy, fontWeight: "700" }}>Loading map…</Text>
       </SafeAreaView>
     );
   }
 
   return (
     <SafeAreaView style={styles.c} edges={["top"]}>
-      {/* Header */}
+      {/* Header — no back button since this is a tab */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()} testID="map-back">
-          <Ionicons name="arrow-back" size={24} color={C.navy} />
-        </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={styles.headerTitle}>🗺️ Freedom Map</Text>
           <Text style={styles.headerSub}>Tap a glowing spot to meet a hero!</Text>
@@ -283,43 +230,28 @@ export default function FreedomMap() {
         </View>
       </View>
 
-      {/* Progress bar */}
       <View style={styles.progressOuter}>
         <View style={[styles.progressFill, { width: `${progressPct}%` }]} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll} testID="map-scroll">
         <Animated.View entering={FadeInUp.duration(400)} style={styles.intro}>
-          <Text style={styles.introTxt}>
-            🇮🇳 Tap the glowing dots to discover heroes from every corner of India!
-          </Text>
-          <Text style={styles.introHint}>
-            ⭐ Visited heroes turn into gold stars
-          </Text>
+          <Text style={styles.introTxt}>🇮🇳 Tap the glowing dots to discover heroes from every corner of India!</Text>
+          <Text style={styles.introHint}>⭐ Visited heroes turn into gold stars</Text>
         </Animated.View>
 
-        {/* Map canvas (parchment + India SVG + dots overlay) */}
         <View style={[styles.mapCanvas, { width: mapWidth, height: mapHeight }]}>
-          {/* Parchment background */}
           <View style={styles.parchment} />
-          {/* India outline + states */}
           <View style={StyleSheet.absoluteFill}>
             <SvgXml xml={indiaSvg} width="100%" height="100%" />
           </View>
-          {/* Glowing dots overlay (separate SVG to stay on top) */}
-          <Svg
-            width="100%"
-            height="100%"
-            viewBox={`0 0 ${SVG_VIEW_W} ${SVG_VIEW_H}`}
-            style={StyleSheet.absoluteFill}
-          >
+          <Svg width="100%" height="100%" viewBox={`0 0 ${SVG_VIEW_W} ${SVG_VIEW_H}`} style={StyleSheet.absoluteFill}>
             {heroes.map((h) => (
               <PulsingDot key={h.hero_id} hero={h} onPress={() => onTapDot(h)} />
             ))}
           </Svg>
         </View>
 
-        {/* Legend */}
         <View style={styles.legend}>
           <View style={styles.legendRow}>
             <View style={[styles.legendDot, { backgroundColor: C.saffron }]} />
@@ -333,17 +265,11 @@ export default function FreedomMap() {
       </ScrollView>
 
       {/* Hero popup */}
-      <Modal
-        visible={!!selected}
-        transparent
-        animationType="fade"
-        onRequestClose={closePopup}
-      >
+      <Modal visible={!!selected} transparent animationType="fade" onRequestClose={closePopup}>
         <Pressable style={styles.modalBackdrop} onPress={closePopup}>
           {selected && (
             <Animated.View entering={ZoomIn.duration(300)} style={styles.popupCard}>
               <Pressable onPress={(e) => e.stopPropagation()}>
-                {/* Indian motif corners */}
                 <Text style={[styles.corner, styles.cornerTL]}>🪷</Text>
                 <Text style={[styles.corner, styles.cornerTR]}>☸️</Text>
                 <Text style={[styles.corner, styles.cornerBL]}>☸️</Text>
@@ -357,11 +283,7 @@ export default function FreedomMap() {
                   <Image
                     source={
                       PORTRAITS[selected.hero_id] ||
-                      ({
-                        uri: selected.has_story
-                          ? `${BASE}${selected.portrait_url}`
-                          : selected.portrait_url,
-                      } as any)
+                      ({ uri: selected.has_story ? `${BASE}${selected.portrait_url}` : selected.portrait_url } as any)
                     }
                     style={styles.portrait}
                   />
@@ -385,15 +307,9 @@ export default function FreedomMap() {
                   testID="meet-hero-btn"
                 >
                   <Text style={styles.meetBtnTxt}>
-                    {selected.has_story
-                      ? `Meet ${selected.name.split(" ")[0]}!`
-                      : "Discover & Continue"}
+                    {selected.has_story ? `Meet ${selected.name.split(" ")[0]}!` : "Discover & Continue"}
                   </Text>
-                  <Ionicons
-                    name={selected.has_story ? "arrow-forward-circle" : "checkmark-circle"}
-                    size={20}
-                    color={C.white}
-                  />
+                  <Ionicons name={selected.has_story ? "arrow-forward-circle" : "checkmark-circle"} size={20} color={C.white} />
                 </TouchableOpacity>
               </Pressable>
             </Animated.View>
@@ -401,7 +317,7 @@ export default function FreedomMap() {
         </Pressable>
       </Modal>
 
-      {/* Final celebration overlay (tricolor confetti) */}
+      {/* Celebration overlay */}
       <Modal visible={showCelebration} transparent animationType="fade">
         <View style={styles.celebrationBg}>
           <TricolorConfetti />
@@ -415,11 +331,7 @@ export default function FreedomMap() {
               <Ionicons name="trophy" size={20} color={C.gold} />
               <Text style={styles.celeBadgeTxt}>MAP EXPLORER</Text>
             </View>
-            <TouchableOpacity
-              style={styles.celeBtn}
-              onPress={() => setShowCelebration(false)}
-              testID="celebration-close"
-            >
+            <TouchableOpacity style={styles.celeBtn} onPress={() => setShowCelebration(false)} testID="celebration-close">
               <Text style={styles.celeBtnTxt}>Continue Exploring</Text>
             </TouchableOpacity>
           </Animated.View>
@@ -429,13 +341,11 @@ export default function FreedomMap() {
   );
 }
 
-// -- Tricolor confetti ----------------------------------------------------
 function TricolorConfetti() {
   const colors = ["#FF7A1A", "#FFFFFF", "#138808"];
-  const items = Array.from({ length: 30 });
   return (
     <View pointerEvents="none" style={styles.confettiWrap}>
-      {items.map((_, i) => (
+      {Array.from({ length: 30 }).map((_, i) => (
         <ConfettiPiece key={i} color={colors[i % 3]} index={i} />
       ))}
     </View>
@@ -456,22 +366,13 @@ function ConfettiPiece({ color, index }: { color: string; index: number }) {
     rot.value = withRepeat(withTiming(360, { duration: 1200, easing: Easing.linear }), -1);
     setTimeout(() => { op.value = withTiming(0, { duration: 600 }); }, 2400);
   }, [op, tx, ty, rot, index]);
-  const animProps = useAnimatedProps(() => ({
-    opacity: op.value,
-  }));
+  const animProps = useAnimatedProps(() => ({ opacity: op.value }));
   return (
     <Animated.View
       animatedProps={animProps}
       style={[
         styles.confettiPiece,
-        {
-          backgroundColor: color,
-          transform: [
-            { translateX: tx as any },
-            { translateY: ty as any },
-            { rotate: `${rot.value}deg` as any },
-          ] as any,
-        },
+        { backgroundColor: color, transform: [{ translateX: tx as any }, { translateY: ty as any }, { rotate: `${rot.value}deg` as any }] as any },
       ]}
     />
   );
@@ -484,7 +385,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14, paddingVertical: 10,
     backgroundColor: C.white, borderBottomWidth: 2, borderBottomColor: C.navy,
   },
-  backBtn: { padding: 6 },
   headerTitle: { fontSize: 20, fontWeight: "900", color: C.navy },
   headerSub: { fontSize: 11, fontWeight: "700", color: C.textMuted, marginTop: 2 },
   counterPill: {
@@ -507,16 +407,10 @@ const styles = StyleSheet.create({
   introTxt: { fontSize: 13, fontWeight: "800", color: C.navy, textAlign: "center" },
   introHint: { fontSize: 11, fontWeight: "700", color: C.textMuted, textAlign: "center", marginTop: 4 },
   mapCanvas: {
-    backgroundColor: "#FFF1D6",
-    borderRadius: 20, borderWidth: 3, borderColor: C.navy,
-    overflow: "hidden",
-    ...SHADOW,
-    position: "relative",
+    backgroundColor: "#FFF1D6", borderRadius: 20, borderWidth: 3, borderColor: C.navy,
+    overflow: "hidden", ...SHADOW, position: "relative",
   },
-  parchment: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "#FFF1D6",
-  },
+  parchment: { ...StyleSheet.absoluteFillObject, backgroundColor: "#FFF1D6" },
   legend: {
     flexDirection: "row", gap: 18, marginTop: 14, justifyContent: "center",
     backgroundColor: C.white, paddingHorizontal: 16, paddingVertical: 8,
@@ -525,11 +419,7 @@ const styles = StyleSheet.create({
   legendRow: { flexDirection: "row", alignItems: "center", gap: 6 },
   legendDot: { width: 12, height: 12, borderRadius: 6, borderWidth: 1.5, borderColor: C.navy },
   legendTxt: { fontSize: 12, fontWeight: "800", color: C.navy },
-  // Popup
-  modalBackdrop: {
-    flex: 1, backgroundColor: "#00000099",
-    justifyContent: "center", alignItems: "center", padding: 24,
-  },
+  modalBackdrop: { flex: 1, backgroundColor: "#00000099", justifyContent: "center", alignItems: "center", padding: 24 },
   popupCard: {
     backgroundColor: C.white, borderRadius: 24, padding: 22,
     borderWidth: 3, borderColor: C.saffron, alignItems: "center",
@@ -540,28 +430,21 @@ const styles = StyleSheet.create({
   cornerTR: { top: 6, right: 8 },
   cornerBL: { bottom: 6, left: 8 },
   cornerBR: { bottom: 6, right: 8 },
-  closeX: {
-    position: "absolute", right: 6, top: 6, padding: 8, zIndex: 10,
-  },
+  closeX: { position: "absolute", right: 6, top: 6, padding: 8, zIndex: 10 },
   portraitWrap: {
     width: 120, height: 120, borderRadius: 60,
     borderWidth: 3, borderColor: C.gold, overflow: "hidden",
     backgroundColor: "#FFF1D6", marginTop: 8,
   },
   portrait: { width: "100%", height: "100%" },
-  heroName: {
-    fontSize: 20, fontWeight: "900", color: C.navy, marginTop: 12, textAlign: "center",
-  },
+  heroName: { fontSize: 20, fontWeight: "900", color: C.navy, marginTop: 12, textAlign: "center" },
   statePill: {
     flexDirection: "row", alignItems: "center", gap: 4,
     backgroundColor: "#FFE6B8", paddingHorizontal: 12, paddingVertical: 4,
     borderRadius: 999, borderWidth: 1.5, borderColor: C.maroon, marginTop: 6,
   },
   stateTxt: { fontSize: 12, fontWeight: "800", color: C.maroon },
-  shortLine: {
-    fontSize: 14, fontWeight: "700", color: C.navy,
-    textAlign: "center", marginTop: 12, fontStyle: "italic",
-  },
+  shortLine: { fontSize: 14, fontWeight: "700", color: C.navy, textAlign: "center", marginTop: 12, fontStyle: "italic" },
   soonChip: {
     backgroundColor: "#FFE6B8", paddingHorizontal: 12, paddingVertical: 6,
     borderRadius: 999, borderWidth: 1.5, borderColor: C.navy, marginTop: 10,
@@ -573,25 +456,15 @@ const styles = StyleSheet.create({
     borderRadius: 999, borderWidth: 2, borderColor: C.navy, marginTop: 16,
   },
   meetBtnTxt: { color: C.white, fontWeight: "900", fontSize: 14 },
-  // Celebration
-  celebrationBg: {
-    flex: 1, backgroundColor: "#00000088",
-    justifyContent: "center", alignItems: "center", padding: 24,
-  },
+  celebrationBg: { flex: 1, backgroundColor: "#00000088", justifyContent: "center", alignItems: "center", padding: 24 },
   celebrationCard: {
     backgroundColor: C.white, padding: 28, borderRadius: 28,
     borderWidth: 3, borderColor: C.gold, alignItems: "center",
     maxWidth: 340, width: "100%", ...SHADOW,
   },
   celeEmoji: { fontSize: 64 },
-  celeTitle: {
-    fontSize: 22, fontWeight: "900", color: C.navy,
-    textAlign: "center", marginTop: 12,
-  },
-  celeSub: {
-    fontSize: 13, fontWeight: "700", color: C.textMuted,
-    textAlign: "center", marginTop: 10, lineHeight: 19,
-  },
+  celeTitle: { fontSize: 22, fontWeight: "900", color: C.navy, textAlign: "center", marginTop: 12 },
+  celeSub: { fontSize: 13, fontWeight: "700", color: C.textMuted, textAlign: "center", marginTop: 10, lineHeight: 19 },
   celeBadge: {
     flexDirection: "row", alignItems: "center", gap: 6,
     backgroundColor: C.navy, paddingHorizontal: 16, paddingVertical: 8,
@@ -603,14 +476,6 @@ const styles = StyleSheet.create({
     borderRadius: 999, borderWidth: 2, borderColor: C.navy, marginTop: 18,
   },
   celeBtnTxt: { color: C.white, fontWeight: "900", fontSize: 14 },
-  // Confetti
-  confettiWrap: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: "center", justifyContent: "flex-start",
-  },
-  confettiPiece: {
-    position: "absolute", width: 10, height: 14,
-    top: 0, left: SW / 2,
-    borderRadius: 2,
-  },
+  confettiWrap: { ...StyleSheet.absoluteFillObject, alignItems: "center", justifyContent: "flex-start" },
+  confettiPiece: { position: "absolute", width: 10, height: 14, top: 0, left: SW / 2, borderRadius: 2 },
 });
