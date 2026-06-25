@@ -60,11 +60,13 @@ export default function VeerChat() {
     <SafeAreaView style={styles.c} edges={["top"]}>
       <View style={styles.header}>
         <View style={styles.veerAv}>
-          <Image
-            source={{ uri: VEER_AVATAR_URI }}
-            style={styles.veerImg}
-            resizeMode="cover"
-          />
+          {VEER_AVATAR_URI ? (
+            <Image source={{ uri: VEER_AVATAR_URI }} style={styles.veerImg} resizeMode="cover" />
+          ) : (
+            <View style={[styles.veerImg, { alignItems: "center", justifyContent: "center" }]}>
+              <Text style={{ fontSize: 28 }}>🧒</Text>
+            </View>
+          )}
         </View>
         <View style={{ flex: 1 }}>
           <Text style={styles.name}>{VEER_NAME}</Text>
