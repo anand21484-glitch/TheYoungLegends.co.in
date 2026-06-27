@@ -12,8 +12,7 @@ import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { setProfile, Local } from "../src/data/localStore";
 import { C, FF, SHADOW } from "../src/theme";
 
-// Set to require("../../assets/images/welcome-kid.png") once that file is saved
-const WELCOME_IMAGE: any = null;
+const WELCOME_IMAGE = require("../../assets/images/welcome-kid.png");
 
 export default function NameScreen() {
   const router = useRouter();
