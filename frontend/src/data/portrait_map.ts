@@ -7,7 +7,6 @@ const PORTRAITS: Record<string, number> = {
   "aruna-asaf-ali": require("../../assets/portraits/aruna-asaf-ali.jpg"),
   "ashfaqulla-khan": require("../../assets/portraits/ashfaqulla-khan.jpg"),
   "aurobindo-ghosh": require("../../assets/portraits/aurobindo-ghosh.jpg"),
-  "bagha-jatin": require("../../assets/portraits/bagha-jatin.jpg"),
   "begum-hazrat-mahal": require("../../assets/portraits/begum-hazrat-mahal.jpg"),
   "bhagat-singh": require("../../assets/portraits/bhagat-singh.jpg"),
   "bhima-bhoi": require("../../assets/portraits/bhima-bhoi.jpg"),
@@ -37,17 +36,12 @@ const PORTRAITS: Record<string, number> = {
   "sarojini-naidu": require("../../assets/portraits/sarojini-naidu.jpg"),
   "subhas-bose": require("../../assets/portraits/subhas-bose.jpg"),
   "subramania-bharati": require("../../assets/portraits/subramania-bharati.jpg"),
-  "sukhdev": require("../../assets/portraits/sukhdev.jpg"),
   "surya-sen": require("../../assets/portraits/surya-sen.jpg"),
   "tantia-tope": require("../../assets/portraits/tantia-tope.jpg"),
-  "tara-rani-srivastava": require("../../assets/portraits/tara-rani-srivastava.jpg"),
   "tilak": require("../../assets/portraits/tilak.jpg"),
   "tilka-manjhi": require("../../assets/portraits/tilka-manjhi.jpg"),
   "tirot-sing": require("../../assets/portraits/tirot-sing.jpg"),
-  "uyyalawada-narasimha-reddy": require("../../assets/portraits/uyyalawada-narasimha-reddy.jpg"),
   "veer-savarkar": require("../../assets/portraits/veer-savarkar.jpg"),
-  "veer-surendra-sai": require("../../assets/portraits/veer-surendra-sai.jpg"),
-  "velu-thampi": require("../../assets/portraits/velu-thampi.jpg"),
 };
 
 export default PORTRAITS;
