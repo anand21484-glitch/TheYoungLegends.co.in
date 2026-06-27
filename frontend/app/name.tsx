@@ -11,12 +11,15 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { setProfile, Local } from "../src/data/localStore";
 import { C, FF, SHADOW } from "../src/theme";
-import { VEER_AVATAR_URI } from "../src/veer";
+
+// Set to require("../../assets/images/welcome-kid.png") once that file is saved
+const WELCOME_IMAGE: any = null;
 
 export default function NameScreen() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [saving, setSaving] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const submit = async () => {
     const clean = name.trim().replace(/\s+/g, " ");
@@ -59,7 +62,18 @@ export default function NameScreen() {
           </Animated.View>
 
           <Animated.View entering={FadeInUp.delay(200).duration(600)} style={styles.heroCircle}>
-            <Image source={{ uri: VEER_AVATAR_URI }} style={styles.heroImg} resizeMode="cover" />
+            {(!WELCOME_IMAGE || imageError) ? (
+              <View style={styles.heroFallback}>
+                <Text style={styles.heroFlagEmoji}>🇮🇳</Text>
+              </View>
+            ) : (
+              <Image
+                source={WELCOME_IMAGE}
+                style={styles.heroImg}
+                resizeMode="cover"
+                onError={() => setImageError(true)}
+              />
+            )}
           </Animated.View>
 
           <Animated.Text entering={FadeInUp.delay(350).duration(600)} style={styles.greet}>
@@ -125,9 +139,13 @@ const styles = StyleSheet.create({
   heroCircle: {
     width: 180, height: 180, borderRadius: 90, overflow: "hidden",
     borderWidth: 4, borderColor: C.navy, marginTop: 28,
-    backgroundColor: C.gold, ...SHADOW,
+    backgroundColor: C.saffron, ...SHADOW,
   },
   heroImg: { width: "100%", height: "100%" },
+  heroFallback: {
+    flex: 1, alignItems: "center", justifyContent: "center",
+  },
+  heroFlagEmoji: { fontSize: 90, lineHeight: 100 },
   greet: { fontSize: 22, color: C.navy, fontFamily: FF.bodyBold, marginTop: 22, textAlign: "center" },
   question: {
     fontSize: 28, color: C.maroon, fontFamily: FF.heading,
