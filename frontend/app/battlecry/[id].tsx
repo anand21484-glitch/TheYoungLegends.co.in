@@ -332,36 +332,22 @@ export default function BattleCryScreen() {
     ringScale1.value = withTiming(0, { duration: 200 });
     ringScale2.value = withTiming(0, { duration: 200 });
 
-    console.log("STEP 1: stopAndProcess called");
-
     const rec = recordingRef.current;
     recordingRef.current = null;
 
-    console.log("STEP 2: recordingRef.current =", rec);
-    console.log("STEP 3: stopping recording...");
-
     try { await rec?.stopAndUnloadAsync(); } catch {}
 
-    console.log("STEP 4: stopped. Getting URI...");
-
     const uri = rec?.getURI() || null;
-    console.log("STEP 5: URI =", uri);
-
     // Android sometimes returns a bare path without file:// scheme
     const finalUri = uri
       ? (uri.startsWith("file://") ? uri : `file://${uri}`)
       : null;
-    console.log("STEP 6: finalUri =", finalUri);
 
     setRecordingUri(finalUri);
-    console.log("STEP 7: setRecordingUri called with", finalUri);
-
     setPhase("processing");
 
-    // Wait for React to commit recordingUri state before celebration renders
+    // Allow React to flush recordingUri state before celebration modal renders
     await new Promise<void>((resolve) => setTimeout(resolve, 200));
-    console.log("STEP 8: triggering celebration");
-
     celebrate();
   };
 
@@ -390,10 +376,9 @@ export default function BattleCryScreen() {
   // ── Replay ────────────────────────────────────────────────────────────────
   const replayVoice = async () => {
     if (!recordingUri) {
-      console.log("REPLAY: no URI available");
+      Alert.alert("Recording not available", "Recording not available, please try again.");
       return;
     }
-    console.log("REPLAY: starting playback of", recordingUri);
     try {
       // Always clean up any existing sound first
       if (replaySoundRef.current) {
@@ -413,21 +398,17 @@ export default function BattleCryScreen() {
         shouldDuckAndroid: false,
       }).catch(() => {});
       setIsReplaying(true);
-      const { sound } = await Audio.Sound.createAsync(
-        { uri: recordingUri },
-        { shouldPlay: true, volume: 1.0 },
-      );
+      const { sound } = await Audio.Sound.createAsync({ uri: recordingUri });
       replaySoundRef.current = sound;
       sound.setOnPlaybackStatusUpdate((status) => {
         if (status.isLoaded && status.didJustFinish) {
-          console.log("REPLAY: playback finished");
           setIsReplaying(false);
           replaySoundRef.current = null;
+          sound.unloadAsync().catch(() => {});
         }
       });
-      console.log("REPLAY: playback started successfully");
-    } catch (error) {
-      console.error("REPLAY ERROR:", error);
+      await sound.playAsync();
+    } catch {
       setIsReplaying(false);
     }
   };
