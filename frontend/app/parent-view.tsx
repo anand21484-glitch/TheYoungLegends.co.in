@@ -61,7 +61,6 @@ export default function ParentView() {
         </View>
         <View style={styles.row}>
           <Tile label="Day Streak" value={prog.streak} icon="flame" color={C.saffron} />
-          <Tile label="Journal Notes" value={prog.journal.length} icon="journal" color={C.navy} />
         </View>
 
         {lastQuiz.length > 0 && (
