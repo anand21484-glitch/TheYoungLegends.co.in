@@ -12,6 +12,7 @@ import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { setProfile, Local } from "../src/data/localStore";
 import { C, FF, SHADOW } from "../src/theme";
 import { VEER_AVATAR_URI } from "../src/veer";
+const WELCOME_IMAGE = require('../assets/images/welcome-kid.png.jpg');
 
 export default function NameScreen() {
   const router = useRouter();
@@ -59,7 +60,7 @@ export default function NameScreen() {
           </Animated.View>
 
           <Animated.View entering={FadeInUp.delay(200).duration(600)} style={styles.heroCircle}>
-            <Image source={{ uri: VEER_AVATAR_URI }} style={styles.heroImg} resizeMode="cover" />
+           <Image source={require('../assets/images/welcome-kid.png.jpg')} style={styles.heroImg} resizeMode="cover" />
           </Animated.View>
 
           <Animated.Text entering={FadeInUp.delay(350).duration(600)} style={styles.greet}>
