@@ -1,34 +1,33 @@
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import {
-  View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator,
-  Dimensions, Platform,
+  View, Text, StyleSheet, TouchableOpacity, Image, ScrollView,
+  ActivityIndicator, Dimensions, Platform,
 } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, {
   FadeIn, FadeInUp, ZoomIn,
-  useSharedValue, useAnimatedStyle,
-  withSpring, withTiming,
-  runOnJS,
+  useSharedValue, useAnimatedStyle, withSpring, withTiming,
 } from "react-native-reanimated";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import * as Haptics from "expo-haptics";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API, PORTRAITS } from "../../src/api";
 import { C, SHADOW } from "../../src/theme";
 
-const { width: SW, height: SH } = Dimensions.get("window");
+const { width: SW } = Dimensions.get("window");
 const GRID = 3;
-const GAP = 3;
-const BOARD_PAD = 10;
+const PIECE_GAP = 3;
+const PIECE_SIZE = Math.floor((Math.min(SW - 40, 330) - PIECE_GAP * 2) / GRID);
+const PUZZLE_SIZE = PIECE_SIZE * GRID + PIECE_GAP * 2;
 const HEADER_H = 68;
-const TUTORIAL_KEY = "jigsaw_tutorial_v3";
+const TUTORIAL_KEY = "jigsaw_tutorial_v4";
+const MAX_PEEKS = 3;
 const bestKey = (id: string) => `jigsaw_best_${id}`;
 
 function fmtTime(ms: number) {
-  const total = Math.floor(ms / 1000);
-  return `${Math.floor(total / 60)}:${(total % 60).toString().padStart(2, "0")}`;
+  const s = Math.floor(ms / 1000);
+  return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
 }
 
 function shuffleNotSolved(n: number): number[] {
@@ -43,12 +42,11 @@ function shuffleNotSolved(n: number): number[] {
   return Array.from({ length: n }, (_, i) => (i + 1) % n);
 }
 
-const haptic = (type: "tap" | "snap" | "wrong" | "win") => {
+const haptic = (type: "tap" | "snap" | "win") => {
   if (Platform.OS === "web") return;
   switch (type) {
     case "tap": Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}); break;
     case "snap": Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy).catch(() => {}); break;
-    case "wrong": Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => {}); break;
     case "win": Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {}); break;
   }
 };
@@ -58,128 +56,71 @@ type Puzzle = {
   grid: number; xp_reward: number; solved: boolean;
 };
 
-// ─── DraggablePiece ──────────────────────────────────────────────────────────
-function DraggablePiece({
-  pieceIdx, portrait, PS, homeX, homeY,
-  slotCenterFn, snapRadius, onPlaced, onWrong, onFirstMove, isPlaced, puzzle,
+// ─── Single puzzle piece ─────────────────────────────────────────────────────
+function PuzzlePiece({
+  correctIdx, portrait, isSelected, isCorrect, onPress,
 }: {
-  pieceIdx: number; portrait: any; PS: number;
-  homeX: number; homeY: number;
-  slotCenterFn: (s: number) => { x: number; y: number };
-  snapRadius: number;
-  onPlaced: (pieceIdx: number, slotIdx: number) => void;
-  onWrong: () => void;
-  onFirstMove: () => void;
-  isPlaced: boolean;
-  puzzle: Puzzle;
+  correctIdx: number; portrait: any;
+  isSelected: boolean; isCorrect: boolean; onPress: () => void;
 }) {
-  const tx = useSharedValue(0);
-  const ty = useSharedValue(0);
-  const sc = useSharedValue(1);
-  const zi = useSharedValue(isPlaced ? 2 : 1);
+  const scale = useSharedValue(1);
+  useEffect(() => {
+    scale.value = withSpring(isSelected ? 1.07 : 1, { damping: 14, stiffness: 280 });
+  }, [isSelected, scale]);
+  const anim = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
-  const pan = useMemo(() =>
-    Gesture.Pan()
-      .enabled(!isPlaced)
-      .minDistance(3)
-      .onStart(() => {
-        sc.value = withTiming(1.12, { duration: 100 });
-        zi.value = 100;
-        runOnJS(onFirstMove)();
-      })
-      .onUpdate((e) => {
-        tx.value = e.translationX;
-        ty.value = e.translationY;
-      })
-      .onEnd((e) => {
-        sc.value = withTiming(1, { duration: 150 });
-        zi.value = isPlaced ? 2 : 1;
-
-        const centerX = homeX + PS / 2 + e.translationX;
-        const centerY = homeY + PS / 2 + e.translationY;
-
-        let bestSlot = -1;
-        let bestDist = snapRadius;
-        for (let s = 0; s < GRID * GRID; s++) {
-          const c = slotCenterFn(s);
-          const d = Math.hypot(centerX - c.x, centerY - c.y);
-          if (d < bestDist) { bestDist = d; bestSlot = s; }
-        }
-
-        if (bestSlot === pieceIdx) {
-          // Correct — snap to board slot
-          const c = slotCenterFn(bestSlot);
-          tx.value = withSpring(c.x - PS / 2 - homeX, { damping: 20, stiffness: 200 });
-          ty.value = withSpring(c.y - PS / 2 - homeY, { damping: 20, stiffness: 200 });
-          zi.value = 2;
-          runOnJS(onPlaced)(pieceIdx, bestSlot);
-        } else {
-          // Wrong or miss — bounce back home
-          tx.value = withSpring(0, { damping: 18, stiffness: 180 });
-          ty.value = withSpring(0, { damping: 18, stiffness: 180 });
-          if (bestSlot !== -1) runOnJS(onWrong)();
-        }
-      }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isPlaced, homeX, homeY, PS, snapRadius, pieceIdx]
-  );
-
-  const animStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: tx.value },
-      { translateY: ty.value },
-      { scale: sc.value },
-    ],
-    zIndex: zi.value,
-    elevation: zi.value > 2 ? 20 : zi.value,
-  }));
-
-  const col = pieceIdx % GRID;
-  const row = Math.floor(pieceIdx / GRID);
+  const cRow = Math.floor(correctIdx / GRID);
+  const cCol = correctIdx % GRID;
 
   return (
-    <GestureDetector gesture={pan}>
-      <Animated.View
-        style={[
-          st.piece,
-          {
-            left: homeX, top: homeY,
-            width: PS, height: PS,
-            borderColor: isPlaced ? C.green : "#FFFFFFAA",
-            borderWidth: isPlaced ? 3 : 1.5,
-          },
-          animStyle,
-        ]}
-      >
-        <View style={{ width: PS, height: PS, overflow: "hidden", borderRadius: 5 }}>
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={isCorrect ? 1 : 0.82}
+      style={{ zIndex: isSelected ? 10 : 1 }}
+    >
+      <Animated.View style={[{ width: PIECE_SIZE, height: PIECE_SIZE }, anim]}>
+        {/* Image crop */}
+        <View style={{ width: PIECE_SIZE, height: PIECE_SIZE, overflow: "hidden", borderRadius: 3 }}>
           {portrait ? (
             <Image
               source={portrait}
               style={{
-                width: PS * GRID,
-                height: PS * GRID,
-                marginLeft: -col * PS,
-                marginTop: -row * PS,
+                width: PIECE_SIZE * GRID,
+                height: PIECE_SIZE * GRID,
+                position: "absolute",
+                top: -cRow * PIECE_SIZE,
+                left: -cCol * PIECE_SIZE,
               }}
+              resizeMode="cover"
             />
           ) : (
-            <View style={{
-              width: PS, height: PS, backgroundColor: puzzle.color + "CC",
-              alignItems: "center", justifyContent: "center",
-            }}>
-              <Text style={{ fontSize: PS * 0.35, fontWeight: "900", color: C.white }}>
-                {pieceIdx + 1}
-              </Text>
+            <View style={[st.pieceFallback]}>
+              <Text style={st.pieceFallbackTxt}>{correctIdx + 1}</Text>
             </View>
           )}
         </View>
-        {isPlaced && (
-          <View style={st.correctTick}>
+
+        {/* Selection / correct border overlay — drawn on top, doesn't affect layout */}
+        {(isSelected || isCorrect) && (
+          <View
+            pointerEvents="none"
+            style={{
+              position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+              borderRadius: 3,
+              borderWidth: isSelected ? 3 : 2,
+              borderColor: isSelected ? C.saffron : "#22C55E",
+            }}
+          />
+        )}
+
+        {/* Checkmark badge — only for correct pieces */}
+        {isCorrect && (
+          <View style={st.correctTick} pointerEvents="none">
             <Ionicons name="checkmark" size={11} color={C.white} />
           </View>
         )}
       </Animated.View>
-    </GestureDetector>
+    </TouchableOpacity>
   );
 }
 
@@ -196,7 +137,7 @@ function ConfettiItem({ emoji, index, total }: { emoji: string; index: number; t
     ty.value = withTiming(380 + (index % 3) * 28, { duration: 1700 });
     rot.value = withTiming(540, { duration: 1700 });
     setTimeout(() => { op.value = withTiming(0, { duration: 350 }); }, 1350);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const anim = useAnimatedStyle(() => ({
     opacity: op.value,
@@ -204,7 +145,6 @@ function ConfettiItem({ emoji, index, total }: { emoji: string; index: number; t
   }));
   return <Animated.Text style={[st.confetti, anim]}>{emoji}</Animated.Text>;
 }
-
 function ConfettiBurst() {
   const items = ["🎉", "✨", "⭐", "🎊", "🏆", "💫", "🎉", "✨", "🌟"];
   return (
@@ -218,14 +158,15 @@ function ConfettiBurst() {
 export default function JigsawPlay() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const insets = useSafeAreaInsets();
 
   const [puzzle, setPuzzle] = useState<Puzzle | null>(null);
-  const [trayOrder, setTrayOrder] = useState<number[]>([]);
-  // placedAt[pieceIdx] = slotIdx when correctly placed, else null
-  const [placedAt, setPlacedAt] = useState<(number | null)[]>(Array(9).fill(null));
+  // pieces[displayPos] = correctIdx of the piece shown at that position
+  const [pieces, setPieces] = useState<number[]>([]);
+  const [selectedPos, setSelectedPos] = useState<number | null>(null);
   const [completed, setCompleted] = useState(false);
-  const [showHint, setShowHint] = useState(false);
+  const [peekVisible, setPeekVisible] = useState(false);
+  const [peeksLeft, setPeeksLeft] = useState(MAX_PEEKS);
+  const [peekCountdown, setPeekCountdown] = useState(2);
   const [showTutorial, setShowTutorial] = useState(false);
   const [elapsedMs, setElapsedMs] = useState(0);
   const [finalMs, setFinalMs] = useState<number | null>(null);
@@ -236,32 +177,9 @@ export default function JigsawPlay() {
 
   const startRef = useRef<number | null>(null);
   const timerRef = useRef<any>(null);
-  const hintRef = useRef<any>(null);
+  const peekTimersRef = useRef<any[]>([]);
   const elapsedRef = useRef(0);
-  // Keep a ref so onPiecePlaced closure always has current elapsed
   useEffect(() => { elapsedRef.current = elapsedMs; }, [elapsedMs]);
-
-  // ── Layout math ─────────────────────────────────────────────────────────────
-  const gameH = SH - insets.top - HEADER_H - insets.bottom;
-  const BOARD_SIZE = Math.min(SW - 32, Math.floor(gameH * 0.47));
-  const PS = Math.floor((BOARD_SIZE - BOARD_PAD * 2 - GAP * (GRID - 1)) / GRID);
-
-  const BOARD_X = (SW - BOARD_SIZE) / 2;
-  const BOARD_Y = 8;
-  const TRAY_LABEL_Y = BOARD_Y + BOARD_SIZE + 10;
-  const TRAY_W = PS * GRID + GAP * (GRID - 1);
-  const TRAY_X = (SW - TRAY_W) / 2;
-  const TRAY_Y = TRAY_LABEL_Y + 22;
-
-  const slotCenterFn = useCallback((s: number) => ({
-    x: BOARD_X + BOARD_PAD + (s % GRID) * (PS + GAP) + PS / 2,
-    y: BOARD_Y + BOARD_PAD + Math.floor(s / GRID) * (PS + GAP) + PS / 2,
-  }), [BOARD_X, BOARD_Y, PS]);
-
-  const trayPos = useCallback((trayIdx: number) => ({
-    x: TRAY_X + (trayIdx % GRID) * (PS + GAP),
-    y: TRAY_Y + Math.floor(trayIdx / GRID) * (PS + GAP),
-  }), [TRAY_X, TRAY_Y, PS]);
 
   // ── Init ────────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -271,9 +189,9 @@ export default function JigsawPlay() {
         const p = (r.data as Puzzle[]).find((x) => x.id === id);
         if (!p) { router.back(); return; }
         setPuzzle(p);
-        startNewGame();
+        doStartNewGame();
         try {
-          const bt = await AsyncStorage.getItem(bestKey(p.id));
+          const bt = await AsyncStorage.getItem(bestKey(id as string));
           if (bt) setBestMs(parseInt(bt));
         } catch {}
         try {
@@ -284,21 +202,23 @@ export default function JigsawPlay() {
     })();
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
-      if (hintRef.current) clearTimeout(hintRef.current);
+      peekTimersRef.current.forEach(clearTimeout);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const startNewGame = useCallback(() => {
-    setTrayOrder(shuffleNotSolved(9));
-    setPlacedAt(Array(9).fill(null));
+  const doStartNewGame = useCallback(() => {
+    setPieces(shuffleNotSolved(9));
+    setSelectedPos(null);
     setCompleted(false);
     setReward(null);
     setFinalMs(null);
     setNewRecord(false);
     setElapsedMs(0);
     setMoves(0);
-    setShowHint(false);
+    setPeeksLeft(MAX_PEEKS);
+    setPeekVisible(false);
+    peekTimersRef.current.forEach(clearTimeout);
     startRef.current = Date.now();
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
@@ -306,48 +226,72 @@ export default function JigsawPlay() {
     }, 300);
   }, []);
 
-  const onPiecePlaced = useCallback((pieceIdx: number, slotIdx: number) => {
-    haptic("snap");
-    setMoves((m) => m + 1);
-    setPlacedAt((prev) => {
-      const next = [...prev];
-      next[pieceIdx] = slotIdx;
-      if (next.every((v, i) => v === i)) {
-        const f = startRef.current ? Date.now() - startRef.current : elapsedRef.current;
-        if (timerRef.current) clearInterval(timerRef.current);
-        setFinalMs(f);
-        setCompleted(true);
-        haptic("win");
-        AsyncStorage.getItem(bestKey(id as string)).then((bt) => {
-          const prev2 = bt ? parseInt(bt) : null;
-          if (prev2 == null || f < prev2) {
-            AsyncStorage.setItem(bestKey(id as string), String(f));
-            setNewRecord(true);
-          }
-        });
-        API.post(`/jigsaw/${id}/complete`)
-          .then((r2) => setReward({ xp: r2.data.xp_awarded || 30 }))
-          .catch(() => setReward({ xp: 30 }));
+  const handleComplete = useCallback(async () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    const f = startRef.current ? Date.now() - startRef.current : elapsedRef.current;
+    setFinalMs(f);
+    setCompleted(true);
+    haptic("win");
+    try {
+      const bt = await AsyncStorage.getItem(bestKey(id as string));
+      const prev = bt ? parseInt(bt) : null;
+      if (prev == null || f < prev) {
+        AsyncStorage.setItem(bestKey(id as string), String(f));
+        setNewRecord(true);
       }
-      return next;
-    });
+    } catch {}
+    try {
+      const r2 = await API.post(`/jigsaw/${id}/complete`);
+      setReward({ xp: r2.data.xp_awarded || 30 });
+    } catch {
+      setReward({ xp: 30 });
+    }
   }, [id]);
 
-  const onWrong = useCallback(() => { haptic("wrong"); }, []);
+  const handleTap = useCallback((pos: number) => {
+    if (completed) return;
+    if (pieces[pos] === pos) {
+      haptic("tap");
+      return; // already correct — ignore
+    }
+    if (selectedPos === null) {
+      haptic("tap");
+      setSelectedPos(pos);
+    } else if (selectedPos === pos) {
+      setSelectedPos(null); // deselect
+    } else {
+      // Swap selectedPos ↔ pos
+      haptic("snap");
+      const next = [...pieces];
+      [next[selectedPos], next[pos]] = [next[pos], next[selectedPos]];
+      setPieces(next);
+      setSelectedPos(null);
+      setMoves((m) => m + 1);
+      if (next.every((v, i) => v === i)) {
+        setTimeout(handleComplete, 60);
+      }
+    }
+  }, [completed, pieces, selectedPos, handleComplete]);
+
+  const handlePeek = useCallback(() => {
+    if (peeksLeft <= 0 || peekVisible || completed) return;
+    haptic("tap");
+    peekTimersRef.current.forEach(clearTimeout);
+    setPeeksLeft((l) => l - 1);
+    setPeekVisible(true);
+    setPeekCountdown(2);
+    peekTimersRef.current = [
+      setTimeout(() => setPeekCountdown(1), 1000),
+      setTimeout(() => setPeekVisible(false), 2000),
+    ];
+  }, [peeksLeft, peekVisible, completed]);
 
   const dismissTutorial = useCallback(() => {
     setShowTutorial(false);
     AsyncStorage.setItem(TUTORIAL_KEY, "1").catch(() => {});
   }, []);
 
-  const showHintFor2s = useCallback(() => {
-    setShowHint(true);
-    haptic("tap");
-    if (hintRef.current) clearTimeout(hintRef.current);
-    hintRef.current = setTimeout(() => setShowHint(false), 2000);
-  }, []);
-
-  if (!puzzle) {
+  if (!puzzle || pieces.length === 0) {
     return (
       <SafeAreaView style={[st.c, { justifyContent: "center", alignItems: "center" }]} edges={["top"]}>
         <ActivityIndicator size="large" color={C.saffron} />
@@ -356,12 +300,12 @@ export default function JigsawPlay() {
   }
 
   const portrait = PORTRAITS[puzzle.id];
-  const placedCount = placedAt.filter((v, i) => v === i).length;
+  const placedCount = pieces.filter((v, i) => v === i).length;
 
   // ── Celebration ─────────────────────────────────────────────────────────────
   if (completed && reward) {
     return (
-      <SafeAreaView style={[st.c, { backgroundColor: puzzle.color }]} edges={["top", "bottom"]}>
+      <SafeAreaView style={[st.c, { backgroundColor: "#FDFBF7" }]} edges={["top", "bottom"]}>
         <ConfettiBurst />
         <View style={st.celebrateBox}>
           <Animated.View entering={ZoomIn.duration(500)}>
@@ -399,7 +343,7 @@ export default function JigsawPlay() {
             <Ionicons name="arrow-forward" size={18} color={C.navy} />
           </TouchableOpacity>
           <TouchableOpacity style={[st.doneBtn, st.doneBtnAlt]} activeOpacity={0.85}
-            onPress={startNewGame}>
+            onPress={doStartNewGame}>
             <Text style={[st.doneBtnTxt, { color: C.white }]}>Play Again</Text>
             <Ionicons name="refresh" size={18} color={C.white} />
           </TouchableOpacity>
@@ -411,8 +355,8 @@ export default function JigsawPlay() {
   // ── Game ────────────────────────────────────────────────────────────────────
   return (
     <SafeAreaView style={st.c} edges={["top", "bottom"]}>
-      {/* Header */}
-      <View style={[st.header, { backgroundColor: puzzle.color }]}>
+      {/* Header — always navy */}
+      <View style={st.header}>
         <TouchableOpacity onPress={() => router.back()} style={st.backBtn} testID="jigsaw-back">
           <Ionicons name="arrow-back" size={24} color={C.white} />
         </TouchableOpacity>
@@ -435,178 +379,184 @@ export default function JigsawPlay() {
             )}
           </View>
         </View>
-        <TouchableOpacity style={st.hintBtn} onPress={showHintFor2s} testID="hint-btn">
-          <Ionicons name="eye" size={18} color={C.white} />
-          <Text style={st.hintTxt}>Hint</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[st.hintBtn, { marginLeft: 4, paddingHorizontal: 8 }]}
-          onPress={startNewGame} testID="reshuffle-btn">
-          <Ionicons name="shuffle" size={18} color={C.white} />
-        </TouchableOpacity>
       </View>
 
-      {/* Game area — all children absolutely positioned */}
-      <View style={{ flex: 1 }} testID="puzzle-area">
-        {/* Board */}
-        <View style={[st.board, {
-          left: BOARD_X, top: BOARD_Y,
-          width: BOARD_SIZE, height: BOARD_SIZE,
-          backgroundColor: puzzle.color,
-        }]}>
-          {portrait && (
-            <Image
-              source={portrait}
-              style={{
-                position: "absolute",
-                left: BOARD_PAD, top: BOARD_PAD,
-                width: PS * GRID + GAP * (GRID - 1),
-                height: PS * GRID + GAP * (GRID - 1),
-                opacity: 0.14, borderRadius: 6,
-              }}
-            />
-          )}
-          {Array.from({ length: 9 }, (_, i) => {
-            const filled = placedAt[i] === i;
-            return (
-              <View
-                key={i}
-                style={{
-                  position: "absolute",
-                  left: BOARD_PAD + (i % GRID) * (PS + GAP),
-                  top: BOARD_PAD + Math.floor(i / GRID) * (PS + GAP),
-                  width: PS, height: PS,
-                  borderRadius: 6, borderWidth: 2,
-                  borderColor: filled ? C.green : "#FFFFFF55",
-                  backgroundColor: filled ? "#22C55E11" : "#00000020",
-                }}
+      <ScrollView contentContainerStyle={st.scroll} testID="puzzle-scroll">
+        {/* Instruction banner */}
+        <View style={st.instructBanner}>
+          <Text style={st.instructTxt}>
+            {selectedPos !== null
+              ? "✨ Now tap another piece to swap!"
+              : "🧩 Tap two pieces to swap them"}
+          </Text>
+        </View>
+
+        {/* Puzzle grid + peek overlay container */}
+        <View style={{ position: "relative", width: PUZZLE_SIZE, alignSelf: "center" }}>
+          {/* 3×3 grid */}
+          <View style={st.grid} testID="puzzle-grid">
+            {pieces.map((correctIdx, displayPos) => (
+              <PuzzlePiece
+                key={displayPos}
+                correctIdx={correctIdx}
+                portrait={portrait}
+                isSelected={selectedPos === displayPos}
+                isCorrect={correctIdx === displayPos}
+                onPress={() => handleTap(displayPos)}
               />
-            );
-          })}
-          {/* Hint overlay */}
-          {showHint && portrait && (
+            ))}
+          </View>
+
+          {/* Peek overlay — full portrait with countdown */}
+          {peekVisible && portrait && (
             <Animated.View
               entering={FadeIn.duration(120)}
-              style={{
-                position: "absolute", left: BOARD_PAD, top: BOARD_PAD,
-                width: PS * GRID + GAP * (GRID - 1),
-                height: PS * GRID + GAP * (GRID - 1),
-                borderRadius: 6, overflow: "hidden",
-              }}
+              style={[StyleSheet.absoluteFill, st.peekOverlay]}
+              pointerEvents="none"
             >
-              <Image source={portrait} style={{ width: "100%", height: "100%" }} />
-              <View style={{
-                position: "absolute", bottom: 6, right: 8,
-                backgroundColor: "#000A", borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2,
-              }}>
-                <Text style={{ color: C.white, fontSize: 11, fontWeight: "900" }}>Hint 👁</Text>
+              <Image source={portrait} style={{ width: "100%", height: "100%" }} resizeMode="cover" />
+              <View style={st.peekBadge}>
+                <Text style={st.peekBadgeTxt}>Memorise it! {peekCountdown}…</Text>
               </View>
             </Animated.View>
           )}
         </View>
 
-        {/* Tray label */}
-        <Text style={[st.trayLabel, { left: TRAY_X, top: TRAY_LABEL_Y, width: TRAY_W }]}>
-          🧩 Drag pieces to the board above
-        </Text>
+        {/* Action buttons */}
+        <View style={st.btnRow}>
+          <TouchableOpacity style={st.actionBtn} onPress={doStartNewGame} testID="reshuffle-btn">
+            <Ionicons name="shuffle" size={18} color={C.navy} />
+            <Text style={st.actionBtnTxt}>Shuffle</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[st.actionBtn, peeksLeft <= 0 && st.actionBtnDim]}
+            onPress={handlePeek}
+            disabled={peeksLeft <= 0}
+            testID="peek-btn"
+          >
+            <Ionicons name="eye" size={18} color={peeksLeft > 0 ? C.navy : "#AAA"} />
+            <Text style={[st.actionBtnTxt, peeksLeft <= 0 && { color: "#AAA" }]}>
+              Peek Goal ({peeksLeft})
+            </Text>
+          </TouchableOpacity>
+        </View>
 
-        {/* All draggable pieces */}
-        {trayOrder.map((pieceIdx, tp) => {
-          const home = trayPos(tp);
-          const isPlaced = placedAt[pieceIdx] === pieceIdx;
-          return (
-            <DraggablePiece
-              key={pieceIdx}
-              pieceIdx={pieceIdx}
-              portrait={portrait}
-              PS={PS}
-              homeX={home.x}
-              homeY={home.y}
-              slotCenterFn={slotCenterFn}
-              snapRadius={PS * 0.62}
-              onPlaced={onPiecePlaced}
-              onWrong={onWrong}
-              onFirstMove={dismissTutorial}
-              isPlaced={isPlaced}
-              puzzle={puzzle}
-            />
-          );
-        })}
+        {/* Progress bar */}
+        <View style={[st.progressWrap, { width: PUZZLE_SIZE }]}>
+          <View style={[st.progressFill, { width: `${(placedCount / 9) * 100}%` }]} />
+        </View>
+        <Text style={st.progressTxt}>{placedCount} of 9 in place</Text>
+      </ScrollView>
 
-        {/* Tutorial overlay */}
-        {showTutorial && (
-          <Animated.View entering={FadeIn.duration(300)} style={st.tutOverlay} pointerEvents="box-none">
-            <View style={st.tutCard}>
-              <Text style={st.tutEmoji}>🧩</Text>
-              <Text style={st.tutTitle}>How to Play</Text>
-              <Text style={st.tutStep}>1. <Text style={{ fontWeight: "900" }}>Drag</Text> a piece from below</Text>
-              <Text style={st.tutStep}>2. Drop on the <Text style={{ fontWeight: "900" }}>matching spot</Text> above</Text>
-              <Text style={[st.tutStep, { color: C.green }]}>
-                3. <Text style={{ fontWeight: "900" }}>Green</Text> border = correct! ✓
-              </Text>
-              <TouchableOpacity style={st.tutBtn} onPress={dismissTutorial}>
-                <Text style={st.tutBtnTxt}>Got it! Let's go 🚀</Text>
-              </TouchableOpacity>
-            </View>
-          </Animated.View>
-        )}
-      </View>
+      {/* Tutorial overlay */}
+      {showTutorial && (
+        <Animated.View entering={FadeIn.duration(300)} style={st.tutOverlay} pointerEvents="box-none">
+          <View style={st.tutCard}>
+            <Text style={st.tutEmoji}>🧩</Text>
+            <Text style={st.tutTitle}>How to Play</Text>
+            <Text style={st.tutStep}>1. <Text style={{ fontWeight: "900" }}>Tap</Text> any piece to select it</Text>
+            <Text style={st.tutStep}>2. Tap another piece to <Text style={{ fontWeight: "900" }}>swap</Text> them</Text>
+            <Text style={st.tutStep}>3. ✅ when a piece is in the right spot!</Text>
+            <TouchableOpacity style={st.tutBtn} onPress={dismissTutorial}>
+              <Text style={st.tutBtnTxt}>Got it! Let's go 🚀</Text>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+      )}
     </SafeAreaView>
   );
 }
 
 const st = StyleSheet.create({
-  c: { flex: 1, backgroundColor: C.cream },
+  c: { flex: 1, backgroundColor: "#FDFBF7" },
+
+  // Header — always deep navy
   header: {
     flexDirection: "row", alignItems: "center", gap: 8,
     paddingHorizontal: 12, paddingVertical: 10,
-    height: HEADER_H, borderBottomWidth: 2, borderBottomColor: C.navy,
+    height: HEADER_H, backgroundColor: C.navy,
+    borderBottomWidth: 2, borderBottomColor: "#000A",
   },
   backBtn: { padding: 6 },
   headerTitle: { fontSize: 17, fontWeight: "900", color: C.white },
   statRow: { flexDirection: "row", gap: 6, marginTop: 3, flexWrap: "wrap" },
   statChip: {
     flexDirection: "row", alignItems: "center", gap: 3,
-    backgroundColor: "#00000033", paddingHorizontal: 7, paddingVertical: 3, borderRadius: 999,
+    backgroundColor: "#FFFFFF22", paddingHorizontal: 7, paddingVertical: 3, borderRadius: 999,
   },
   statTxt: { color: C.white, fontWeight: "900", fontSize: 11 },
-  hintBtn: {
-    flexDirection: "row", alignItems: "center", gap: 4,
-    backgroundColor: "#FFFFFF22", paddingHorizontal: 10, paddingVertical: 8,
-    borderRadius: 20, borderWidth: 1.5, borderColor: "#FFFFFF55",
+
+  scroll: { alignItems: "center", paddingTop: 16, paddingBottom: 40, paddingHorizontal: 12 },
+
+  // Instruction
+  instructBanner: {
+    backgroundColor: "#FFF3D4", paddingHorizontal: 16, paddingVertical: 9,
+    borderRadius: 999, borderWidth: 1.5, borderColor: C.saffron,
+    marginBottom: 14, alignSelf: "center",
   },
-  hintTxt: { color: C.white, fontWeight: "900", fontSize: 12 },
-  board: {
-    position: "absolute",
-    borderRadius: 16, borderWidth: 2.5, borderColor: C.navy,
+  instructTxt: { fontSize: 13, fontWeight: "800", color: C.navy, textAlign: "center" },
+
+  // Puzzle grid — navy background shows through gaps as dividers
+  grid: {
+    flexDirection: "row", flexWrap: "wrap",
+    width: PUZZLE_SIZE, gap: PIECE_GAP,
+    backgroundColor: C.navy,
+    borderRadius: 10, overflow: "hidden",
+    borderWidth: 3, borderColor: C.navy,
     ...SHADOW,
   },
-  piece: {
-    position: "absolute",
-    borderRadius: 7,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowRadius: 5,
-    backgroundColor: "#0003",
+
+  // Piece internals
+  pieceFallback: {
+    flex: 1, backgroundColor: "#E8E0D4",
+    alignItems: "center", justifyContent: "center",
   },
+  pieceFallbackTxt: { fontSize: 22, fontWeight: "900", color: "#555" },
   correctTick: {
-    position: "absolute", right: 3, top: 3,
+    position: "absolute", right: 4, top: 4,
     width: 18, height: 18, borderRadius: 9,
-    backgroundColor: C.green, justifyContent: "center", alignItems: "center",
+    backgroundColor: "#22C55E",
+    justifyContent: "center", alignItems: "center",
     borderWidth: 1.5, borderColor: C.white,
   },
-  trayLabel: {
-    position: "absolute",
-    textAlign: "center", fontSize: 12, fontWeight: "800", color: C.navy,
+
+  // Peek
+  peekOverlay: { borderRadius: 7, overflow: "hidden" },
+  peekBadge: {
+    position: "absolute", bottom: 10, alignSelf: "center",
+    backgroundColor: "#000C", borderRadius: 20,
+    paddingHorizontal: 16, paddingVertical: 6,
   },
+  peekBadgeTxt: { color: C.white, fontSize: 14, fontWeight: "900" },
+
+  // Action buttons
+  btnRow: { flexDirection: "row", gap: 12, marginTop: 18, justifyContent: "center" },
+  actionBtn: {
+    flexDirection: "row", alignItems: "center", gap: 7,
+    backgroundColor: C.white, paddingHorizontal: 18, paddingVertical: 12,
+    borderRadius: 999, borderWidth: 2, borderColor: C.navy, ...SHADOW,
+  },
+  actionBtnDim: { opacity: 0.45 },
+  actionBtnTxt: { color: C.navy, fontWeight: "900", fontSize: 13 },
+
+  // Progress
+  progressWrap: {
+    height: 8, backgroundColor: "#E8E0D4",
+    borderRadius: 4, overflow: "hidden",
+    marginTop: 16, borderWidth: 1, borderColor: "#C4B89A",
+    alignSelf: "center",
+  },
+  progressFill: { height: "100%", backgroundColor: C.saffron, borderRadius: 4 },
+  progressTxt: { fontSize: 12, fontWeight: "800", color: C.navy, marginTop: 6, textAlign: "center" },
+
   // Celebration
   celebrateBox: { flex: 1, padding: 28, justifyContent: "center", alignItems: "center" },
   celebrateImg: {
     width: 150, height: 150, borderRadius: 75,
     borderWidth: 4, borderColor: C.gold,
   },
-  celTitle: { fontSize: 28, fontWeight: "900", color: C.white, marginTop: 18, textAlign: "center" },
-  celSub: { fontSize: 16, fontWeight: "700", color: "#FFFFFFDD", marginTop: 6, textAlign: "center" },
+  celTitle: { fontSize: 28, fontWeight: "900", color: C.navy, marginTop: 18, textAlign: "center" },
+  celSub: { fontSize: 16, fontWeight: "700", color: "#666", marginTop: 6, textAlign: "center" },
   rewardRow: { flexDirection: "row", gap: 8, marginTop: 20, flexWrap: "wrap", justifyContent: "center" },
   rewardChip: {
     flexDirection: "row", alignItems: "center", gap: 6,
@@ -622,17 +572,20 @@ const st = StyleSheet.create({
   recordTxt: { color: C.gold, fontWeight: "900", fontSize: 13 },
   doneBtn: {
     flexDirection: "row", alignItems: "center", gap: 8,
-    backgroundColor: C.white, paddingHorizontal: 22, paddingVertical: 13,
+    backgroundColor: C.gold, paddingHorizontal: 22, paddingVertical: 13,
     borderRadius: 999, borderWidth: 2, borderColor: C.navy, marginTop: 16,
   },
-  doneBtnAlt: { backgroundColor: "transparent", borderColor: C.white },
+  doneBtnAlt: { backgroundColor: C.navy, borderColor: C.navy },
   doneBtnTxt: { color: C.navy, fontWeight: "900", fontSize: 14 },
+
+  // Confetti
   confettiWrap: {
     position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
     alignItems: "center", justifyContent: "flex-start", paddingTop: 60,
-    zIndex: 20,
-  },
+    zIndex: 20, pointerEvents: "none",
+  } as any,
   confetti: { position: "absolute", fontSize: 26 },
+
   // Tutorial
   tutOverlay: {
     position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
