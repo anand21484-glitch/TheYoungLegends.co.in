@@ -29,7 +29,7 @@ type Cry = {
 
 type Phase = "intro" | "reveal" | "prepare" | "countdown" | "recording" | "processing" | "celebrate";
 
-const REC_DURATION_MS = 5000;
+const REC_DURATION_MS = 10000;
 const COUNTDOWN_VALUES = [3, 2, 1, 0]; // 0 = "GO!"
 
 export default function BattleCryScreen() {
@@ -70,6 +70,11 @@ export default function BattleCryScreen() {
   const progressWidth = useSharedValue(0); // 0→1 over REC_DURATION_MS
 
   useEffect(() => { phaseRef.current = phase; }, [phase]);
+
+  // Unload replay sound on unmount
+  useEffect(() => {
+    return () => { replaySoundRef.current?.unloadAsync().catch(() => {}); };
+  }, []);
 
   // ── Load data + SFX ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -313,7 +318,7 @@ export default function BattleCryScreen() {
         true,
       );
 
-      // ALWAYS wait full 5 seconds — no early skip
+      // ALWAYS wait full 10 seconds — no early skip
       recTimerRef.current = setTimeout(() => {
         if (phaseRef.current === "recording") stopAndProcess();
       }, REC_DURATION_MS);
@@ -327,38 +332,37 @@ export default function BattleCryScreen() {
     ringScale1.value = withTiming(0, { duration: 200 });
     ringScale2.value = withTiming(0, { duration: 200 });
 
-    console.log("=== STOP AND PROCESS CALLED ===");
+    console.log("STEP 1: stopAndProcess called");
 
-    // Keep reference alive so we can query URI after unload
     const rec = recordingRef.current;
     recordingRef.current = null;
 
-    const uriBeforeStop = rec?.getURI() || null;
-    console.log("=== URI BEFORE STOP:", uriBeforeStop, "===");
+    console.log("STEP 2: recordingRef.current =", rec);
+    console.log("STEP 3: stopping recording...");
 
     try { await rec?.stopAndUnloadAsync(); } catch {}
-    console.log("=== AFTER STOP AND UNLOAD ===");
 
-    // getURI() is more reliably populated AFTER stopAndUnloadAsync on many expo-av versions
-    const uriAfterStop = rec?.getURI() || null;
-    console.log("=== URI AFTER STOP:", uriAfterStop, "===");
+    console.log("STEP 4: stopped. Getting URI...");
 
-    const rawUri = uriAfterStop || uriBeforeStop;
+    const uri = rec?.getURI() || null;
+    console.log("STEP 5: URI =", uri);
+
     // Android sometimes returns a bare path without file:// scheme
-    const uri = rawUri && !rawUri.startsWith("file://") && !rawUri.startsWith("http")
-      ? `file://${rawUri}`
-      : rawUri;
-    console.log("=== FINAL URI:", uri, "===");
+    const finalUri = uri
+      ? (uri.startsWith("file://") ? uri : `file://${uri}`)
+      : null;
+    console.log("STEP 6: finalUri =", finalUri);
 
-    setRecordingUri(uri);
-    console.log("=== SET RECORDING URI CALLED WITH:", uri, "===");
+    setRecordingUri(finalUri);
+    console.log("STEP 7: setRecordingUri called with", finalUri);
 
     setPhase("processing");
 
-    // Give React one tick to commit the recordingUri state before celebration renders
-    await new Promise<void>((resolve) => setTimeout(resolve, 100));
+    // Wait for React to commit recordingUri state before celebration renders
+    await new Promise<void>((resolve) => setTimeout(resolve, 200));
+    console.log("STEP 8: triggering celebration");
 
-    setTimeout(() => celebrate(), 1200);
+    celebrate();
   };
 
   // ── Celebrate ─────────────────────────────────────────────────────────────
@@ -385,21 +389,30 @@ export default function BattleCryScreen() {
 
   // ── Replay ────────────────────────────────────────────────────────────────
   const replayVoice = async () => {
-    if (isReplaying) {
-      // Stop current playback
-      try { await replaySoundRef.current?.stopAsync(); } catch {}
-      setIsReplaying(false);
+    if (!recordingUri) {
+      console.log("REPLAY: no URI available");
       return;
     }
-    if (!recordingUri) return;
-    setIsReplaying(true);
+    console.log("REPLAY: starting playback of", recordingUri);
     try {
-      // Switch to playback mode on iOS
-      await Audio.setAudioModeAsync({ allowsRecordingIOS: false, playsInSilentModeIOS: true }).catch(() => {});
+      // Always clean up any existing sound first
       if (replaySoundRef.current) {
-        try { await replaySoundRef.current.unloadAsync(); } catch {}
+        await replaySoundRef.current.stopAsync().catch(() => {});
+        await replaySoundRef.current.unloadAsync().catch(() => {});
         replaySoundRef.current = null;
       }
+      // Toggle off if already playing
+      if (isReplaying) {
+        setIsReplaying(false);
+        return;
+      }
+      // Switch to playback mode
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        playsInSilentModeIOS: true,
+        shouldDuckAndroid: false,
+      }).catch(() => {});
+      setIsReplaying(true);
       const { sound } = await Audio.Sound.createAsync(
         { uri: recordingUri },
         { shouldPlay: true, volume: 1.0 },
@@ -407,10 +420,14 @@ export default function BattleCryScreen() {
       replaySoundRef.current = sound;
       sound.setOnPlaybackStatusUpdate((status) => {
         if (status.isLoaded && status.didJustFinish) {
+          console.log("REPLAY: playback finished");
           setIsReplaying(false);
+          replaySoundRef.current = null;
         }
       });
-    } catch {
+      console.log("REPLAY: playback started successfully");
+    } catch (error) {
+      console.error("REPLAY ERROR:", error);
       setIsReplaying(false);
     }
   };
@@ -580,7 +597,7 @@ export default function BattleCryScreen() {
               </Animated.View>
             </View>
 
-            {/* 5-second progress bar */}
+            {/* 10-second progress bar */}
             <View style={s.progressWrap}>
               <Animated.View style={[s.progressFill, progressAnim]} />
             </View>
@@ -636,33 +653,39 @@ export default function BattleCryScreen() {
               </Animated.View>
             )}
 
-            {/* DEBUG — remove after confirming URI capture */}
-            <Text style={{ color: recordingUri ? "#22C55E" : "#FF4444", fontSize: 11, fontWeight: "900", marginTop: 4 }}>
-              URI: {recordingUri ? "FOUND ✅" : "NULL ❌"}
-            </Text>
-
-            {/* Waveform + replay */}
-            {recordingUri && (
-              <Animated.View entering={FadeIn.delay(600)} style={s.replaySection}>
-                <Waveform isPlaying={isReplaying} />
-                {isReplaying && (
-                  <Text style={s.replayCaption}>
-                    That's YOUR voice! The voice of a freedom fighter!
-                  </Text>
-                )}
-                <TouchableOpacity
-                  style={[s.replayBtn, isReplaying && s.replayBtnActive]}
-                  onPress={replayVoice}
-                  testID="replay-btn"
-                  activeOpacity={0.85}
-                >
-                  <Ionicons name={isReplaying ? "volume-high" : "play-circle"} size={22} color="#0B1437" />
-                  <Text style={s.replayBtnTxt}>
-                    {isReplaying ? "Playing… (tap to stop)" : "🔁 Hear Your Roar!"}
-                  </Text>
-                </TouchableOpacity>
-              </Animated.View>
-            )}
+            {/* Replay — always visible; greyed out while URI is loading */}
+            <Animated.View entering={FadeIn.delay(600)} style={s.replaySection}>
+              <Waveform isPlaying={isReplaying} />
+              {isReplaying && (
+                <Text style={s.replayCaption}>
+                  That's YOUR voice! The voice of a freedom fighter! 🇮🇳
+                </Text>
+              )}
+              <TouchableOpacity
+                onPress={recordingUri ? replayVoice : undefined}
+                disabled={!recordingUri}
+                style={[
+                  s.replayBtn,
+                  isReplaying && s.replayBtnActive,
+                  !recordingUri && s.replayBtnDisabled,
+                ]}
+                testID="replay-btn"
+                activeOpacity={0.85}
+              >
+                <Ionicons
+                  name={isReplaying ? "volume-high" : "play-circle"}
+                  size={22}
+                  color={recordingUri ? "#0B1437" : "#999999"}
+                />
+                <Text style={[s.replayBtnTxt, !recordingUri && s.replayBtnTxtDim]}>
+                  {!recordingUri
+                    ? "🎤 Loading your roar..."
+                    : isReplaying
+                    ? "🔊 Playing... (tap to stop)"
+                    : "🔁 Hear Your Roar!"}
+                </Text>
+              </TouchableOpacity>
+            </Animated.View>
 
             <View style={s.celBtnRow}>
               <TouchableOpacity style={s.celBtnGhost} onPress={sayAgain} testID="say-again">
@@ -917,8 +940,10 @@ const s = StyleSheet.create({
     backgroundColor: "#FFD93D", paddingHorizontal: 20, paddingVertical: 12,
     borderRadius: 999, borderWidth: 2, borderColor: "#FFFFFF",
   },
-  replayBtnActive: { backgroundColor: C.saffron },
+  replayBtnActive: { backgroundColor: "#138808" },
+  replayBtnDisabled: { backgroundColor: "#555566", borderColor: "#888899" },
   replayBtnTxt: { color: "#0B1437", fontWeight: "900", fontSize: 13 },
+  replayBtnTxtDim: { color: "#CCCCCC" },
   // Buttons
   celBtnRow: { flexDirection: "row", gap: 10, marginTop: 18, width: "100%" },
   celBtnGhost: {
