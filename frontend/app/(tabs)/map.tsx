@@ -8,8 +8,6 @@ import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Svg, { Circle, G, Path } from "react-native-svg";
 import { SvgXml } from "react-native-svg";
-import { Asset } from "expo-asset";
-import * as FileSystem from "expo-file-system";
 import { Audio } from "expo-av";
 import Animated, {
   useSharedValue, useAnimatedProps, withRepeat, withTiming,
@@ -18,8 +16,8 @@ import Animated, {
 import { API, PORTRAITS } from "../../src/api";
 import { C, SHADOW } from "../../src/theme";
 import LOCAL_MAP from "../../src/data/freedom_map.json";
+import INDIA_SVG from "../../src/data/india_svg";
 
-const BASE = process.env.EXPO_PUBLIC_BACKEND_URL;
 const { width: SW, height: SH } = Dimensions.get("window");
 
 const SVG_VIEW_W = 612;
@@ -71,29 +69,6 @@ async function unloadSounds() {
 async function playChime() { if (Platform.OS === "web") return; try { await _chime?.replayAsync(); } catch {} }
 async function playWin() { if (Platform.OS === "web") return; try { await _win?.replayAsync(); } catch {} }
 
-// -- India SVG cached as string --------------------------------------------
-let _indiaSvgCache: string | null = null;
-async function loadIndiaSvg(): Promise<string> {
-  if (_indiaSvgCache) return _indiaSvgCache;
-  try {
-    const asset = Asset.fromModule(require("../../assets/map/india.svg"));
-    await asset.downloadAsync();
-    const uri = asset.localUri || asset.uri;
-    let raw: string;
-    if (Platform.OS === "web") {
-      raw = await (await fetch(uri)).text();
-    } else {
-      raw = await FileSystem.readAsStringAsync(uri);
-    }
-    raw = raw.replace(
-      /<path\b/g,
-      '<path fill="#FFF1D6" stroke="#3D2914" stroke-width="0.8" stroke-linejoin="round"'
-    );
-    _indiaSvgCache = raw;
-    return raw;
-  } catch { return ""; }
-}
-
 // -- Pulsing dot -----------------------------------------------------------
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -112,6 +87,8 @@ function PulsingDot({ hero, onPress }: { hero: Hero; onPress: () => void }) {
         <AnimatedCircle cx={hero.x} cy={hero.y} fill="#FFD93D" animatedProps={outerProps} />
         <Circle cx={hero.x} cy={hero.y} r={10} fill="#FFD93D" stroke="#3D2914" strokeWidth={1.2} />
         <Path d={starPath(hero.x, hero.y, 7, 3)} fill="#FFFFFF" stroke="#3D2914" strokeWidth={0.6} />
+        {/* Large transparent tap target — must be last so it sits on top */}
+        <Circle cx={hero.x} cy={hero.y} r={22} fill="transparent" />
       </G>
     );
   }
@@ -121,6 +98,8 @@ function PulsingDot({ hero, onPress }: { hero: Hero; onPress: () => void }) {
       <AnimatedCircle cx={hero.x} cy={hero.y} fill="#FFB347" animatedProps={midProps} />
       <Circle cx={hero.x} cy={hero.y} r={6.5} fill="#FF7A1A" stroke="#3D2914" strokeWidth={1.2} />
       <Circle cx={hero.x} cy={hero.y} r={2.6} fill="#FFFFFF" />
+      {/* Large transparent tap target — must be last so it sits on top */}
+      <Circle cx={hero.x} cy={hero.y} r={22} fill="transparent" />
     </G>
   );
 }
@@ -143,7 +122,6 @@ export default function FreedomMap() {
   const [total, setTotal] = useState(LOCAL_HEROES.length);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Hero | null>(null);
-  const [indiaSvg, setIndiaSvg] = useState<string>("");
   const [celebrated, setCelebrated] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
 
@@ -155,12 +133,13 @@ export default function FreedomMap() {
     setTotal(LOCAL_HEROES.length);
     try {
       const r = await API.get("/freedom-map");
-      const data = r.data as { heroes: Hero[]; discovered_count: number; total: number };
-      const discoveredSet = new Set(
-        (data.heroes as Hero[]).filter((h) => h.discovered).map((h) => h.hero_id)
+      const data = r.data as { fighters: any[]; discovered_count: number; total: number };
+      // Each fighter is a spread tuple — index 0 is the hero_id
+      const discoveredSet = new Set<string>(
+        (data.fighters as any[]).filter((h: any) => h.discovered).map((h: any) => String(h[0]))
       );
       setHeroes(LOCAL_HEROES.map((h) => ({ ...h, discovered: discoveredSet.has(h.hero_id) })));
-      setDiscoveredCount(data.discovered_count);
+      setDiscoveredCount(data.discovered_count ?? 0);
       setTotal(data.total || LOCAL_HEROES.length);
     } catch {
       // Offline — show local heroes undiscovered
@@ -173,8 +152,6 @@ export default function FreedomMap() {
     (async () => {
       await Audio.setAudioModeAsync({ playsInSilentModeIOS: true }).catch(() => {});
       await loadSounds();
-      const svg = await loadIndiaSvg();
-      setIndiaSvg(svg);
       await load();
     })();
     return () => { unloadSounds(); };
@@ -241,11 +218,21 @@ export default function FreedomMap() {
         </Animated.View>
 
         <View style={[styles.mapCanvas, { width: mapWidth, height: mapHeight }]}>
+          {/* Parchment background */}
           <View style={styles.parchment} />
-          <View style={StyleSheet.absoluteFill}>
-            <SvgXml xml={indiaSvg} width="100%" height="100%" />
+
+          {/* India map outline — loaded synchronously from bundled module */}
+          <View style={StyleSheet.absoluteFill} pointerEvents="none">
+            <SvgXml xml={INDIA_SVG} width="100%" height="100%" />
           </View>
-          <Svg width="100%" height="100%" viewBox={`0 0 ${SVG_VIEW_W} ${SVG_VIEW_H}`} style={StyleSheet.absoluteFill}>
+
+          {/* Hero dots — must come after map layer so taps reach G onPress */}
+          <Svg
+            width="100%"
+            height="100%"
+            viewBox={`0 0 ${SVG_VIEW_W} ${SVG_VIEW_H}`}
+            style={StyleSheet.absoluteFill}
+          >
             {heroes.map((h) => (
               <PulsingDot key={h.hero_id} hero={h} onPress={() => onTapDot(h)} />
             ))}
@@ -281,10 +268,7 @@ export default function FreedomMap() {
 
                 <View style={styles.portraitWrap}>
                   <Image
-                    source={
-                      PORTRAITS[selected.hero_id] ||
-                      ({ uri: selected.has_story ? `${BASE}${selected.portrait_url}` : selected.portrait_url } as any)
-                    }
+                    source={PORTRAITS[selected.hero_id] || undefined}
                     style={styles.portrait}
                   />
                 </View>

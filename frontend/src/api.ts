@@ -229,7 +229,8 @@ async function handle(method: string, path: string, body?: any): Promise<any> {
       viewBox: FREEDOM_MAP.viewBox,
       fighters: FREEDOM_MAP.fighters.map((f: any) => ({
         ...f,
-        discovered: progress.discovered_heroes.includes(f.id),
+        // f is a tuple — index 0 is the hero_id string
+        discovered: progress.discovered_heroes.includes(f[0]),
       })),
       total: FREEDOM_MAP.fighters.length,
       discovered_count: progress.discovered_heroes.length,
