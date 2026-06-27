@@ -521,35 +521,6 @@
                                           }
                                       ]
                     },
-    "tirot-sing":  {
-                       "name":  "U Tirot Sing",
-                       "questions":  [
-                                         {
-                                             "id":  "uts_q1",
-                                             "question":  "Where did you come from?",
-                                             "answer":  "I was a brave chief from the Khasi Hills of Meghalaya in Northeast India! Every corner of our great country has heroes who fought with equal passion for freedom.",
-                                             "badge":  "Northeast Pride! 🏔️"
-                                         },
-                                         {
-                                             "id":  "uts_q2",
-                                             "question":  "How did you protect your people?",
-                                             "answer":  "I used the misty hills and forests of Meghalaya as my shield and fought to keep my people free! Nature can be your greatest ally when you know how to use it.",
-                                             "badge":  "Hill Guardian! 🌫️"
-                                         },
-                                         {
-                                             "id":  "uts_q3",
-                                             "question":  "Why do we remember you?",
-                                             "answer":  "Because I showed that even small communities in faraway hills stood up to the British with great dignity and pride! Every act of bravery matters in history.",
-                                             "badge":  "Hills Hero! ⭐"
-                                         },
-                                         {
-                                             "id":  "uts_q4",
-                                             "question":  "What is your message for kids?",
-                                             "answer":  "No matter where you come from — big city or small village, plains or mountains — you can be a hero for your people! India\u0027s strength is in every one of its children.",
-                                             "badge":  "Every Hero Counts! 🇮🇳"
-                                         }
-                                     ]
-                   },
     "begum-hazrat-mahal":  {
                                "name":  "Begum Hazrat Mahal",
                                "questions":  [
@@ -724,35 +695,6 @@
                                               }
                                           ]
                         },
-    "bipin-pal":  {
-                      "name":  "Bipin Chandra Pal",
-                      "questions":  [
-                                        {
-                                            "id":  "bcp_q1",
-                                            "question":  "Who were the Lal Bal Pal trio?",
-                                            "answer":  "Lala Lajpat Rai, Bal Gangadhar Tilak and I — Bipin Chandra Pal — were three great leaders who together shook the entire British empire with our powerful voices!",
-                                            "badge":  "Trio of Power! ⚡"
-                                        },
-                                        {
-                                            "id":  "bcp_q2",
-                                            "question":  "How did you fight for freedom?",
-                                            "answer":  "I used my powerful speeches and writings to awaken millions of Indians! Words spoken with passion and truth can move mountains and change the course of history.",
-                                            "badge":  "Word Warrior! 📢"
-                                        },
-                                        {
-                                            "id":  "bcp_q3",
-                                            "question":  "What did you believe in?",
-                                            "answer":  "I believed Indians should be completely self-reliant and not depend on the British for anything! True freedom begins when you believe in your own strength and abilities.",
-                                            "badge":  "Self Reliance! 🌟"
-                                        },
-                                        {
-                                            "id":  "bcp_q4",
-                                            "question":  "What is your message for kids?",
-                                            "answer":  "Learn to speak up for what you believe in! Your voice is your most powerful gift — use it wisely, use it boldly and use it always in the service of truth.",
-                                            "badge":  "Speak Up! 🎙️"
-                                        }
-                                    ]
-                  },
     "aurobindo-ghosh":  {
                             "name":  "Aurobindo Ghosh",
                             "questions":  [
@@ -898,35 +840,6 @@
                                             }
                                         ]
                       },
-    "bhima-bhoi":  {
-                       "name":  "Bhima Bhoi",
-                       "questions":  [
-                                         {
-                                             "id":  "bb_q1",
-                                             "question":  "How did you inspire people even though you were blind?",
-                                             "answer":  "I could not see with my eyes but I saw the truth in my heart! My poems and songs opened the eyes of thousands of people and inspired them to fight for justice and freedom.",
-                                             "badge":  "Inner Vision! 👁️"
-                                         },
-                                         {
-                                             "id":  "bb_q2",
-                                             "question":  "What did your poems say?",
-                                             "answer":  "My poems said that every human being deserves dignity and freedom regardless of who they are! I believed in equality for all people long before it became a common idea.",
-                                             "badge":  "Equality Hero! 🌈"
-                                         },
-                                         {
-                                             "id":  "bb_q3",
-                                             "question":  "What makes your story special?",
-                                             "answer":  "I proved that physical limitations can never limit the power of your spirit and mind! I could not see yet I created beautiful works that moved an entire generation of people.",
-                                             "badge":  "Spirit Unbound! ✨"
-                                         },
-                                         {
-                                             "id":  "bb_q4",
-                                             "question":  "What is your message for kids?",
-                                             "answer":  "Never let any challenge or difficulty make you feel less capable! Your mind, your heart and your spirit are your greatest gifts — and nobody can ever take them from you.",
-                                             "badge":  "Limitless! 🌟"
-                                         }
-                                     ]
-                   },
     "subramania-bharati":  {
                                "name":  "Subramania Bharati",
                                "questions":  [

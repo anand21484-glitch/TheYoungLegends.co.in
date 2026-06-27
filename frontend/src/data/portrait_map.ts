@@ -9,9 +9,7 @@ const PORTRAITS: Record<string, number> = {
   "aurobindo-ghosh": require("../../assets/portraits/aurobindo-ghosh.jpg"),
   "begum-hazrat-mahal": require("../../assets/portraits/begum-hazrat-mahal.jpg"),
   "bhagat-singh": require("../../assets/portraits/bhagat-singh.jpg"),
-  "bhima-bhoi": require("../../assets/portraits/bhima-bhoi.jpg"),
   "bhimrao-ambedkar": require("../../assets/portraits/bhimrao-ambedkar.jpg"),
-  "bipin-pal": require("../../assets/portraits/bipin-pal.jpg"),
   "birsa-munda": require("../../assets/portraits/birsa-munda.jpg"),
   "chandrashekhar-azad": require("../../assets/portraits/chandrashekhar-azad.jpg"),
   "kalpana-datta": require("../../assets/portraits/kalpana-datta.jpg"),
@@ -40,7 +38,6 @@ const PORTRAITS: Record<string, number> = {
   "tantia-tope": require("../../assets/portraits/tantia-tope.jpg"),
   "tilak": require("../../assets/portraits/tilak.jpg"),
   "tilka-manjhi": require("../../assets/portraits/tilka-manjhi.jpg"),
-  "tirot-sing": require("../../assets/portraits/tirot-sing.jpg"),
   "veer-savarkar": require("../../assets/portraits/veer-savarkar.jpg"),
 };
 
