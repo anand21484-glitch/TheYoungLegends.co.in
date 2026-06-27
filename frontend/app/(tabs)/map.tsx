@@ -1,13 +1,12 @@
 import { useEffect, useState, useCallback } from "react";
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, ActivityIndicator,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Image,
   Modal, Pressable, Dimensions, Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Svg, { Circle, G, Path } from "react-native-svg";
-import { SvgXml } from "react-native-svg";
 import { Audio } from "expo-av";
 import Animated, {
   useSharedValue, useAnimatedProps, withRepeat, withTiming,
@@ -16,7 +15,7 @@ import Animated, {
 import { API, PORTRAITS } from "../../src/api";
 import { C, SHADOW } from "../../src/theme";
 import LOCAL_MAP from "../../src/data/freedom_map.json";
-import INDIA_SVG from "../../src/data/india_svg";
+import { IndiaMapSvg } from "../../src/components/IndiaMapSvg";
 
 const { width: SW, height: SH } = Dimensions.get("window");
 
@@ -120,7 +119,6 @@ export default function FreedomMap() {
   const [heroes, setHeroes] = useState<Hero[]>([]);
   const [discoveredCount, setDiscoveredCount] = useState(0);
   const [total, setTotal] = useState(LOCAL_HEROES.length);
-  const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Hero | null>(null);
   const [celebrated, setCelebrated] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
@@ -143,8 +141,6 @@ export default function FreedomMap() {
       setTotal(data.total || LOCAL_HEROES.length);
     } catch {
       // Offline — show local heroes undiscovered
-    } finally {
-      setLoading(false);
     }
   }, []);
 
@@ -184,15 +180,6 @@ export default function FreedomMap() {
 
   const progressPct = total > 0 ? (discoveredCount / total) * 100 : 0;
 
-  if (loading) {
-    return (
-      <SafeAreaView style={[styles.c, { justifyContent: "center", alignItems: "center" }]}>
-        <ActivityIndicator size="large" color={C.saffron} />
-        <Text style={{ marginTop: 12, color: C.navy, fontWeight: "700" }}>Loading map…</Text>
-      </SafeAreaView>
-    );
-  }
-
   return (
     <SafeAreaView style={styles.c} edges={["top"]}>
       {/* Header — no back button since this is a tab */}
@@ -221,17 +208,23 @@ export default function FreedomMap() {
           {/* Parchment background */}
           <View style={styles.parchment} />
 
-          {/* India map outline — loaded synchronously from bundled module */}
+          {/* India map outline — hardcoded SVG, no async loading, works on all platforms */}
           <View style={StyleSheet.absoluteFill} pointerEvents="none">
-            <SvgXml xml={INDIA_SVG} width="100%" height="100%" />
+            <IndiaMapSvg
+              width={mapWidth}
+              height={mapHeight}
+              fillColor="#F4C430"
+              strokeColor="#1A365D"
+            />
           </View>
 
-          {/* Hero dots — must come after map layer so taps reach G onPress */}
+          {/* Hero dots — on top of map, tappable */}
           <Svg
             width="100%"
             height="100%"
             viewBox={`0 0 ${SVG_VIEW_W} ${SVG_VIEW_H}`}
             style={StyleSheet.absoluteFill}
+            pointerEvents="box-none"
           >
             {heroes.map((h) => (
               <PulsingDot key={h.hero_id} hero={h} onPress={() => onTapDot(h)} />
