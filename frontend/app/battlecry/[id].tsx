@@ -309,6 +309,7 @@ export default function BattleCryScreen() {
     try { await rec?.stopAndUnloadAsync(); } catch {}
 
     const uri = rec?.getURI() || null;
+    console.log("Recording URI:", uri);
     // Android sometimes returns a bare path without file:// scheme
     const finalUri = uri
       ? (uri.startsWith("file://") ? uri : `file://${uri}`)
@@ -362,14 +363,18 @@ export default function BattleCryScreen() {
         setIsReplaying(false);
         return;
       }
-      // Switch to playback mode
+      // Switch to playback mode — must clear recording mode or Android plays through earpiece
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: false,
         playsInSilentModeIOS: true,
         shouldDuckAndroid: false,
+        playThroughEarpieceAndroid: false,
       }).catch(() => {});
       setIsReplaying(true);
-      const { sound } = await Audio.Sound.createAsync({ uri: recordingUri });
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: recordingUri },
+        { shouldPlay: true, volume: 1.0 },
+      );
       replaySoundRef.current = sound;
       sound.setOnPlaybackStatusUpdate((status) => {
         if (status.isLoaded && status.didJustFinish) {
@@ -379,8 +384,9 @@ export default function BattleCryScreen() {
         }
       });
       await sound.playAsync();
-    } catch {
+    } catch (e: any) {
       setIsReplaying(false);
+      Alert.alert("Playback Error", e?.message || String(e));
     }
   };
 
