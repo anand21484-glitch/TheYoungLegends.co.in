@@ -7,7 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { getProgress, getProfile, levelFromXP, type Progress, type Profile } from "../src/data/localStore";
-import { STORIES, BADGES, BATTLE_CRIES, FREEDOM_MAP } from "../src/data";
+import { STORIES, BADGES, BATTLE_CRIES } from "../src/data";
 import { C, SHADOW } from "../src/theme";
 
 export default function ParentView() {
@@ -28,7 +28,6 @@ export default function ParentView() {
   const totalStories = STORIES.length;
   const totalBadges = BADGES.length;
   const totalCries = Object.keys(BATTLE_CRIES).length;
-  const totalHeroes = FREEDOM_MAP.fighters.length;
   const lastQuiz = Object.entries(prog.quizzes_taken)
     .sort((a, b) => b[1].at.localeCompare(a[1].at))
     .slice(0, 5);
@@ -56,10 +55,7 @@ export default function ParentView() {
           <Tile label="Badges Earned" value={prog.badges.length} of={totalBadges} icon="ribbon" color={C.gold} />
         </View>
         <View style={styles.row}>
-          <Tile label="Heroes Found" value={prog.discovered_heroes.length} of={totalHeroes} icon="location" color={C.green} />
           <Tile label="Battle Cries" value={prog.battle_cries_done.length} of={totalCries} icon="megaphone" color={C.maroon} />
-        </View>
-        <View style={styles.row}>
           <Tile label="Day Streak" value={prog.streak} icon="flame" color={C.saffron} />
         </View>
 

@@ -50,7 +50,6 @@ export default function Profile() {
                 badges: [],
                 completed_stories: [],
                 quizzes_taken: {} as Record<string, { score: number; total: number; at: string }>,
-                discovered_heroes: [],
                 battle_cries_done: [],
                 jigsaw_done: [],
                 hero_experts: [],

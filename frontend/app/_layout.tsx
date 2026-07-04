@@ -46,7 +46,6 @@ export default function RootLayout() {
           <Stack.Screen name="jigsaw/[id]" />
           <Stack.Screen name="battlecry/index" />
           <Stack.Screen name="battlecry/[id]" />
-          <Stack.Screen name="map" />
           <Stack.Screen name="parent-view" />
           <Stack.Screen name="ask/[id]" options={{ presentation: "modal", animation: "slide_from_bottom" }} />
         </Stack>

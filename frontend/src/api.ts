@@ -13,7 +13,6 @@ import {
   BADGES,
   LEVELS,
   HERO_VISUALS,
-  FREEDOM_MAP,
   BATTLE_CRIES,
   HUNTS,
   PORTRAITS,
@@ -59,7 +58,6 @@ async function buildMe() {
       badges: [],
       completed_stories: [],
       quizzes_taken: {},
-      discovered_heroes: [],
       battle_cries_done: [],
       jigsaw_done: [],
       streak: 0,
@@ -81,7 +79,6 @@ async function buildMe() {
     completed_stories: progress.completed_stories,
     quizzes_taken: Object.keys(progress.quizzes_taken).length,
     quizzes_detail: progress.quizzes_taken,
-    discovered_heroes: progress.discovered_heroes,
     battle_cries_done: progress.battle_cries_done,
     jigsaw_done: progress.jigsaw_done,
     streak: progress.streak,
@@ -220,32 +217,6 @@ async function handle(method: string, path: string, body?: any): Promise<any> {
       badge_id: `cry_${heroId}`,
       freedom_voice_unlocked: next.badges.includes("freedom_voice"),
     };
-  }
-
-  // ----- FREEDOM MAP -----
-  if (pathOnly === "/freedom-map") {
-    const progress = await getProgress();
-    return {
-      viewBox: FREEDOM_MAP.viewBox,
-      fighters: FREEDOM_MAP.fighters.map((f: any) => ({
-        ...f,
-        // f is a tuple — index 0 is the hero_id string
-        discovered: progress.discovered_heroes.includes(f[0]),
-      })),
-      total: FREEDOM_MAP.fighters.length,
-      discovered_count: progress.discovered_heroes.length,
-      explorer_unlocked: progress.badges.includes("map_explorer"),
-    };
-  }
-  const fmDisc = pathOnly.match(/^\/freedom-map\/discover\/([^/]+)$/);
-  if (fmDisc && method === "POST") {
-    const heroId = fmDisc[1];
-    const next = await Local.discoverHero(heroId, 5);
-    // Award explorer badge after all heroes discovered
-    if (next.discovered_heroes.length >= FREEDOM_MAP.fighters.length) {
-      await Local.addBadge("map_explorer");
-    }
-    return { ok: true, xp: next.xp, discovered_count: next.discovered_heroes.length };
   }
 
   // ----- HUNTS -----

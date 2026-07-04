@@ -18,7 +18,6 @@ export type Progress = {
   badges: string[];               // badge ids
   completed_stories: string[];    // story ids fully read
   quizzes_taken: Record<string, { score: number; total: number; at: string }>;
-  discovered_heroes: string[];    // freedom-map nodes tapped
   battle_cries_done: string[];    // battle-cry hero ids completed
   jigsaw_done: string[];          // story ids whose jigsaw was solved
   hero_experts: string[];         // hero ids where all 4 ask-the-hero Qs answered
@@ -34,7 +33,6 @@ const DEFAULT_PROGRESS: Progress = {
   badges: [],
   completed_stories: [],
   quizzes_taken: {},
-  discovered_heroes: [],
   battle_cries_done: [],
   jigsaw_done: [],
   hero_experts: [],
@@ -119,17 +117,6 @@ export const Local = {
       },
       xp: p.xp + score * 5,
     }));
-  },
-
-  async discoverHero(heroId: string, xpAward = 5) {
-    return patch((p) => {
-      if (p.discovered_heroes.includes(heroId)) return p;
-      return {
-        ...p,
-        discovered_heroes: [...p.discovered_heroes, heroId],
-        xp: p.xp + xpAward,
-      };
-    });
   },
 
   async completeBattleCry(heroId: string, xpAward = 10) {

@@ -11,9 +11,6 @@ const badgesData: { badges: any[]; levels: any[] } = require("./badges.json");
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const heroVisualsData: Record<string, any> = require("./hero_visuals.json");
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const freedomMapData: { viewBox: { w: number; h: number }; fighters: any[] } =
-  require("./freedom_map.json");
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const battleCriesData: Record<string, any> = require("./battle_cries.json");
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const huntsData: any[] = require("./hunts.json");
@@ -25,8 +22,6 @@ export const STORIES: any[] = storiesData;
 export const BADGES: any[] = badgesData.badges || [];
 export const LEVELS: any[] = badgesData.levels || [];
 export const HERO_VISUALS: Record<string, any> = heroVisualsData;
-export const FREEDOM_MAP: { viewBox: { w: number; h: number }; fighters: any[] } =
-  freedomMapData;
 export const BATTLE_CRIES: Record<string, any> = battleCriesData;
 export const HUNTS: any[] = huntsData;
 export const HERO_QA: Record<string, { name: string; questions: any[] }> = heroQAData;
