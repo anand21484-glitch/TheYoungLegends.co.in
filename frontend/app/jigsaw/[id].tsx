@@ -504,7 +504,7 @@ const st = StyleSheet.create({
     flexDirection: "row", flexWrap: "wrap",
     backgroundColor: C.navy,
     borderRadius: 10, overflow: "hidden",
-    borderWidth: 3, borderColor: C.navy,
+  
     ...SHADOW,
   },
 
