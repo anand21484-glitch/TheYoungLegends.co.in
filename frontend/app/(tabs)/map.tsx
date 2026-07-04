@@ -19,10 +19,10 @@ import { IndiaMapSvg } from "../../src/components/IndiaMapSvg";
 
 const { width: SW, height: SH } = Dimensions.get("window");
 
-const SVG_VIEW_W = 612;
-const SVG_VIEW_H = 696;
+// Both the India outline and hero dots share this viewBox so dots land on the map
+const SVG_VIEW_W = 400;
+const SVG_VIEW_H = 500;
 
-// Replicate the same equirectangular projection used by the backend
 const LON_MIN = 68, LON_MAX = 97, LAT_MAX = 37, LAT_MIN = 8;
 function latLonToXY(lat: number, lon: number, dx: number, dy: number) {
   const x = (lon - LON_MIN) / (LON_MAX - LON_MIN) * SVG_VIEW_W + dx;
@@ -71,7 +71,8 @@ async function playWin() { if (Platform.OS === "web") return; try { await _win?.
 // -- Pulsing dot -----------------------------------------------------------
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
-function PulsingDot({ hero, onPress }: { hero: Hero; onPress: () => void }) {
+// Visual-only — touch is handled by the Pressable overlay layer on the map canvas
+function PulsingDot({ hero }: { hero: Hero }) {
   const pulse = useSharedValue(0);
   useEffect(() => {
     pulse.value = withRepeat(withTiming(1, { duration: 1600, easing: Easing.inOut(Easing.ease) }), -1, true);
@@ -82,23 +83,19 @@ function PulsingDot({ hero, onPress }: { hero: Hero; onPress: () => void }) {
 
   if (hero.discovered) {
     return (
-      <G onPress={onPress}>
+      <G>
         <AnimatedCircle cx={hero.x} cy={hero.y} fill="#FFD93D" animatedProps={outerProps} />
         <Circle cx={hero.x} cy={hero.y} r={10} fill="#FFD93D" stroke="#3D2914" strokeWidth={1.2} />
         <Path d={starPath(hero.x, hero.y, 7, 3)} fill="#FFFFFF" stroke="#3D2914" strokeWidth={0.6} />
-        {/* Large transparent tap target — must be last so it sits on top */}
-        <Circle cx={hero.x} cy={hero.y} r={22} fill="transparent" />
       </G>
     );
   }
   return (
-    <G onPress={onPress}>
+    <G>
       <AnimatedCircle cx={hero.x} cy={hero.y} fill="#FF7A1A" animatedProps={outerProps} />
       <AnimatedCircle cx={hero.x} cy={hero.y} fill="#FFB347" animatedProps={midProps} />
       <Circle cx={hero.x} cy={hero.y} r={6.5} fill="#FF7A1A" stroke="#3D2914" strokeWidth={1.2} />
       <Circle cx={hero.x} cy={hero.y} r={2.6} fill="#FFFFFF" />
-      {/* Large transparent tap target — must be last so it sits on top */}
-      <Circle cx={hero.x} cy={hero.y} r={22} fill="transparent" />
     </G>
   );
 }
@@ -208,7 +205,7 @@ export default function FreedomMap() {
           {/* Parchment background */}
           <View style={styles.parchment} />
 
-          {/* India map outline — hardcoded SVG, no async loading, works on all platforms */}
+          {/* India map outline — same viewBox (400×500) as hero dots for perfect alignment */}
           <View style={StyleSheet.absoluteFill} pointerEvents="none">
             <IndiaMapSvg
               width={mapWidth}
@@ -218,18 +215,38 @@ export default function FreedomMap() {
             />
           </View>
 
-          {/* Hero dots — on top of map, tappable */}
+          {/* Hero dots — purely visual, touch handled by Pressable overlays below */}
           <Svg
             width="100%"
             height="100%"
             viewBox={`0 0 ${SVG_VIEW_W} ${SVG_VIEW_H}`}
             style={StyleSheet.absoluteFill}
-            pointerEvents="box-none"
+            pointerEvents="none"
           >
             {heroes.map((h) => (
-              <PulsingDot key={h.hero_id} hero={h} onPress={() => onTapDot(h)} />
+              <PulsingDot key={h.hero_id} hero={h} />
             ))}
           </Svg>
+
+          {/* Touch targets — Pressable per hero with hitSlop for reliable 40×40 dp hit area */}
+          {heroes.map((h) => {
+            const px = (h.x / SVG_VIEW_W) * mapWidth;
+            const py = (h.y / SVG_VIEW_H) * mapHeight;
+            return (
+              <Pressable
+                key={`touch-${h.hero_id}`}
+                onPress={() => onTapDot(h)}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                style={{
+                  position: "absolute",
+                  left: px - 20,
+                  top: py - 20,
+                  width: 40,
+                  height: 40,
+                }}
+              />
+            );
+          })}
         </View>
 
         <View style={styles.legend}>
