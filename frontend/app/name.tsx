@@ -4,7 +4,7 @@
 import { useState } from "react";
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  KeyboardAvoidingView, Platform, ScrollView, Image, Alert,
+  KeyboardAvoidingView, Platform, ScrollView, Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -12,7 +12,7 @@ import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { setProfile, Local } from "../src/data/localStore";
 import { C, FF, SHADOW } from "../src/theme";
 
-const WELCOME_IMAGE = require("../../assets/images/welcome-kid.png");
+
 
 export default function NameScreen() {
   const router = useRouter();
