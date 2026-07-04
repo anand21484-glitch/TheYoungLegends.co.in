@@ -11,7 +11,6 @@ import Animated, {
   withDelay, Easing, FadeIn, FadeOut, ZoomIn, FadeInUp, SlideInDown,
 } from "react-native-reanimated";
 import { Audio } from "expo-av";
-import * as Speech from "expo-speech";
 import { API, PORTRAITS } from "../../src/api";
 import { C, SHADOW } from "../../src/theme";
 
@@ -42,8 +41,7 @@ export default function BattleCryScreen() {
   const [wordsShown, setWordsShown] = useState(0);
   const [countdown, setCountdown] = useState(3);
   const [permissionDenied, setPermissionDenied] = useState(false);
-  const [ttsActive, setTtsActive] = useState(false);
-  const [micReady, setMicReady] = useState(false); // shown after TTS done
+  const [micReady, setMicReady] = useState(false);
   const [reward, setReward] = useState<{ xp: number; badge: string; freedom_voice: boolean } | null>(null);
   const [recordingUri, setRecordingUri] = useState<string | null>(null);
   const [isReplaying, setIsReplaying] = useState(false);
@@ -105,7 +103,6 @@ export default function BattleCryScreen() {
 
     return () => {
       cleanup();
-      Speech.stop();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
@@ -163,35 +160,11 @@ export default function BattleCryScreen() {
     setTimeout(step, 0);
   };
 
-  const startPrepare = (cryText: string) => {
+  const startPrepare = (_cryText: string) => {
     setPhase("prepare");
     setMicReady(false);
     micPulse.value = 0;
-
-    // TTS — speak the cry so the child hears it
-    if (Platform.OS !== "web") {
-      setTtsActive(true);
-      try {
-        Speech.speak(cryText, {
-          rate: 0.85,
-          pitch: 1.0,
-          onDone: () => { setTtsActive(false); showMicAfterTTS(); },
-          onStopped: () => { setTtsActive(false); showMicAfterTTS(); },
-          onError: () => { setTtsActive(false); showMicAfterTTS(); },
-        });
-      } catch {
-        setTtsActive(false);
-        showMicAfterTTS();
-      }
-      // Failsafe: show mic after 6 seconds regardless
-      setTimeout(() => {
-        setTtsActive(false);
-        showMicAfterTTS();
-      }, 6000);
-    } else {
-      // Web: skip TTS
-      setTimeout(showMicAfterTTS, 600);
-    }
+    setTimeout(showMicAfterTTS, 400);
   };
 
   const showMicAfterTTS = () => {
@@ -210,8 +183,6 @@ export default function BattleCryScreen() {
   // ── Countdown ─────────────────────────────────────────────────────────────
   const tapMic = async () => {
     if (phaseRef.current === "recording" || phaseRef.current === "countdown") return;
-    Speech.stop();
-    setTtsActive(false);
     if (Platform.OS === "web") { celebrate(); return; }
     if (permissionDenied) { celebrate(); return; }
 
@@ -414,7 +385,6 @@ export default function BattleCryScreen() {
   };
 
   const sayAgain = () => {
-    Speech.stop();
     setIsReplaying(false);
     try { replaySoundRef.current?.stopAsync(); } catch {}
     setWordsShown(data?.cry.split(/\s+/).length || 0);
@@ -427,7 +397,6 @@ export default function BattleCryScreen() {
   };
 
   const goNext = () => {
-    Speech.stop();
     if (from === "story") router.replace("/(tabs)/library" as any);
     else router.back();
   };
@@ -518,13 +487,7 @@ export default function BattleCryScreen() {
         {/* Prepare phase */}
         {phase === "prepare" && (
           <Animated.View entering={FadeInUp.duration(350)} style={{ alignItems: "center", width: "100%" }}>
-            {ttsActive && (
-              <View style={s.ttsChip}>
-                <Ionicons name="volume-high" size={18} color="#FFD93D" />
-                <Text style={s.ttsTxt}>🎵 Listen first…</Text>
-              </View>
-            )}
-            {micReady && !ttsActive && (
+            {micReady && (
               <>
                 <Text style={s.prompt}>
                   Now YOUR turn! Take a deep breath and say it LOUD! 🎤
@@ -823,13 +786,6 @@ const s = StyleSheet.create({
   },
   meaningText: { color: "#FFD93D", fontSize: 14, fontWeight: "700", textAlign: "center", marginTop: 12, fontStyle: "italic" },
   originText: { color: "#FFFFFF88", fontSize: 12, fontWeight: "600", textAlign: "center", marginTop: 6 },
-  // Prepare
-  ttsChip: {
-    flexDirection: "row", alignItems: "center", gap: 8,
-    backgroundColor: "#FFFFFF15", paddingHorizontal: 16, paddingVertical: 10,
-    borderRadius: 999, borderWidth: 1.5, borderColor: "#FFD93D44", marginBottom: 12,
-  },
-  ttsTxt: { color: "#FFD93D", fontWeight: "800", fontSize: 14 },
   prompt: {
     color: "#FFFFFF", fontSize: 15, fontWeight: "800", textAlign: "center",
     marginBottom: 20, backgroundColor: "#FFFFFF18", paddingHorizontal: 16,
