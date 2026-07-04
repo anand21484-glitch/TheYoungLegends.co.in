@@ -23,29 +23,27 @@ export const IndiaMapSvg: React.FC<IndiaMapSvgProps> = ({
         {/* Main India outline */}
         <Path
           d={[
-            // NW Kashmir → N ridge → China border
-            "M 83 26 L 110 20 L 124 17 L 159 26",
-            // Down to Nepal
-            "L 172 86 L 172 138",
-            // Nepal → NE states bump (Bhutan, Assam, Arunachal)
-            "L 207 172 L 276 172 L 290 172 L 317 172 L 352 164 L 393 155",
-            // Back south through NE: Nagaland → Manipur → Mizoram → Myanmar border
-            "L 372 207 L 359 224 L 345 250 L 338 259",
-            // Across Bangladesh (simplified) to WB coast
-            "L 269 259",
-            // East coast: Odisha → AP → Tamil Nadu → Kanyakumari
-            "L 252 293 L 234 310 L 207 336 L 172 379",
-            "L 159 465 L 131 498",
-            // West coast: Kerala → Karnataka → Goa → Mumbai
-            "L 123 491 L 108 448 L 95 415 L 80 370",
-            "L 66 310 L 66 276",
-            // Saurashtra peninsula (westward bulge)
-            "L 62 268 L 33 278 L 21 268",
-            // Gulf of Kutch → Kutch → Pakistan border
-            "L 16 248 L 7 233 L 11 224 L 7 214",
-            // NW border up to Kashmir
-            "L 35 121 L 69 86 L 83 26 Z",
-          ].join(" ")}
+    // NW Kashmir
+    "M 83 26 L 100 18 L 124 17 L 145 20 L 159 26",
+    // North: Himachal → Uttarakhand → Nepal border
+    "L 165 55 L 172 86 L 172 138",
+    // Nepal → NE bump: Sikkim → Bhutan → Arunachal
+    "L 190 148 L 207 155 L 240 158 L 276 160 L 310 158 L 340 152 L 365 148 L 393 155",
+    // NE south: Nagaland → Manipur → Mizoram
+    "L 385 175 L 372 207 L 359 224 L 348 245 L 338 259",
+    // West Bengal coast → Odisha
+    "L 310 255 L 285 255 L 269 259",
+    // East coast: AP → Tamil Nadu → Kanyakumari tip
+    "L 258 280 L 245 300 L 234 318 L 218 345 L 200 372",
+    "L 180 410 L 162 450 L 148 475 L 131 498",
+    // West coast: Kerala → Karnataka → Goa → Maharashtra
+    "L 120 488 L 108 455 L 96 420 L 82 378",
+    "L 68 318 L 62 285 L 62 268",
+    // Saurashtra peninsula
+    "L 48 262 L 33 278 L 18 272 L 14 258",
+    // Kutch → Pakistan border → NW up to Kashmir
+    "L 7 240 L 7 214 L 20 180 L 35 121 L 55 86 L 69 60 L 83 26 Z",
+  ].join(" ")}
           fill={fillColor}
           stroke={strokeColor}
           strokeWidth="2"
