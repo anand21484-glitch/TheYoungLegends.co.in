@@ -15,11 +15,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API, PORTRAITS } from "../../src/api";
 import { C, SHADOW } from "../../src/theme";
 
-const { width: SW } = Dimensions.get("window");
 const GRID = 3;
-const PIECE_GAP = 3;
-const PIECE_SIZE = Math.floor((Math.min(SW - 40, 330) - PIECE_GAP * 2) / GRID);
-const PUZZLE_SIZE = PIECE_SIZE * GRID + PIECE_GAP * 2;
 const HEADER_H = 68;
 const TUTORIAL_KEY = "jigsaw_tutorial_v4";
 const MAX_PEEKS = 3;
@@ -58,10 +54,10 @@ type Puzzle = {
 
 // ─── Single puzzle piece ─────────────────────────────────────────────────────
 function PuzzlePiece({
-  correctIdx, portrait, isSelected, isCorrect, onPress,
+  correctIdx, portrait, isSelected, isCorrect, onPress, tileSize,
 }: {
   correctIdx: number; portrait: any;
-  isSelected: boolean; isCorrect: boolean; onPress: () => void;
+  isSelected: boolean; isCorrect: boolean; onPress: () => void; tileSize: number;
 }) {
   const scale = useSharedValue(1);
   useEffect(() => {
@@ -78,18 +74,18 @@ function PuzzlePiece({
       activeOpacity={isCorrect ? 1 : 0.82}
       style={{ zIndex: isSelected ? 10 : 1 }}
     >
-      <Animated.View style={[{ width: PIECE_SIZE, height: PIECE_SIZE }, anim]}>
+      <Animated.View style={[{ width: tileSize, height: tileSize }, anim]}>
         {/* Image crop */}
-        <View style={{ width: PIECE_SIZE, height: PIECE_SIZE, overflow: "hidden", borderRadius: 3 }}>
+        <View style={{ width: tileSize, height: tileSize, overflow: "hidden", borderRadius: 3 }}>
           {portrait ? (
             <Image
               source={portrait}
               style={{
-                width: PIECE_SIZE * GRID,
-                height: PIECE_SIZE * GRID,
+                width: tileSize * GRID,
+                height: tileSize * GRID,
                 position: "absolute",
-                top: -cRow * PIECE_SIZE,
-                left: -cCol * PIECE_SIZE,
+                top: -cRow * tileSize,
+                left: -cCol * tileSize,
               }}
               resizeMode="cover"
             />
@@ -158,6 +154,9 @@ function ConfettiBurst() {
 export default function JigsawPlay() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+
+  const [containerSize, setContainerSize] = useState(0);
+  const tileSize = containerSize / GRID;
 
   const [puzzle, setPuzzle] = useState<Puzzle | null>(null);
   // pieces[displayPos] = correctIdx of the piece shown at that position
@@ -392,14 +391,18 @@ export default function JigsawPlay() {
         </View>
 
         {/* Puzzle grid + peek overlay container */}
-        <View style={{ position: "relative", width: PUZZLE_SIZE, alignSelf: "center" }}>
-          {/* 3×3 grid */}
-          <View style={st.grid} testID="puzzle-grid">
-            {pieces.map((correctIdx, displayPos) => (
+        <View
+          style={{ position: "relative", width: "100%", height: containerSize, alignSelf: "center" }}
+          onLayout={(e) => setContainerSize(e.nativeEvent.layout.width)}
+        >
+          {/* 3×3 grid — square, sized from measured container width */}
+          <View style={[st.grid, { width: containerSize, height: containerSize }]} testID="puzzle-grid">
+            {containerSize > 0 && pieces.map((correctIdx, displayPos) => (
               <PuzzlePiece
                 key={displayPos}
                 correctIdx={correctIdx}
                 portrait={portrait}
+                tileSize={tileSize}
                 isSelected={selectedPos === displayPos}
                 isCorrect={correctIdx === displayPos}
                 onPress={() => handleTap(displayPos)}
@@ -442,7 +445,7 @@ export default function JigsawPlay() {
         </View>
 
         {/* Progress bar */}
-        <View style={[st.progressWrap, { width: PUZZLE_SIZE }]}>
+        <View style={[st.progressWrap, { width: containerSize || "100%" }]}>
           <View style={[st.progressFill, { width: `${(placedCount / 9) * 100}%` }]} />
         </View>
         <Text style={st.progressTxt}>{placedCount} of 9 in place</Text>
@@ -496,10 +499,9 @@ const st = StyleSheet.create({
   },
   instructTxt: { fontSize: 13, fontWeight: "800", color: C.navy, textAlign: "center" },
 
-  // Puzzle grid — navy background shows through gaps as dividers
+  // Puzzle grid — navy border/radius; width+height injected as inline style
   grid: {
     flexDirection: "row", flexWrap: "wrap",
-    width: PUZZLE_SIZE, gap: PIECE_GAP,
     backgroundColor: C.navy,
     borderRadius: 10, overflow: "hidden",
     borderWidth: 3, borderColor: C.navy,
