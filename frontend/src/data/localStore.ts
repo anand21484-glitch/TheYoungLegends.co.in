@@ -23,17 +23,9 @@ export type Progress = {
   jigsaw_done: string[];          // story ids whose jigsaw was solved
   hero_experts: string[];         // hero ids where all 4 ask-the-hero Qs answered
   asked: Record<string, string[]>; // hero_id → array of answered question ids
-  journal: JournalEntry[];        // local-only journal
   streak: number;                 // consecutive days opened
   last_open: string;              // ISO date of last app open
   daily_goal: number;             // stories per day goal
-};
-
-export type JournalEntry = {
-  id: string;
-  text: string;
-  story_id?: string;
-  created_at: string;
 };
 
 // ---------- Defaults ----------
@@ -47,7 +39,6 @@ const DEFAULT_PROGRESS: Progress = {
   jigsaw_done: [],
   hero_experts: [],
   asked: {},
-  journal: [],
   streak: 0,
   last_open: "",
   daily_goal: 1,
@@ -194,20 +185,6 @@ export const Local = {
       return { ...p, asked: updatedAsked, hero_experts, xp: p.xp + 2 };
     });
     return { progress: next, becameExpert };
-  },
-
-  async addJournalEntry(text: string, storyId?: string) {
-    const entry: JournalEntry = {
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      text: text.trim(),
-      story_id: storyId,
-      created_at: new Date().toISOString(),
-    };
-    return patch((p) => ({ ...p, journal: [entry, ...p.journal] }));
-  },
-
-  async removeJournalEntry(id: string) {
-    return patch((p) => ({ ...p, journal: p.journal.filter((e) => e.id !== id) }));
   },
 
   async touchDailyStreak() {

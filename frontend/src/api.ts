@@ -307,32 +307,6 @@ async function handle(method: string, path: string, body?: any): Promise<any> {
     return { ok: true, xp: next.xp, xp_awarded: 30, just_solved: true };
   }
 
-  // ----- JOURNAL (local-only, NO moderation) -----
-  if (pathOnly === "/journal/mine" || pathOnly === "/journal/feed") {
-    const progress = await getProgress();
-    return {
-      posts: progress.journal.map((j) => ({
-        id: j.id,
-        text: j.text,
-        story_id: j.story_id,
-        status: "approved",
-        created_at: j.created_at,
-        author_name: "You",
-      })),
-    };
-  }
-  if (pathOnly === "/journal" && method === "POST") {
-    const text = String(body?.text || "").trim();
-    if (!text) throw apiError(400, "Empty entry");
-    await Local.addJournalEntry(text, body?.story_id);
-    return { ok: true, status: "approved" };
-  }
-  const jourDel = pathOnly.match(/^\/journal\/([^/]+)$/);
-  if (jourDel && method === "DELETE") {
-    await Local.removeJournalEntry(jourDel[1]);
-    return { ok: true };
-  }
-
   // ----- CHAT (Veer AI — ONLINE) -----
   if (pathOnly === "/chat" && method === "POST") {
     // Anonymous chat: backend does not require auth for /chat.

@@ -54,7 +54,6 @@ export default function TabsLayout() {
       />
       {/* Hidden from bottom nav — accessible via deep links / push navigation */}
       <Tabs.Screen name="azaadi" options={{ href: null }} />
-      <Tabs.Screen name="journal" options={{ href: null }} />
     </Tabs>
   );
 }

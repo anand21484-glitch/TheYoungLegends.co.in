@@ -39,7 +39,6 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="story/[id]" />
           <Stack.Screen name="quiz/[id]" />
-          <Stack.Screen name="journal/new" />
           <Stack.Screen name="hunts/index" />
           <Stack.Screen name="hunts/[id]" />
           <Stack.Screen name="timeline" />

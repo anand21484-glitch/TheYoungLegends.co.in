@@ -33,7 +33,7 @@ export default function Profile() {
   const resetProgress = async () => {
     Alert.alert(
       "🧹 Reset Progress?",
-      "This will erase your XP, badges, completed stories and journal entries on this device. Your name will stay. You cannot undo this.",
+      "This will erase your XP, badges, completed stories and battle cries on this device. Your name will stay. You cannot undo this.",
       [
         { text: "Cancel", style: "cancel" },
         {
@@ -55,7 +55,6 @@ export default function Profile() {
                 jigsaw_done: [],
                 hero_experts: [],
                 asked: {} as Record<string, string[]>,
-                journal: [],
                 streak: 1,
                 last_open: new Date().toISOString().slice(0, 10),
                 daily_goal: 1,
@@ -148,7 +147,7 @@ export default function Profile() {
             icon="refresh"
             iconColor={C.saffron}
             title="Reset Progress"
-            subtitle="Clear XP, badges, stories & journal (keep name)"
+            subtitle="Clear XP, badges, stories & battle cries (keep name)"
             onPress={resetProgress}
             testID="reset-progress"
           />
