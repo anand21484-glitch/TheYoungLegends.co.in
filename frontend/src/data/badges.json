@@ -1,4 +1,4 @@
-{
+﻿{
   "badges": [
     {
       "id": "first_story",
@@ -37,10 +37,10 @@
       "desc": "Maintain a 3-day streak"
     },
     {
-      "id": "chat_azaadi",
+      "id": "chat_Azadi",
       "name": "Wise Companion",
       "icon": "chatbubbles",
-      "desc": "Chat with Azaadi"
+      "desc": "Chat with Azadi"
     },
     {
       "id": "hunt_1857",

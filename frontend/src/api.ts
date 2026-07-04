@@ -1,4 +1,4 @@
-// Local-first API shim — Azaadi Tales.
+﻿// Local-first API shim — Azadi Tales.
 //
 // We keep the OLD shape `API.get(path)` / `API.post(path, body)` so screens
 // don't need a rewrite. Each request is routed in-process to a local handler
@@ -30,12 +30,12 @@ import {
 } from "./data/localStore";
 
 // ---------- Network backend (only for Veer chat) ----------
-const FALLBACK_BASE = "https://azaadi-stories.preview.emergentagent.com";
+const FALLBACK_BASE = "https://Azadi-stories.preview.emergentagent.com";
 const RAW_BASE = process.env.EXPO_PUBLIC_BACKEND_URL;
 export const BASE_URL: string =
   RAW_BASE && /^https?:\/\//i.test(RAW_BASE) ? RAW_BASE : FALLBACK_BASE;
 // eslint-disable-next-line no-console
-console.log("[Azaadi] Local-first mode. Online features hit:", BASE_URL);
+console.log("[Azadi] Local-first mode. Online features hit:", BASE_URL);
 
 const remote = axios.create({ baseURL: `${BASE_URL}/api`, timeout: 30000 });
 

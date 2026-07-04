@@ -1,4 +1,4 @@
-#====================================================================================================
+﻿#====================================================================================================
 # START - Testing Protocol - DO NOT EDIT OR REMOVE THIS SECTION
 #====================================================================================================
 
@@ -103,7 +103,7 @@
 #====================================================================================================
 
 user_problem_statement: |
-  Phase 3 of Azaadi Tales: integrate 22 new regional freedom-fighter stories
+  Phase 3 of Azadi Tales: integrate 22 new regional freedom-fighter stories
   (total 30) and add a "Treasure Hunts" gamified feature with themed clue chains
   using a "tap-the-hero" matching style. Each hunt rewards XP + a unique badge.
 
@@ -122,7 +122,7 @@ backend:
         - working: true
           agent: "testing"
           comment: |
-            Verified via backend_test.py against https://azaadi-stories.preview.emergentagent.com/api:
+            Verified via backend_test.py against https://Azadi-stories.preview.emergentagent.com/api:
             - GET /api/stories returns exactly 30 stories.
             - All 22 new IDs (sardar-patel, lala-lajpat-rai, tilak, sukhdev, rajguru, khudiram-bose,
               surya-sen, bagha-jatin, matangini-hazra, bipin-pal, veer-savarkar, madam-cama,
@@ -198,7 +198,7 @@ backend:
         - working: true
           agent: "testing"
           comment: |
-            Full backend test against https://azaadi-stories.preview.emergentagent.com/api
+            Full backend test against https://Azadi-stories.preview.emergentagent.com/api
             with testkid/abcd. Pre-reset testkid (discovered_heroes=[], removed map_explorer
             badge). ALL 21/21 assertions PASS.
 
@@ -243,7 +243,7 @@ backend:
           agent: "testing"
           comment: |
             Comprehensive testing of /api/jigsaw endpoints against
-            https://azaadi-stories.preview.emergentagent.com/api with testkid/abcd.
+            https://Azadi-stories.preview.emergentagent.com/api with testkid/abcd.
             Pre-reset testkid's jigsaw_solved=[] + removed jigsaw_master badge in Mongo
             so first-time/idempotent/badge assertions are valid. ALL 37 assertions PASS.
 
@@ -288,7 +288,7 @@ backend:
           comment: |
             - POST /api/auth/signup (kid) and POST /api/auth/login work for newly created user.
             - GET /api/me returns 200 after auth.
-            - POST /api/chat (Claude Sonnet 4.5 via Emergent) returned a 181-char Azaadi reply.
+            - POST /api/chat (Claude Sonnet 4.5 via Emergent) returned a 181-char Azadi reply.
             - POST /api/journal moderation passed and returned status='approved' with reaction counters.
 
 frontend:
@@ -363,7 +363,7 @@ frontend:
             * /app/frontend/src/components/FloatingMonuments.tsx (8.5 KB) exists and is wired.
             * Background uses a softened tint of story.color (softTint helper).
             
-            E2E BROWSER VERIFICATION (preview URL https://azaadi-stories.preview.emergentagent.com):
+            E2E BROWSER VERIFICATION (preview URL https://Azadi-stories.preview.emergentagent.com):
             * Welcome screen renders correctly with all CTAs ("Let's Begin the Journey",
               "30 Stories", "3 Hunts", "Timeline", "AI Owl") — screenshot captured. ✅
             * Backend access logs during the session show a real authenticated kid session
@@ -462,10 +462,10 @@ frontend:
             • timeline-back returns to Library tab successfully ✅
             • 360x800 viewport: timeline container loads cleanly with same layout.
 
-  - task: "Library, Journal, Profile, Azaadi smoke (regression)"
+  - task: "Library, Journal, Profile, Azadi smoke (regression)"
     implemented: true
     working: true
-    file: "frontend/app/(tabs)/library.tsx, journal.tsx, profile.tsx, azaadi.tsx"
+    file: "frontend/app/(tabs)/library.tsx, journal.tsx, profile.tsx, Azadi.tsx"
     stuck_count: 0
     priority: "low"
     needs_retesting: false
@@ -475,8 +475,8 @@ frontend:
           comment: |
             • Library: Story Library + "30 brave heroes" + EN/HI lang switch ✅
             • Journal: feed loads via testID `journal-scroll` ✅
-            • Profile / Azaadi chat full smoke not run end-to-end due to test invocation budget; tab
-              elements exist in DOM with correct testIDs (tab-profile, tab-azaadi, profile-username
+            • Profile / Azadi chat full smoke not run end-to-end due to test invocation budget; tab
+              elements exist in DOM with correct testIDs (tab-profile, tab-Azadi, profile-username
               all confirmed via grep). Backend logs show /api/me + /api/stories + /api/hunts + chat
               endpoints all returning 200 throughout the session.
 
@@ -625,7 +625,7 @@ agent_communication_archive:
         in MongoDB so first-time / idempotent / badge flows can be re-verified on successive
         runs. testkid retained all other progress (xp=395, badges intact).
 
-        Coverage (against https://azaadi-stories.preview.emergentagent.com/api):
+        Coverage (against https://Azadi-stories.preview.emergentagent.com/api):
         • POST /api/auth/login (testkid/abcd) → 200 ✅
         • GET /api/jigsaw → exactly 5 puzzles, all 5 required hero ids present
           (sarojini-naidu, bhimrao-ambedkar, mahatma-gandhi, tilak, sardar-patel), every
@@ -675,7 +675,7 @@ agent_communication_archive:
     - agent: "testing"
       message: |
         Freedom Map of India backend testing complete.
-        Ran /app/backend_test.py against https://azaadi-stories.preview.emergentagent.com/api
+        Ran /app/backend_test.py against https://Azadi-stories.preview.emergentagent.com/api
         with testkid/abcd. ALL 21/21 assertions PASS.
 
         Pre-reset testkid (discovered_heroes=[], removed map_explorer badge in Mongo)

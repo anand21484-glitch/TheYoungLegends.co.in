@@ -1,4 +1,4 @@
-# Azaadi Tales — Product Requirements
+﻿# Azadi Tales — Product Requirements
 
 ## Vision
 An AI-powered Expo mobile app (kids 5-14) bringing India's freedom fighters to life through illustrated stories, an AI owl companion, gamification, and a safe community journal — with full parental oversight.
@@ -8,7 +8,7 @@ An AI-powered Expo mobile app (kids 5-14) bringing India's freedom fighters to l
 2. **8 Stories** (Bhagat Singh, Rani Lakshmibai, Gandhi, Bose, Sarojini Naidu, Chandrashekhar Azad, Mangal Pandey, Ambedkar) — 450-600 words each (3+ min TTS), bilingual EN+HI, with 4 actionable lessons per story
 3. **Story Reader** — EN/HI toggle, on-device TTS narration (story + lessons separately), inline + post-finish "What I Learned" cards
 4. **Quiz Engine** — 5 MCQs/story, instant scoring, perfect-quiz bonus
-5. **Azaadi AI Chat** — Claude Sonnet 4.5 owl companion, kid-safe, bilingual
+5. **Azadi AI Chat** — Claude Sonnet 4.5 owl companion, kid-safe, bilingual
 6. **Gamification** — 6 levels, 7 badges, XP, daily streaks
 7. **Profile** — avatar hero, level, badges grid, stats
 
@@ -38,7 +38,7 @@ An AI-powered Expo mobile app (kids 5-14) bringing India's freedom fighters to l
 ## Key API Endpoints
 **Auth**: `POST /api/auth/signup` (with `role`), `POST /api/auth/login`, `GET /api/me`
 **Stories**: `GET /api/stories`, `GET /api/stories/{id}` (returns lessons), `GET /api/stories/{id}/quiz`, `POST /api/stories/complete`, `POST /api/quiz/submit`
-**Azaadi**: `POST /api/chat`, `GET /api/chat/history`
+**Azadi**: `POST /api/chat`, `GET /api/chat/history`
 **Parent**: `GET /api/parent/children`, `POST /api/parent/link-child`, `POST /api/parent/child/{id}/goal`, `GET /api/parent/child/{id}/progress`, `GET /api/parent/pending-posts`, `POST /api/parent/posts/{id}/moderate`
 **Journal**: `POST /api/journal`, `GET /api/journal/feed`, `GET /api/journal/mine`, `POST /api/journal/{id}/react`
 **Misc**: `GET /api/badges`, `GET /api/levels`
@@ -49,7 +49,7 @@ An AI-powered Expo mobile app (kids 5-14) bringing India's freedom fighters to l
 
 ## Future Roadmap
 - Treasure Hunts (multi-step cross-story clues)
-- OpenAI Whisper voice questions to Azaadi
+- OpenAI Whisper voice questions to Azadi
 - Avatar customization shop
 - More languages (Tamil, Bengali, Marathi)
 - 22 regional heroes (30-story catalog)

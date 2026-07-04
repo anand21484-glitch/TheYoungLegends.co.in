@@ -1,4 +1,4 @@
-{
+﻿{
   "theme": "Light",
   "archetype": "Archetype 6: Vibrant Play (Youth Coaching & Education) adapted for Indian Heritage",
   "colors": {
@@ -64,7 +64,7 @@
     "buttons": "Large touch targets (min-h-[56px]), highly saturated colors (Saffron or Green), rounded-full, explicit press states.",
     "cards": "White or Cream background, rounded-[24px], bold 2px border in a lighter tint of the accent or primary color. Inner padding p-6. Avoid generic centered text; use asymmetric 'bento' layouts for story cards.",
     "bottom_tab_nav": "Fixed bottom, high contrast icons, solid white background with a subtle top border, Saffron color for active tab indicator.",
-    "chat_bubbles": "Azaadi's bubbles: Warm gold/cream background with deep navy text. Kid's bubbles: Saffron background with white text. Rounded-[20px] with one sharp corner indicating direction.",
+    "chat_bubbles": "Azadi's bubbles: Warm gold/cream background with deep navy text. Kid's bubbles: Saffron background with white text. Rounded-[20px] with one sharp corner indicating direction.",
     "progress_bar": "Thick (h-4 or h-6), rounded-full, vibrant animated fill (Saffron or Green)."
   },
   "animations": {
@@ -75,14 +75,14 @@
     "icons": "lucide-react or @phosphor-icons/react (Duotone style for storybook feel).",
     "images": [
       {
-        "category": "mascot_azaadi",
+        "category": "mascot_Azadi",
         "url": "https://images.unsplash.com/photo-1532562066470-f6f5f6d47924?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2Mzl8MHwxfHNlYXJjaHwxfHxjdXRlJTIwb3dsfGVufDB8fHx8MTc3ODMxMTc0OXww&ixlib=rb-4.1.0&q=85",
-        "description": "Azaadi the Owl Companion (Use as placeholder for mascot portrait)"
+        "description": "Azadi the Owl Companion (Use as placeholder for mascot portrait)"
       },
       {
         "category": "mascot_alt",
         "url": "https://images.unsplash.com/photo-1707157188951-65b45cbfa6d9?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2Mzl8MHwxfHNlYXJjaHwyfHxjdXRlJTIwb3dsfGVufDB8fHx8MTc3ODMxMTc0OXww&ixlib=rb-4.1.0&q=85",
-        "description": "Two owls sitting on branch (Alternative Azaadi illustration for chat background)"
+        "description": "Two owls sitting on branch (Alternative Azadi illustration for chat background)"
       },
       {
         "category": "background_historical",
@@ -105,7 +105,7 @@
     "Context: This is an Expo React Native Mobile App, NOT a web app. Translate these Tailwind-like utility descriptions into React Native styles (e.g., 'p-6' -> { padding: 24 }, 'rounded-[24px]' -> { borderRadius: 24 }). If using NativeWind, use valid Tailwind classes.",
     "Testing: All interactive and key informational elements MUST include a 'testID' attribute (e.g., testID='login-button').",
     "Aesthetics: Avoid generic centered layouts and 'AI slop' (purple gradients). Use playful asymmetry, 'bento' grid-like layouts for story cards, and thick geometric borders.",
-    "Navigation: Implement a Bottom Tab Navigation (Home, Library, Azaadi, Profile).",
+    "Navigation: Implement a Bottom Tab Navigation (Home, Library, Azadi, Profile).",
     "Story Reader: Integrate TTS logic and place a prominent, kid-friendly 'Play' button. Include a 'Take Quiz' CTA at the end.",
     "Use standard React Native components (<View>, <Text>, <TouchableOpacity>) to build custom storybook-style cards rather than relying on standard pre-built card libraries that look too 'corporate'."
   ]

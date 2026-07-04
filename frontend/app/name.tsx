@@ -1,4 +1,4 @@
-// First-launch name entry screen.
+﻿// First-launch name entry screen.
 // One-tap: child types their first name → saved to AsyncStorage → home tabs.
 
 import { useState } from "react";
@@ -57,7 +57,7 @@ export default function NameScreen() {
         >
           <Animated.View entering={FadeInDown.duration(500)} style={styles.brandRow}>
             <View style={styles.flagDot} />
-            <Text style={styles.brand}>Azaadi Tales</Text>
+            <Text style={styles.brand}>Azadi Tales</Text>
           </Animated.View>
 
           <Animated.View entering={FadeInUp.delay(200).duration(600)} style={styles.heroCircle}>

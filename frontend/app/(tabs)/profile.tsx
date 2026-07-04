@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+﻿import { useEffect, useState, useCallback } from "react";
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert,
 } from "react-native";
@@ -162,7 +162,7 @@ export default function Profile() {
         </View>
 
         <Text style={styles.footerNote}>
-          Azaadi Tales · Works fully offline · v1.0
+          Azadi Tales · Works fully offline · v1.0
         </Text>
       </ScrollView>
     </SafeAreaView>

@@ -1,4 +1,4 @@
-// Veer — the AI companion for Azaadi Tales (a kid holding the Indian flag).
+﻿// Veer — the AI companion for Azadi Tales (a kid holding the Indian flag).
 // Image of an Indian boy proudly holding the tricolor.
 export const VEER_NAME = "Veer";
 export const VEER_TAGLINE = "Your freedom story friend";
