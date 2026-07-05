@@ -35,6 +35,7 @@ export default function RootLayout() {
         <StatusBar style="dark" />
         <Stack screenOptions={{ headerShown: false, animation: "fade" }}>
           <Stack.Screen name="index" />
+          <Stack.Screen name="parents-message" />
           <Stack.Screen name="name" />
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="story/[id]" />

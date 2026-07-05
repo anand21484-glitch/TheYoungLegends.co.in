@@ -5,6 +5,7 @@
 import { useEffect } from "react";
 import { View, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { hasProfile } from "../src/data/localStore";
 import { C } from "../src/theme";
 
@@ -13,6 +14,11 @@ export default function Index() {
 
   useEffect(() => {
     (async () => {
+      const seen = await AsyncStorage.getItem("parents_message_seen");
+      if (!seen) {
+        router.replace("/parents-message" as any);
+        return;
+      }
       const has = await hasProfile();
       if (has) {
         router.replace("/(tabs)" as any);
