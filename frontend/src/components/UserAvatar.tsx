@@ -1,6 +1,7 @@
 /**
  * Renders a user avatar — either a freedom-fighter AI portrait (when the
- * avatar value is a known hero story_id) or a legacy emoji (e.g. "🦉").
+ * avatar value is a known hero story_id), a warrior avatar (boy/girl), or
+ * a legacy emoji (e.g. "🦉").
  * Backward-compatible with users created before the hero-avatar change.
  */
 import React from "react";
@@ -17,6 +18,14 @@ export const HERO_AVATARS: { id: string; name: string; color: string }[] = [
   { id: "sarojini-naidu",    name: "Sarojini Naidu",     color: "#E91E63" },
   { id: "birsa-munda",       name: "Birsa Munda",        color: "#5D4037" },
 ];
+
+// Warrior avatars — placeholder emoji until real Ghibli images are added.
+// To swap in a real image: replace the emoji config with require("../../assets/images/avatar-boy.png")
+// and update the render path below.
+const WARRIOR_AVATARS: Record<string, { emoji: string; bg: string }> = {
+  boy:  { emoji: "⚔️", bg: C.saffron },
+  girl: { emoji: "🏹", bg: "#138808" },
+};
 
 const HERO_ID_SET = new Set(HERO_AVATARS.map((h) => h.id));
 
@@ -37,20 +46,35 @@ export function UserAvatar({
   borderWidth?: number;
   showBackground?: boolean;
 }) {
-  const isHero = isHeroAvatar(avatar);
+  // ── Warrior avatars (boy / girl) ──────────────────────────────────────────
+  if (avatar === "boy" || avatar === "girl") {
+    const w = WARRIOR_AVATARS[avatar];
+    return (
+      <View
+        style={[
+          styles.wrap,
+          {
+            width: size, height: size, borderRadius: size / 2,
+            borderColor, borderWidth,
+            backgroundColor: showBackground ? w.bg : "transparent",
+          },
+        ]}
+      >
+        <Text style={{ fontSize: size * 0.48 }}>{w.emoji}</Text>
+      </View>
+    );
+  }
 
-  if (isHero) {
+  // ── Hero portrait avatars ─────────────────────────────────────────────────
+  if (isHeroAvatar(avatar)) {
     const source = PORTRAITS[avatar as string];
     return (
       <View
         style={[
           styles.wrap,
           {
-            width: size,
-            height: size,
-            borderRadius: size / 2,
-            borderColor,
-            borderWidth,
+            width: size, height: size, borderRadius: size / 2,
+            borderColor, borderWidth,
             backgroundColor: showBackground ? C.white : "transparent",
           },
         ]}
@@ -68,18 +92,15 @@ export function UserAvatar({
     );
   }
 
-  // Fallback — emoji string (legacy users) OR initial letter
+  // ── Fallback — emoji string (legacy users) ────────────────────────────────
   const fallback = avatar || "🦉";
   return (
     <View
       style={[
         styles.wrap,
         {
-          width: size,
-          height: size,
-          borderRadius: size / 2,
-          borderColor,
-          borderWidth,
+          width: size, height: size, borderRadius: size / 2,
+          borderColor, borderWidth,
           backgroundColor: showBackground ? C.white : "transparent",
         },
       ]}

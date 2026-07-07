@@ -14,11 +14,21 @@ import { C, FF, SHADOW } from "../src/theme";
 
 const WELCOME_IMAGE = require("../assets/images/welcome-kid.png");
 
+type AvatarChoice = "boy" | "girl";
+
+const AVATAR_OPTIONS: { id: AvatarChoice; label: string; emoji: string; bg: string }[] = [
+  { id: "boy",  label: "Warrior Boy",  emoji: "⚔️", bg: "#FF9933" },
+  { id: "girl", label: "Warrior Girl", emoji: "🏹", bg: "#138808" },
+];
+
 export default function NameScreen() {
   const router = useRouter();
   const [name, setName] = useState("");
+  const [avatar, setAvatar] = useState<AvatarChoice | null>(null);
   const [saving, setSaving] = useState(false);
   const [imageError, setImageError] = useState(false);
+
+  const canSubmit = name.trim().length >= 2 && avatar !== null;
 
   const submit = async () => {
     const clean = name.trim().replace(/\s+/g, " ");
@@ -30,11 +40,15 @@ export default function NameScreen() {
       Alert.alert("Wow!", "Let's keep your name a little shorter (max 24 letters).");
       return;
     }
+    if (!avatar) {
+      Alert.alert("Choose your warrior!", "Tap your warrior avatar to continue.");
+      return;
+    }
     setSaving(true);
     try {
       await setProfile({
         name: clean,
-        avatar: "bhagat-singh",
+        avatar,
         language: "en",
         createdAt: new Date().toISOString(),
       });
@@ -98,13 +112,52 @@ export default function NameScreen() {
             />
           </Animated.View>
 
-          <Animated.View entering={FadeInUp.delay(750).duration(600)}>
+          {/* ── Avatar selection ── */}
+          <Animated.View entering={FadeInUp.delay(700).duration(600)} style={styles.avatarSection}>
+            <Text style={styles.avatarLabel}>Choose Your Avatar</Text>
+            <View style={styles.avatarRow}>
+              {AVATAR_OPTIONS.map((opt) => {
+                const selected = avatar === opt.id;
+                return (
+                  <TouchableOpacity
+                    key={opt.id}
+                    testID={`avatar-${opt.id}`}
+                    onPress={() => setAvatar(opt.id)}
+                    activeOpacity={0.8}
+                    style={styles.avatarItem}
+                  >
+                    <View
+                      style={[
+                        styles.avatarCircle,
+                        { backgroundColor: opt.bg },
+                        selected
+                          ? styles.avatarSelected
+                          : styles.avatarUnselected,
+                      ]}
+                    >
+                      <Text style={styles.avatarEmoji}>{opt.emoji}</Text>
+                      {selected && (
+                        <View style={styles.checkBadge}>
+                          <Text style={styles.checkMark}>✓</Text>
+                        </View>
+                      )}
+                    </View>
+                    <Text style={[styles.avatarName, selected && styles.avatarNameSelected]}>
+                      {opt.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </Animated.View>
+
+          <Animated.View entering={FadeInUp.delay(850).duration(600)}>
             <TouchableOpacity
               testID="name-go"
               onPress={submit}
               activeOpacity={0.85}
-              disabled={saving}
-              style={[styles.goBtn, saving && { opacity: 0.6 }]}
+              disabled={saving || !canSubmit}
+              style={[styles.goBtn, (!canSubmit || saving) && styles.goBtnDisabled]}
             >
               <Text style={styles.goTxt}>Let&apos;s Go! 🇮🇳</Text>
             </TouchableOpacity>
@@ -165,6 +218,42 @@ const styles = StyleSheet.create({
     textAlign: "center",
     ...SHADOW,
   },
+  // Avatar selection
+  avatarSection: { width: "100%", alignItems: "center", marginTop: 28 },
+  avatarLabel: {
+    fontSize: 16, fontFamily: FF.bodyBold, color: C.navy,
+    marginBottom: 16, letterSpacing: 0.3,
+  },
+  avatarRow: { flexDirection: "row", gap: 28 },
+  avatarItem: { alignItems: "center", gap: 8 },
+  avatarCircle: {
+    width: 90, height: 90, borderRadius: 45,
+    alignItems: "center", justifyContent: "center",
+    borderWidth: 3, ...SHADOW,
+  },
+  avatarSelected: {
+    borderColor: C.saffron,
+    shadowColor: C.saffron,
+    shadowOpacity: 0.6,
+    shadowRadius: 12,
+    elevation: 10,
+  },
+  avatarUnselected: { borderColor: C.navy },
+  avatarEmoji: { fontSize: 36 },
+  checkBadge: {
+    position: "absolute", bottom: -4, right: -4,
+    width: 26, height: 26, borderRadius: 13,
+    backgroundColor: "#F4C430",
+    borderWidth: 2, borderColor: C.white,
+    alignItems: "center", justifyContent: "center",
+  },
+  checkMark: { fontSize: 13, fontFamily: FF.bodyBlack, color: C.navy },
+  avatarName: {
+    fontSize: 12, fontFamily: FF.bodyBold, color: C.textMuted,
+    textAlign: "center",
+  },
+  avatarNameSelected: { color: C.navy },
+  // CTA button
   goBtn: {
     marginTop: 22,
     paddingHorizontal: 48,
@@ -175,6 +264,7 @@ const styles = StyleSheet.create({
     borderColor: C.navy,
     ...SHADOW,
   },
+  goBtnDisabled: { opacity: 0.4 },
   goTxt: { fontSize: 22, fontFamily: FF.heading, color: C.white },
   privacy: {
     marginTop: 28,
