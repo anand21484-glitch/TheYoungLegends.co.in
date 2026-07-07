@@ -1,4 +1,4 @@
-﻿// First-launch name entry screen.
+// First-launch name entry screen.
 // One-tap: child types their first name → saved to AsyncStorage → home tabs.
 
 import { useState } from "react";
@@ -14,19 +14,11 @@ import { C, FF, SHADOW } from "../src/theme";
 
 const WELCOME_IMAGE = require("../assets/images/welcome-kid.png");
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const AVATAR_IMAGES: Record<string, any> = {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  boy:  require("../assets/images/avatar-boy.png"),
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  girl: require("../assets/images/avatar-girl.png"),
-};
-
 type AvatarChoice = "boy" | "girl";
 
-const AVATAR_OPTIONS: { id: AvatarChoice; label: string }[] = [
-  { id: "boy",  label: "Warrior Boy"  },
-  { id: "girl", label: "Warrior Girl" },
+const AVATAR_OPTIONS: { id: AvatarChoice; label: string; emoji: string; bg: string }[] = [
+  { id: "boy",  label: "Warrior Boy",  emoji: "⚔️", bg: "#FF9933" },
+  { id: "girl", label: "Warrior Girl", emoji: "🏹", bg: "#2E7D32" },
 ];
 
 export default function NameScreen() {
@@ -137,16 +129,11 @@ export default function NameScreen() {
                     <View
                       style={[
                         styles.avatarCircle,
-                        selected
-                          ? styles.avatarSelected
-                          : styles.avatarUnselected,
+                        { backgroundColor: opt.bg },
+                        selected ? styles.avatarSelected : styles.avatarUnselected,
                       ]}
                     >
-                      <Image
-                        source={AVATAR_IMAGES[opt.id]}
-                        style={styles.avatarImg}
-                        resizeMode="cover"
-                      />
+                      <Text style={styles.avatarEmoji}>{opt.emoji}</Text>
                       {selected && (
                         <View style={styles.checkBadge}>
                           <Text style={styles.checkMark}>✓</Text>
@@ -239,10 +226,10 @@ const styles = StyleSheet.create({
   avatarItem: { alignItems: "center", gap: 8 },
   avatarCircle: {
     width: 90, height: 90, borderRadius: 45,
-    overflow: "hidden",
+    alignItems: "center", justifyContent: "center",
     borderWidth: 3, ...SHADOW,
   },
-  avatarImg: { width: 90, height: 90, borderRadius: 45 },
+  avatarEmoji: { fontSize: 38 },
   avatarSelected: {
     borderColor: C.saffron,
     shadowColor: C.saffron,

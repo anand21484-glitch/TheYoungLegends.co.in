@@ -19,12 +19,9 @@ export const HERO_AVATARS: { id: string; name: string; color: string }[] = [
   { id: "birsa-munda",       name: "Birsa Munda",        color: "#5D4037" },
 ];
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const WARRIOR_AVATARS: Record<string, any> = {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  boy:  require("../../assets/images/avatar-boy.png"),
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  girl: require("../../assets/images/avatar-girl.png"),
+const WARRIOR_AVATARS: Record<string, { emoji: string; bg: string }> = {
+  boy:  { emoji: "⚔️", bg: "#FF9933" },
+  girl: { emoji: "🏹", bg: "#2E7D32" },
 };
 
 const HERO_ID_SET = new Set(HERO_AVATARS.map((h) => h.id));
@@ -48,6 +45,7 @@ export function UserAvatar({
 }) {
   // ── Warrior avatars (boy / girl) ──────────────────────────────────────────
   if (avatar === "boy" || avatar === "girl") {
+    const { emoji, bg } = WARRIOR_AVATARS[avatar];
     return (
       <View
         style={[
@@ -55,15 +53,11 @@ export function UserAvatar({
           {
             width: size, height: size, borderRadius: size / 2,
             borderColor, borderWidth,
-            backgroundColor: "transparent",
+            backgroundColor: bg,
           },
         ]}
       >
-        <Image
-          source={WARRIOR_AVATARS[avatar]}
-          style={{ width: size, height: size, borderRadius: size / 2 }}
-          resizeMode="cover"
-        />
+        <Text style={{ fontSize: size * 0.5 }}>{emoji}</Text>
       </View>
     );
   }
