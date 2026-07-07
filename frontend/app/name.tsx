@@ -14,11 +14,19 @@ import { C, FF, SHADOW } from "../src/theme";
 
 const WELCOME_IMAGE = require("../assets/images/welcome-kid.png");
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const AVATAR_IMAGES: Record<string, any> = {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  boy:  require("../assets/images/avatar-boy.png"),
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  girl: require("../assets/images/avatar-girl.png"),
+};
+
 type AvatarChoice = "boy" | "girl";
 
-const AVATAR_OPTIONS: { id: AvatarChoice; label: string; emoji: string; bg: string }[] = [
-  { id: "boy",  label: "Warrior Boy",  emoji: "⚔️", bg: "#FF9933" },
-  { id: "girl", label: "Warrior Girl", emoji: "🏹", bg: "#138808" },
+const AVATAR_OPTIONS: { id: AvatarChoice; label: string }[] = [
+  { id: "boy",  label: "Warrior Boy"  },
+  { id: "girl", label: "Warrior Girl" },
 ];
 
 export default function NameScreen() {
@@ -129,13 +137,16 @@ export default function NameScreen() {
                     <View
                       style={[
                         styles.avatarCircle,
-                        { backgroundColor: opt.bg },
                         selected
                           ? styles.avatarSelected
                           : styles.avatarUnselected,
                       ]}
                     >
-                      <Text style={styles.avatarEmoji}>{opt.emoji}</Text>
+                      <Image
+                        source={AVATAR_IMAGES[opt.id]}
+                        style={styles.avatarImg}
+                        resizeMode="cover"
+                      />
                       {selected && (
                         <View style={styles.checkBadge}>
                           <Text style={styles.checkMark}>✓</Text>
@@ -228,9 +239,10 @@ const styles = StyleSheet.create({
   avatarItem: { alignItems: "center", gap: 8 },
   avatarCircle: {
     width: 90, height: 90, borderRadius: 45,
-    alignItems: "center", justifyContent: "center",
+    overflow: "hidden",
     borderWidth: 3, ...SHADOW,
   },
+  avatarImg: { width: 90, height: 90, borderRadius: 45 },
   avatarSelected: {
     borderColor: C.saffron,
     shadowColor: C.saffron,
@@ -239,7 +251,6 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   avatarUnselected: { borderColor: C.navy },
-  avatarEmoji: { fontSize: 36 },
   checkBadge: {
     position: "absolute", bottom: -4, right: -4,
     width: 26, height: 26, borderRadius: 13,

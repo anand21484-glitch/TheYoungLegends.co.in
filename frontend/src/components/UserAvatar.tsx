@@ -19,12 +19,12 @@ export const HERO_AVATARS: { id: string; name: string; color: string }[] = [
   { id: "birsa-munda",       name: "Birsa Munda",        color: "#5D4037" },
 ];
 
-// Warrior avatars — placeholder emoji until real Ghibli images are added.
-// To swap in a real image: replace the emoji config with require("../../assets/images/avatar-boy.png")
-// and update the render path below.
-const WARRIOR_AVATARS: Record<string, { emoji: string; bg: string }> = {
-  boy:  { emoji: "⚔️", bg: C.saffron },
-  girl: { emoji: "🏹", bg: "#138808" },
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const WARRIOR_AVATARS: Record<string, any> = {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  boy:  require("../../assets/images/avatar-boy.png"),
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  girl: require("../../assets/images/avatar-girl.png"),
 };
 
 const HERO_ID_SET = new Set(HERO_AVATARS.map((h) => h.id));
@@ -48,7 +48,6 @@ export function UserAvatar({
 }) {
   // ── Warrior avatars (boy / girl) ──────────────────────────────────────────
   if (avatar === "boy" || avatar === "girl") {
-    const w = WARRIOR_AVATARS[avatar];
     return (
       <View
         style={[
@@ -56,11 +55,15 @@ export function UserAvatar({
           {
             width: size, height: size, borderRadius: size / 2,
             borderColor, borderWidth,
-            backgroundColor: showBackground ? w.bg : "transparent",
+            backgroundColor: "transparent",
           },
         ]}
       >
-        <Text style={{ fontSize: size * 0.48 }}>{w.emoji}</Text>
+        <Image
+          source={WARRIOR_AVATARS[avatar]}
+          style={{ width: size, height: size, borderRadius: size / 2 }}
+          resizeMode="cover"
+        />
       </View>
     );
   }
