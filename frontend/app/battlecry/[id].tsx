@@ -363,13 +363,14 @@ export default function BattleCryScreen() {
         setIsReplaying(false);
         return;
       }
-      // Switch to playback mode — must clear recording mode or Android plays through earpiece
+      // Switch to playback mode and request audio focus
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: false,
         playsInSilentModeIOS: true,
-        shouldDuckAndroid: false,
+        shouldDuckAndroid: true,
         playThroughEarpieceAndroid: false,
-      }).catch(() => {});
+        staysActiveInBackground: false,
+      });
       setIsReplaying(true);
       const { sound } = await Audio.Sound.createAsync(
         { uri: recordingUri },
@@ -384,9 +385,13 @@ export default function BattleCryScreen() {
         }
       });
       await sound.playAsync();
-    } catch (e: any) {
+    } catch {
       setIsReplaying(false);
-      Alert.alert("Playback Error", e?.message || String(e));
+      Alert.alert(
+        "Could not play recording",
+        "Please make sure no other audio is playing and try again.",
+        [{ text: "OK" }],
+      );
     }
   };
 
