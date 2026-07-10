@@ -142,7 +142,7 @@ export default function Timeline() {
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={styles.headerTitle}>Freedom Timeline</Text>
-          <Text style={styles.headerSub}>30 heroes • 1700s → 1947</Text>
+          <Text style={styles.headerSub}>30 heroes • 1600s → 1947</Text>
         </View>
         <View style={styles.iconWrap}>
           <Ionicons name="time" size={22} color={C.gold} />
