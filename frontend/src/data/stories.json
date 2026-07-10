@@ -6230,89 +6230,89 @@
         ],
         "quiz": [
             {
-                "q_en": "In which fort was Shivaji Maharaj born?",
-                "q_hi": "शिवाजी महाराज का जन्म किस किले में हुआ था?",
+                "q_en": "In which fort was Chhatrapati Shivaji Maharaj born?",
+                "q_hi": "छत्रपति शिवाजी महाराज का जन्म किस किले में हुआ था?",
                 "options_en": [
                     "Raigad Fort",
                     "Shivneri Fort",
-                    "Torna Fort",
-                    "Pratapgad Fort"
+                    "Pratapgad Fort",
+                    "Torna Fort"
                 ],
                 "options_hi": [
                     "रायगड किला",
                     "शिवनेरी किला",
-                    "तोरण किला",
-                    "प्रतापगड किला"
+                    "प्रतापगड किला",
+                    "तोरण किला"
                 ],
                 "answer": 1
             },
             {
-                "q_en": "What fighting style made Shivaji's army so hard to defeat?",
-                "q_hi": "शिवाजी की सेना को किस युद्ध-शैली ने अजेय बनाया?",
+                "q_en": "How old was Shivaji when he captured his first fort, Torna?",
+                "q_hi": "शिवाजी ने अपना पहला किला तोरण जीता तब उनकी उम्र क्या थी?",
                 "options_en": [
-                    "Elephant warfare",
-                    "Naval warfare",
-                    "Guerrilla warfare",
-                    "Open field battle"
+                    "10 years old",
+                    "16 years old",
+                    "20 years old",
+                    "25 years old"
                 ],
                 "options_hi": [
-                    "हाथी युद्ध",
-                    "नौसेना युद्ध",
-                    "छापामार युद्ध",
-                    "खुले मैदान की लड़ाई"
+                    "10 साल",
+                    "16 साल",
+                    "20 साल",
+                    "25 साल"
                 ],
-                "answer": 2
+                "answer": 1
             },
             {
-                "q_en": "What title was Shivaji given in 1674?",
-                "q_hi": "1674 में शिवाजी को कौन-सी उपाधि दी गई?",
+                "q_en": "What was Shivaji Maharaj's famous battle cry?",
+                "q_hi": "शिवाजी महाराज का प्रसिद्ध युद्ध-नाद क्या था?",
                 "options_en": [
-                    "Maharaja",
-                    "Nawab",
-                    "Chhatrapati",
-                    "Sultan"
+                    "Jai Hind!",
+                    "Vande Mataram!",
+                    "Jai Bhavani! Jai Shivaji!",
+                    "Inquilab Zindabad!"
                 ],
                 "options_hi": [
-                    "महाराजा",
-                    "नवाब",
-                    "छत्रपति",
-                    "सुल्तान"
+                    "जय हिंद!",
+                    "वंदे मातरम!",
+                    "जय भवानी! जय शिवाजी!",
+                    "इंकलाब ज़िंदाबाद!"
                 ],
                 "answer": 2
             },
             {
                 "q_en": "How did Shivaji escape from Aurangzeb's prison in Agra?",
-                "q_hi": "शिवाजी आगरा की क़ैद से कैसे भाग निकले?",
+                "q_hi": "शिवाजी आगरा में औरंगज़ेब की क़ैद से कैसे भाग निकले?",
                 "options_en": [
-                    "Dug a tunnel",
-                    "Climbed the palace wall",
-                    "Hidden in a basket of sweets",
-                    "Disguised as a soldier"
+                    "He dug a tunnel under the prison wall",
+                    "He disguised himself as a soldier",
+                    "He climbed over the palace wall at night",
+                    "He hid in sweet baskets meant for charity"
                 ],
                 "options_hi": [
-                    "सुरंग खोदकर",
-                    "महल की दीवार चढ़कर",
-                    "मिठाई की टोकरी में छुपकर",
-                    "सैनिक का भेष बनाकर"
+                    "उन्होंने जेल की दीवार के नीचे सुरंग खोदी",
+                    "वे सैनिक के भेष में निकले",
+                    "वे रात को महल की दीवार फाँदकर निकले",
+                    "वे दान के लिए जाने वाली मिठाई की टोकरियों में छुपकर निकले"
                 ],
-                "answer": 2
+                "answer": 3
             },
             {
-                "q_en": "What was Shivaji's famous battle cry?",
-                "q_hi": "शिवाजी का प्रसिद्ध युद्ध-नाद क्या था?",
+                "q_en": "In which year was Shivaji Maharaj crowned as Chhatrapati?",
+                "q_hi": "शिवाजी महाराज को किस वर्ष छत्रपति का ताज पहनाया गया?",
                 "options_en": [
-                    "Jai Hind!",
-                    "Jai Bhavani! Jai Shivaji!",
-                    "Inquilab Zindabad!",
-                    "Vande Mataram!"
+                    "1657",
+                    "1665",
+                    "1674",
+                    "1680"
                 ],
                 "options_hi": [
-                    "जय हिंद!",
-                    "जय भवानी! जय शिवाजी!",
-                    "इंकलाब ज़िंदाबाद!",
-                    "वंदे मातरम!"
+                    "1657",
+                    "1665",
+                    "1674",
+                    "1680"
                 ],
-                "answer": 1
+                "answer": 2
             }
         ]
     },

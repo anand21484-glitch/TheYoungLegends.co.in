@@ -1048,27 +1048,27 @@
         "questions": [
             {
                 "id": "sm_q1",
-                "question": "How did you build such a great empire when you were so young?",
-                "answer": "I listened to my mother Jijabai's stories of brave kings and let them fill my heart with fire! I started small — just a handful of loyal friends and one fort — but I never stopped. Every mountain I climbed gave me strength. The most important thing was that my people BELIEVED in me — and I believed in them!",
-                "badge": "Young Conqueror! 🏰"
+                "question": "How did you become so brave?",
+                "answer": "My mother Jijabai taught me from childhood that courage comes from protecting those who cannot protect themselves. She told me stories of great warriors every night and said — a true king does not fight for glory, he fights so his people can sleep in peace. That lesson made me brave.",
+                "badge": "Jijabai's Warrior! 🌸"
             },
             {
                 "id": "sm_q2",
-                "question": "How did you beat armies that were much bigger than yours?",
-                "answer": "I used the mountains like a secret weapon! While big armies needed open fields, my brave soldiers knew every forest path, every hidden valley, every rocky pass. We would strike fast at night, vanish like the wind, and reappear somewhere completely different! Fighting smart always beats fighting big.",
-                "badge": "Master Strategist! ⚔️"
+                "question": "What was your greatest achievement?",
+                "answer": "Building a navy so powerful that even the mighty British and Portuguese feared us! Before me, no Maratha king controlled the sea. I built warships, trained brave sailors, and proved that India could rule the oceans as well as the mountains. The sea belonged to us too!",
+                "badge": "Sea King! ⚓"
             },
             {
                 "id": "sm_q3",
-                "question": "Why did you treat all religions with such respect?",
-                "answer": "Because India has always been a land of many faiths, and every person deserves to feel safe and respected! I told my soldiers — destroy no place of worship, harm no innocent person. My strength came from ALL my people. A king who truly respects every one of his people is the strongest king of all.",
-                "badge": "Just King! 🙏"
+                "question": "How did you escape from Aurangzeb's prison in Agra?",
+                "answer": "With wit and courage — I hid in sweet baskets meant for charity! Aurangzeb thought his prison walls could hold me, but a brave mind is freer than any cage. I sent out basket after basket of sweets as gifts to the poor, and on one clever day, I was inside the basket going out! The guards never suspected a thing.",
+                "badge": "Master of Escape! 🧺"
             },
             {
                 "id": "sm_q4",
-                "question": "What do you want children of India to learn from your life?",
-                "answer": "Never wait for someone else's permission to do what is RIGHT! I was just a teenager when I started with a small group of friends. You have mountains of courage inside you — the same mountains that gave me strength! Always protect the weak, respect everyone, and remember — a brave and just heart can build anything.",
-                "badge": "Shivaji's Warrior! 🦁"
+                "question": "What do you want children to learn from you?",
+                "answer": "That even a young person can change history if they have courage, strategy and a just heart! I was only 16 when I captured my first fort. I respected every religion, protected every person, and never stopped learning. You do not need to be old or powerful to do great things — you just need to start.",
+                "badge": "Shivaji's Legacy! 🦁"
             }
         ]
     }
