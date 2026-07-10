@@ -247,7 +247,7 @@ async function handle(method: string, path: string, body?: any): Promise<any> {
     "mahatma-gandhi",
     "subhas-bose",
     "birsa-munda",
-    "rani-gaidinliu",
+    "shivaji-maharaj",
   ];
   if (pathOnly === "/jigsaw" && method === "GET") {
     const progress = await getProgress();

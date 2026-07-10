@@ -44,7 +44,7 @@ export default function StoryReader() {
       const HEROES_WITH_CRY = new Set([
         "bhagat-singh", "rani-lakshmibai", "subhas-bose", "mahatma-gandhi",
         "tilak", "chandrashekhar-azad", "lala-lajpat-rai", "birsa-munda",
-        "rani-gaidinliu", "kunwar-singh", "ram-prasad-bismil", "kittur-chennamma",
+        "shivaji-maharaj", "kunwar-singh", "ram-prasad-bismil", "kittur-chennamma",
         "kattabomman", "matangini-hazra", "sarojini-naidu",
       ]);
       if (HEROES_WITH_CRY.has(String(id))) {
