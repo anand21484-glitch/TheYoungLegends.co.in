@@ -153,7 +153,7 @@ export default function Timeline() {
         <View style={styles.introBox}>
           <Text style={styles.introTitle}>From whispers to roars 🦅</Text>
           <Text style={styles.introTxt}>
-            Scroll through 250 years of Indian courage. Tap any hero's card to read their full story.
+            Scroll through 400 years of Indian courage. Tap any hero's card to read their full story.
           </Text>
         </View>
 
