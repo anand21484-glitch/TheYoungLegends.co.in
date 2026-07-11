@@ -31,6 +31,7 @@ const PORTRAITS: Record<string, number> = {
   "rani-lakshmibai": require("../../assets/portraits/rani-lakshmibai.jpg"),
   "sardar-patel": require("../../assets/portraits/sardar-patel.jpg"),
   "sarojini-naidu": require("../../assets/portraits/sarojini-naidu.jpg"),
+  "shivaji-maharaj": require("../../assets/portraits/shivaji-maharaj.jpg"),
   "subhas-bose": require("../../assets/portraits/subhas-bose.jpg"),
   "subramania-bharati": require("../../assets/portraits/subramania-bharati.jpg"),
   "surya-sen": require("../../assets/portraits/surya-sen.jpg"),
