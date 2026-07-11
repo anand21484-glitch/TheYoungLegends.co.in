@@ -60,7 +60,7 @@ export default function Library() {
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.timelineTag}>INTERACTIVE TIMELINE 🕰️</Text>
-            <Text style={styles.timelineTitle}>Walk through 250 years of Indian courage</Text>
+            <Text style={styles.timelineTitle}>Walk through 400 years of Indian courage</Text>
           </View>
           <Ionicons name="chevron-forward" size={22} color={C.white} />
         </TouchableOpacity>
