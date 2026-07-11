@@ -28,7 +28,7 @@ type Era = {
 const ERAS: Era[] = [
   {
     key: "early",
-    start: 1700,
+    start: 1525,
     end: 1856,
     label_en: "Early Resistance",
     label_hi: "प्रारंभिक प्रतिरोध",
@@ -142,7 +142,7 @@ export default function Timeline() {
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={styles.headerTitle}>Freedom Timeline</Text>
-          <Text style={styles.headerSub}>30 heroes • 1600s → 1947</Text>
+          <Text style={styles.headerSub}>38 heroes • 1500s → 1947</Text>
         </View>
         <View style={styles.iconWrap}>
           <Ionicons name="time" size={22} color={C.gold} />
