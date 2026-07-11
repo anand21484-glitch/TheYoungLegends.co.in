@@ -121,8 +121,8 @@ export default function BattleCryScreen() {
     if (countdownTimerRef.current) clearTimeout(countdownTimerRef.current);
     try { await recordingRef.current?.stopAndUnloadAsync(); } catch {}
     recordingRef.current = null;
-    try { await replaySoundRef.current?.unloadAsync(); } catch {}
-    replaySoundRef.current = null;
+    const uri = rec?.getURI() || null;
+    try { await rec?.stopAndUnloadAsync(); } catch {}
     try { await drumRef.current?.unloadAsync(); } catch {}
     try { await cheerRef.current?.unloadAsync(); } catch {}
     try { await chimeRef.current?.unloadAsync(); } catch {}
