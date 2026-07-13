@@ -306,9 +306,9 @@ export default function BattleCryScreen() {
     const rec = recordingRef.current;
     recordingRef.current = null;
 
-    try { await rec?.stopAndUnloadAsync(); } catch {}
-
     const uri = rec?.getURI() || null;
+
+    try { await rec?.stopAndUnloadAsync(); } catch {}
     console.log("Recording URI:", uri);
     // Android sometimes returns a bare path without file:// scheme
     const finalUri = uri
