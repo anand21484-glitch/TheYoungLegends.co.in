@@ -65,7 +65,7 @@ export default function Library() {
           <Ionicons name="chevron-forward" size={22} color={C.white} />
         </TouchableOpacity>
 
-        {stories.map((s, idx) => {
+        {[...stories].sort((a, b) => a.name.localeCompare(b.name)).map((s, idx) => {
           const done = user?.completed_stories?.includes(s.id);
           const isLeft = idx % 2 === 0;
           return (

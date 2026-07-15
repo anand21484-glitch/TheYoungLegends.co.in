@@ -141,7 +141,7 @@ export default function Home() {
         </TouchableOpacity>
 
         <Text style={styles.sectionTitle}>Brave Hearts to Meet</Text>
-        {stories.slice(1).map((s) => (
+        {[...stories.slice(1)].sort((a, b) => a.name.localeCompare(b.name)).map((s) => (
           <TouchableOpacity
             key={s.id}
             testID={`home-story-${s.id}`}
