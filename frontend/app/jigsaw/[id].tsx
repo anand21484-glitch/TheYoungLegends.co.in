@@ -163,6 +163,8 @@ export default function JigsawPlay() {
   const [pieces, setPieces] = useState<number[]>([]);
   const [selectedPos, setSelectedPos] = useState<number | null>(null);
   const [completed, setCompleted] = useState(false);
+  const [admiring, setAdmiring] = useState(false);
+  const [countdown, setCountdown] = useState(15);
   const [peekVisible, setPeekVisible] = useState(false);
   const [peeksLeft, setPeeksLeft] = useState(MAX_PEEKS);
   const [peekCountdown, setPeekCountdown] = useState(2);
@@ -176,6 +178,7 @@ export default function JigsawPlay() {
 
   const startRef = useRef<number | null>(null);
   const timerRef = useRef<any>(null);
+  const admireTimerRef = useRef<any>(null);
   const peekTimersRef = useRef<any[]>([]);
   const elapsedRef = useRef(0);
   useEffect(() => { elapsedRef.current = elapsedMs; }, [elapsedMs]);
@@ -201,6 +204,7 @@ export default function JigsawPlay() {
     })();
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
+      if (admireTimerRef.current) clearInterval(admireTimerRef.current);
       peekTimersRef.current.forEach(clearTimeout);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -210,6 +214,8 @@ export default function JigsawPlay() {
     setPieces(shuffleNotSolved(9));
     setSelectedPos(null);
     setCompleted(false);
+    setAdmiring(false);
+    setCountdown(15);
     setReward(null);
     setFinalMs(null);
     setNewRecord(false);
@@ -225,11 +231,28 @@ export default function JigsawPlay() {
     }, 300);
   }, []);
 
+  // 15-second admire countdown after puzzle is solved
+  useEffect(() => {
+    if (!admiring) return;
+    setCountdown(15);
+    let c = 15;
+    admireTimerRef.current = setInterval(() => {
+      c -= 1;
+      setCountdown(c);
+      if (c <= 0) {
+        clearInterval(admireTimerRef.current);
+        setAdmiring(false);
+      }
+    }, 1000);
+    return () => { if (admireTimerRef.current) clearInterval(admireTimerRef.current); };
+  }, [admiring]);
+
   const handleComplete = useCallback(async () => {
     if (timerRef.current) clearInterval(timerRef.current);
     const f = startRef.current ? Date.now() - startRef.current : elapsedRef.current;
     setFinalMs(f);
     setCompleted(true);
+    setAdmiring(true);
     haptic("win");
     try {
       const bt = await AsyncStorage.getItem(bestKey(id as string));
@@ -300,6 +323,28 @@ export default function JigsawPlay() {
 
   const portrait = PORTRAITS[puzzle.id];
   const placedCount = pieces.filter((v, i) => v === i).length;
+
+  // ── Admire phase (15 s after solve) ─────────────────────────────────────────
+  if (admiring) {
+    return (
+      <SafeAreaView style={[st.c, { backgroundColor: "#FDFBF7" }]} edges={["top", "bottom"]}>
+        <View style={st.admireBox}>
+          <Animated.View entering={ZoomIn.duration(600)}>
+            <Image source={portrait} style={st.admireImg} />
+          </Animated.View>
+          <Animated.Text entering={FadeInUp.delay(200)} style={st.admireTitle}>
+            🎉 Amazing!
+          </Animated.Text>
+          <Animated.Text entering={FadeInUp.delay(350)} style={st.admireSub}>
+            Admire your masterpiece...
+          </Animated.Text>
+          <Animated.Text entering={FadeInUp.delay(500)} style={st.admireCountdown}>
+            Continuing in {countdown}s...
+          </Animated.Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   // ── Celebration ─────────────────────────────────────────────────────────────
   if (completed && reward) {
@@ -550,6 +595,13 @@ const st = StyleSheet.create({
   },
   progressFill: { height: "100%", backgroundColor: C.saffron, borderRadius: 4 },
   progressTxt: { fontSize: 12, fontWeight: "800", color: C.navy, marginTop: 6, textAlign: "center" },
+
+  // Admire phase
+  admireBox: { flex: 1, padding: 28, justifyContent: "center", alignItems: "center" },
+  admireImg: { width: 240, height: 240, borderRadius: 20, borderWidth: 4, borderColor: C.gold },
+  admireTitle: { fontSize: 32, fontWeight: "900", color: C.navy, marginTop: 24, textAlign: "center" },
+  admireSub: { fontSize: 18, fontWeight: "700", color: "#555", marginTop: 8, textAlign: "center" },
+  admireCountdown: { fontSize: 14, fontWeight: "800", color: C.saffron, marginTop: 20, textAlign: "center" },
 
   // Celebration
   celebrateBox: { flex: 1, padding: 28, justifyContent: "center", alignItems: "center" },
