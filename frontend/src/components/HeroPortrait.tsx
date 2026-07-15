@@ -14,7 +14,9 @@ import { PORTRAITS } from "../data";
 export function HeroPortrait({ storyId, name, color, size = 160 }: {
   storyId: string; name?: string; color: string; size?: number;
 }) {
-  const portraitAsset = PORTRAITS[storyId];
+  const portraitAsset = storyId === "shivaji-maharaj"
+  ? PORTRAITS["shivaji-maharaj-portrait"] ?? PORTRAITS[storyId]
+  : PORTRAITS[storyId];
   const [errored, setErrored] = useState(false);
   const safeName = name || storyId.replace(/-/g, " ");
   const initials = safeName
