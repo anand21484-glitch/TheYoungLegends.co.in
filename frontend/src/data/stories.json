@@ -193,7 +193,8 @@
                 "q_en": "How did Bhagat Singh die?",
                 "q_hi": "भगत सिंह की मृत्यु कैसे हुई?"
             }
-        ]
+        ],
+        "state": "Punjab"
     },
     {
         "id": "rani-lakshmibai",
@@ -389,7 +390,8 @@
                 ],
                 "answer": 0
             }
-        ]
+        ],
+        "state": "Uttar Pradesh"
     },
     {
         "id": "mahatma-gandhi",
@@ -585,7 +587,8 @@
                 "q_en": "What did Gandhi eat to test British boys?",
                 "q_hi": "गांधी ने ब्रिटिश लड़कों को आजमाने के लिये क्या खाया?"
             }
-        ]
+        ],
+        "state": "Gujarat"
     },
     {
         "id": "subhas-bose",
@@ -781,7 +784,8 @@
                 ],
                 "answer": 0
             }
-        ]
+        ],
+        "state": "West Bengal"
     },
     {
         "id": "sarojini-naidu",
@@ -977,7 +981,8 @@
                 "q_en": "At what age did she reach England?",
                 "q_hi": "वह इंग्लैंड कब पहुँची?"
             }
-        ]
+        ],
+        "state": "Telangana"
     },
     {
         "id": "chandrashekhar-azad",
@@ -1173,7 +1178,8 @@
                 ],
                 "answer": 0
             }
-        ]
+        ],
+        "state": "Madhya Pradesh"
     },
     {
         "id": "mangal-pandey",
@@ -1369,7 +1375,8 @@
                 ],
                 "answer": 0
             }
-        ]
+        ],
+        "state": "West Bengal"
     },
     {
         "id": "bhimrao-ambedkar",
@@ -1565,7 +1572,8 @@
                 "q_en": "Who poured water into his hands sometimes?",
                 "q_hi": "कभी-कभी पानी किसी ने उसके हाथों में डाला?"
             }
-        ]
+        ],
+        "state": "Maharashtra"
     },
     {
         "id": "sardar-patel",
@@ -1761,7 +1769,8 @@
                 ],
                 "answer": 0
             }
-        ]
+        ],
+        "state": "Gujarat"
     },
     {
         "id": "lala-lajpat-rai",
@@ -1957,7 +1966,8 @@
                 ],
                 "answer": 0
             }
-        ]
+        ],
+        "state": "Punjab"
     },
     {
         "id": "tilak",
@@ -2153,7 +2163,8 @@
                 "q_en": "Where did Tilak start the first school?",
                 "q_hi": "तिलक ने पहली स्कूल कहाँ शुरू की?"
             }
-        ]
+        ],
+        "state": "Maharashtra"
     },
     {
         "id": "rajguru",
@@ -2349,7 +2360,8 @@
                 ],
                 "answer": 0
             }
-        ]
+        ],
+        "state": "Maharashtra"
     },
     {
         "id": "khudiram-bose",
@@ -2545,7 +2557,8 @@
                 ],
                 "answer": 0
             }
-        ]
+        ],
+        "state": "West Bengal"
     },
     {
         "id": "surya-sen",
@@ -2741,7 +2754,8 @@
                 ],
                 "answer": 0
             }
-        ]
+        ],
+        "state": "West Bengal"
     },
     {
         "id": "matangini-hazra",
@@ -2937,7 +2951,8 @@
                 ],
                 "answer": 0
             }
-        ]
+        ],
+        "state": "West Bengal"
     },
     {
         "id": "veer-savarkar",
@@ -3133,7 +3148,8 @@
                 ],
                 "answer": 0
             }
-        ]
+        ],
+        "state": "Maharashtra"
     },
     {
         "id": "madam-cama",
@@ -3329,7 +3345,8 @@
                 ],
                 "answer": 0
             }
-        ]
+        ],
+        "state": "Maharashtra"
     },
     {
         "id": "tantia-tope",
@@ -3525,7 +3542,8 @@
                 ],
                 "answer": 0
             }
-        ]
+        ],
+        "state": "Madhya Pradesh"
     },
     {
         "id": "subramania-bharati",
@@ -3721,7 +3739,8 @@
                 ],
                 "answer": 0
             }
-        ]
+        ],
+        "state": "Tamil Nadu"
     },
     {
         "id": "alluri-sitarama-raju",
@@ -3917,7 +3936,8 @@
                 ],
                 "answer": 0
             }
-        ]
+        ],
+        "state": "Andhra Pradesh"
     },
     {
         "id": "begum-hazrat-mahal",
@@ -4113,7 +4133,8 @@
                 ],
                 "answer": 0
             }
-        ]
+        ],
+        "state": "Uttar Pradesh"
     },
     {
         "id": "kittur-chennamma",
@@ -4309,7 +4330,8 @@
                 ],
                 "answer": 0
             }
-        ]
+        ],
+        "state": "Karnataka"
     },
     {
         "id": "aruna-asaf-ali",
@@ -4505,7 +4527,8 @@
                 ],
                 "answer": 0
             }
-        ]
+        ],
+        "state": "West Bengal"
     },
     {
         "id": "kalpana-datta",
@@ -4701,7 +4724,8 @@
                 ],
                 "answer": 0
             }
-        ]
+        ],
+        "state": "West Bengal"
     },
     {
         "id": "birsa-munda",
@@ -4897,7 +4921,8 @@
                 ],
                 "answer": 0
             }
-        ]
+        ],
+        "state": "Jharkhand"
     },
     {
         "id": "tilka-manjhi",
@@ -5093,7 +5118,8 @@
                 ],
                 "answer": 0
             }
-        ]
+        ],
+        "state": "Jharkhand"
     },
     {
         "id": "ram-prasad-bismil",
@@ -5204,7 +5230,8 @@
                 ],
                 "answer": 2
             }
-        ]
+        ],
+        "state": "Uttar Pradesh"
     },
     {
         "id": "ashfaqulla-khan",
@@ -5315,7 +5342,8 @@
                 ],
                 "answer": 0
             }
-        ]
+        ],
+        "state": "Uttar Pradesh"
     },
     {
         "id": "kunwar-singh",
@@ -5426,7 +5454,8 @@
                 ],
                 "answer": 2
             }
-        ]
+        ],
+        "state": "Bihar"
     },
     {
         "id": "aurobindo-ghosh",
@@ -5537,7 +5566,8 @@
                 ],
                 "answer": 0
             }
-        ]
+        ],
+        "state": "West Bengal"
     },
     {
         "id": "abbakka-chowta",
@@ -5648,7 +5678,8 @@
                 ],
                 "answer": 2
             }
-        ]
+        ],
+        "state": "Karnataka"
     },
     {
         "id": "pazhassi-raja",
@@ -5759,7 +5790,8 @@
                 ],
                 "answer": 2
             }
-        ]
+        ],
+        "state": "Kerala"
     },
     {
         "id": "kattabomman",
@@ -5870,7 +5902,8 @@
                 ],
                 "answer": 0
             }
-        ]
+        ],
+        "state": "Tamil Nadu"
     },
     {
         "id": "puli-thevar",
@@ -5981,7 +6014,8 @@
                 ],
                 "answer": 1
             }
-        ]
+        ],
+        "state": "Tamil Nadu"
     },
     {
         "id": "kanaklata-barua",
@@ -6092,7 +6126,8 @@
                 ],
                 "answer": 0
             }
-        ]
+        ],
+        "state": "Assam"
     },
     {
         "id": "kushal-konwar",
@@ -6203,7 +6238,8 @@
                 ],
                 "answer": 1
             }
-        ]
+        ],
+        "state": "Assam"
     },
     {
         "id": "shivaji-maharaj",
@@ -6314,7 +6350,8 @@
                 ],
                 "answer": 2
             }
-        ]
+        ],
+        "state": "Maharashtra"
     },
     {
         "id": "lachit-borphukan",
@@ -6400,6 +6437,7 @@
                 ],
                 "answer": 2
             }
-        ]
+        ],
+        "state": "Assam"
     }
 ]

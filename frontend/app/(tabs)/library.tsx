@@ -11,6 +11,7 @@ export default function Library() {
   const [stories, setStories] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
   const [lang, setLang] = useState<"en" | "hi">("en");
+  const [selectedState, setSelectedState] = useState("All");
 
   useEffect(() => {
     (async () => {
@@ -22,6 +23,16 @@ export default function Library() {
       } catch {}
     })();
   }, []);
+
+  const sorted = [...stories].sort((a, b) => a.name.localeCompare(b.name));
+
+  const uniqueStates = Array.from(
+    new Set(sorted.map((s) => s.state).filter(Boolean))
+  ).sort() as string[];
+
+  const filtered = selectedState === "All"
+    ? sorted
+    : sorted.filter((s) => s.state === selectedState);
 
   return (
     <SafeAreaView style={styles.c} edges={["top"]}>
@@ -48,6 +59,36 @@ export default function Library() {
         </View>
       </View>
 
+      {/* State filter bar */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.filterBar}
+        testID="state-filter-bar"
+      >
+        <TouchableOpacity
+          testID="filter-all"
+          style={[styles.filterChip, selectedState === "All" && styles.filterChipActive]}
+          onPress={() => setSelectedState("All")}
+        >
+          <Text style={[styles.filterTxt, selectedState === "All" && styles.filterTxtActive]}>
+            All States
+          </Text>
+        </TouchableOpacity>
+        {uniqueStates.map((state) => (
+          <TouchableOpacity
+            key={state}
+            testID={`filter-${state}`}
+            style={[styles.filterChip, selectedState === state && styles.filterChipActive]}
+            onPress={() => setSelectedState(state)}
+          >
+            <Text style={[styles.filterTxt, selectedState === state && styles.filterTxtActive]}>
+              {state}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
       <ScrollView contentContainerStyle={{ padding: 18, paddingBottom: 40 }} testID="library-scroll">
         <TouchableOpacity
           testID="library-timeline-cta"
@@ -65,7 +106,7 @@ export default function Library() {
           <Ionicons name="chevron-forward" size={22} color={C.white} />
         </TouchableOpacity>
 
-        {[...stories].sort((a, b) => a.name.localeCompare(b.name)).map((s, idx) => {
+        {filtered.map((s, idx) => {
           const done = user?.completed_stories?.includes(s.id);
           const isLeft = idx % 2 === 0;
           return (
@@ -89,6 +130,9 @@ export default function Library() {
                 )}
               </View>
               <Text style={styles.cardName}>{s.name}</Text>
+              {s.state ? (
+                <Text style={styles.cardState}>📍 {s.state}</Text>
+              ) : null}
               <Text style={styles.cardTitle} numberOfLines={2}>
                 {lang === "hi" ? s.title_hi : s.title_en}
               </Text>
@@ -123,6 +167,20 @@ const styles = StyleSheet.create({
   langBtnActive: { backgroundColor: C.saffron },
   langTxt: { fontSize: 13, fontWeight: "900", color: C.navy },
   langTxtActive: { color: C.white },
+
+  // State filter bar
+  filterBar: {
+    paddingHorizontal: 14, paddingBottom: 12, paddingTop: 2, gap: 8,
+    flexDirection: "row", alignItems: "center",
+  },
+  filterChip: {
+    paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20,
+    borderWidth: 2, borderColor: C.navy, backgroundColor: C.white,
+  },
+  filterChipActive: { backgroundColor: C.saffron, borderColor: C.saffron },
+  filterTxt: { fontSize: 12, fontWeight: "700", color: C.navy },
+  filterTxtActive: { color: C.white },
+
   card: {
     borderRadius: 24, padding: 20, marginBottom: 16,
     borderWidth: 2, borderColor: C.navy, ...SHADOW,
@@ -134,7 +192,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#00000033", paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999,
   },
   doneTxt: { color: C.white, fontSize: 11, fontWeight: "900" },
-  cardName: { color: C.gold, fontSize: 13, fontWeight: "900", letterSpacing: 1, marginBottom: 4 },
+  cardName: { color: C.gold, fontSize: 13, fontWeight: "900", letterSpacing: 1, marginBottom: 2 },
+  cardState: { color: "#FFFFFFAA", fontSize: 11, fontWeight: "600", marginBottom: 4 },
   cardTitle: { color: C.white, fontSize: 20, fontWeight: "900", lineHeight: 26 },
   cardTag: { color: "#FFFFFFCC", fontSize: 13, fontWeight: "600", marginTop: 8, lineHeight: 18 },
   cardCta: {
