@@ -119,13 +119,11 @@ export default function BattleCryScreen() {
   const cleanup = async () => {
     if (recTimerRef.current) clearTimeout(recTimerRef.current);
     if (countdownTimerRef.current) clearTimeout(countdownTimerRef.current);
-    const uri = rec?.getURI() || null;
-    try { await rec?.stopAndUnloadAsync(); } catch {}
     try { await drumRef.current?.unloadAsync(); } catch {}
     try { await cheerRef.current?.unloadAsync(); } catch {}
     try { await chimeRef.current?.unloadAsync(); } catch {}
   };
-
+  
   const playSfx = async (ref: React.MutableRefObject<Audio.Sound | null>) => {
     if (Platform.OS === "web") return;
     try { await ref.current?.replayAsync(); } catch {}
