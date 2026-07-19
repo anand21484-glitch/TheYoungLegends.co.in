@@ -119,8 +119,6 @@ export default function BattleCryScreen() {
   const cleanup = async () => {
     if (recTimerRef.current) clearTimeout(recTimerRef.current);
     if (countdownTimerRef.current) clearTimeout(countdownTimerRef.current);
-    const uri = rec?.getURI() || null
-    try { await rec?.stopAndUnloadAsync(); } catch {}
     const uri = rec?.getURI() || null;
     try { await rec?.stopAndUnloadAsync(); } catch {}
     try { await drumRef.current?.unloadAsync(); } catch {}
