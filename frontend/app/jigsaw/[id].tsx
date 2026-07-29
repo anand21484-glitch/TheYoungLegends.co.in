@@ -164,6 +164,7 @@ export default function JigsawPlay() {
   const [selectedPos, setSelectedPos] = useState<number | null>(null);
   const [completed, setCompleted] = useState(false);
   const [admiring, setAdmiring] = useState(false);
+  const [admiringDone, setAdmiringDone] = useState(false);
   const [countdown, setCountdown] = useState(15);
   const [peekVisible, setPeekVisible] = useState(false);
   const [peeksLeft, setPeeksLeft] = useState(MAX_PEEKS);
@@ -215,6 +216,7 @@ export default function JigsawPlay() {
     setSelectedPos(null);
     setCompleted(false);
     setAdmiring(false);
+    setAdmiringDone(false);
     setCountdown(15);
     setReward(null);
     setFinalMs(null);
@@ -242,6 +244,7 @@ export default function JigsawPlay() {
       if (c <= 0) {
         clearInterval(admireTimerRef.current);
         setAdmiring(false);
+        setAdmiringDone(true);
       }
     }, 1000);
     return () => { if (admireTimerRef.current) clearInterval(admireTimerRef.current); };
@@ -347,7 +350,7 @@ export default function JigsawPlay() {
   }
 
   // ── Celebration ─────────────────────────────────────────────────────────────
-  if (completed && reward) {
+  if (completed && reward && admiringDone) {
     return (
       <SafeAreaView style={[st.c, { backgroundColor: "#FDFBF7" }]} edges={["top", "bottom"]}>
         <ConfettiBurst />
