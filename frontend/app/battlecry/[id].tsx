@@ -302,10 +302,23 @@ export default function BattleCryScreen() {
     const rec = recordingRef.current;
     recordingRef.current = null;
 
-    const uri = rec?.getURI() || null;
+    // Reset audio mode before stopping so the file flushes cleanly on Android
+    await Audio.setAudioModeAsync({
+      allowsRecordingIOS: false,
+      playsInSilentModeIOS: true,
+      shouldDuckAndroid: false,
+      playThroughEarpieceAndroid: false,
+    }).catch(() => {});
 
+    // Stop first so the file is fully written to disk before getURI()
     try { await rec?.stopAndUnloadAsync(); } catch {}
-    console.log("Recording URI:", uri);
+
+    let uri = rec?.getURI() || null;
+    if (!uri) {
+      await new Promise(resolve => setTimeout(resolve, 300));
+      uri = rec?.getURI() || null;
+    }
+    console.log("Recording URI after stop:", uri);
     // Android sometimes returns a bare path without file:// scheme
     const finalUri = uri
       ? (uri.startsWith("file://") ? uri : `file://${uri}`)
