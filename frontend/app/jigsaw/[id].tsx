@@ -333,7 +333,13 @@ export default function JigsawPlay() {
       <SafeAreaView style={[st.c, { backgroundColor: "#FDFBF7" }]} edges={["top", "bottom"]}>
         <View style={st.admireBox}>
           <Animated.View entering={ZoomIn.duration(600)}>
-            <Image source={portrait} style={st.admireImg} />
+            {portrait ? (
+              <Image source={portrait} style={st.admireImg} />
+            ) : (
+              <View style={[st.admireImg, { backgroundColor: C.saffron, alignItems: "center", justifyContent: "center" }]}>
+                <Text style={{ fontSize: 80 }}>🦁</Text>
+              </View>
+            )}
           </Animated.View>
           <Animated.Text entering={FadeInUp.delay(200)} style={st.admireTitle}>
             🎉 Amazing!
@@ -356,7 +362,13 @@ export default function JigsawPlay() {
         <ConfettiBurst />
         <View style={st.celebrateBox}>
           <Animated.View entering={ZoomIn.duration(500)}>
-            <Image source={portrait} style={st.celebrateImg} />
+            {portrait ? (
+              <Image source={portrait} style={st.celebrateImg} />
+            ) : (
+              <View style={[st.celebrateImg, { backgroundColor: C.saffron, alignItems: "center", justifyContent: "center" }]}>
+                <Text style={{ fontSize: 80 }}>🦁</Text>
+              </View>
+            )}
           </Animated.View>
           <Animated.Text entering={FadeInUp.delay(200)} style={st.celTitle}>
             Puzzle Solved! 🎉
