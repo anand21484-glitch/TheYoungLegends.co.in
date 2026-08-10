@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Stack } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
@@ -11,8 +12,13 @@ import {
 } from "@expo-google-fonts/nunito";
 import { View, ActivityIndicator } from "react-native";
 import { C } from "../src/theme";
+import { Local } from "../src/data/localStore";
 
 export default function RootLayout() {
+  useEffect(() => {
+    Local.touchDailyStreak();
+  }, []);
+
   const [fontsLoaded] = useFonts({
     FredokaOne_400Regular,
     Nunito_400Regular,

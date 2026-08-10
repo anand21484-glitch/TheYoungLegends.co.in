@@ -8,6 +8,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { API } from "../../src/api";
 import { C, SHADOW } from "../../src/theme";
 import { UserAvatar, isHeroAvatar } from "../../src/components/UserAvatar";
+import { Local } from "../../src/data/localStore";
 
 export default function Home() {
   const router = useRouter();
@@ -25,7 +26,10 @@ export default function Home() {
 }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    Local.touchDailyStreak();
+    load();
+  }, []);
   useFocusEffect(useCallback(() => { load(); }, []));
 
   const onRefresh = async () => {

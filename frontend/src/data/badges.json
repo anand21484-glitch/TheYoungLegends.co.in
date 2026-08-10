@@ -97,6 +97,30 @@
       "level": 6,
       "name": "Freedom Champion",
       "min_xp": 800
+    },
+    {
+      "level": 7,
+      "name": "Legend Seeker",
+      "min_xp": 1200,
+      "emoji": "🌟"
+    },
+    {
+      "level": 8,
+      "name": "Azadi Guardian",
+      "min_xp": 1800,
+      "emoji": "🛡️"
+    },
+    {
+      "level": 9,
+      "name": "Freedom Legend",
+      "min_xp": 2500,
+      "emoji": "🏆"
+    },
+    {
+      "level": 10,
+      "name": "Young Legend",
+      "min_xp": 3500,
+      "emoji": "👑"
     }
   ]
 }
