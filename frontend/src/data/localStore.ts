@@ -100,23 +100,51 @@ export const Local = {
   async completeStory(storyId: string, xpAward = 20) {
     return patch((p) => {
       if (p.completed_stories.includes(storyId)) return p;
+      const newStories = [...p.completed_stories, storyId];
+      let newBadges = [...p.badges];
+
+      if (newStories.length >= 1 && !newBadges.includes("first_story")) {
+        newBadges.push("first_story");
+      }
+      if (newStories.length >= 5 && !newBadges.includes("five_stories")) {
+        newBadges.push("five_stories");
+      }
+      if (newStories.length >= 38 && !newBadges.includes("all_stories")) {
+        newBadges.push("all_stories");
+      }
+
       return {
         ...p,
-        completed_stories: [...p.completed_stories, storyId],
+        completed_stories: newStories,
         xp: p.xp + xpAward,
+        badges: newBadges,
       };
     });
   },
 
   async saveQuiz(storyId: string, score: number, total: number) {
-    return patch((p) => ({
-      ...p,
-      quizzes_taken: {
+    return patch((p) => {
+      const newQuizzes = {
         ...p.quizzes_taken,
         [storyId]: { score, total, at: new Date().toISOString() },
-      },
-      xp: p.xp + score * 5,
-    }));
+      };
+      let newBadges = [...p.badges];
+      const quizCount = Object.keys(newQuizzes).length;
+
+      if (score === total && !newBadges.includes("perfect_quiz")) {
+        newBadges.push("perfect_quiz");
+      }
+      if (quizCount >= 3 && !newBadges.includes("three_quizzes")) {
+        newBadges.push("three_quizzes");
+      }
+
+      return {
+        ...p,
+        quizzes_taken: newQuizzes,
+        xp: p.xp + score * 5,
+        badges: newBadges,
+      };
+    });
   },
 
   async completeBattleCry(heroId: string, xpAward = 10) {
@@ -184,7 +212,11 @@ export const Local = {
         return d.toISOString().slice(0, 10);
       })();
       const newStreak = p.last_open === yesterday ? p.streak + 1 : 1;
-      return { ...p, last_open: today, streak: newStreak };
+      let newBadges = p.badges;
+      if (newStreak >= 3 && !p.badges.includes("streak_3")) {
+        newBadges = [...p.badges, "streak_3"];
+      }
+      return { ...p, last_open: today, streak: newStreak, badges: newBadges };
     });
   },
 
