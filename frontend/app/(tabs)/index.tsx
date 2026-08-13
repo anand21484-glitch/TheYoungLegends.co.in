@@ -38,7 +38,14 @@ export default function Home() {
 
   if (!user) return <View style={styles.c} />;
 
-  const featured = stories[0];
+  const featured = (() => {
+  if (!stories.length) return null;
+  const dayOfYear = Math.floor(
+    (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) 
+    / 86400000
+  );
+  return stories[dayOfYear % stories.length];
+})();
   const lang = user.language || "en";
   const xpToNext = (() => {
     const levels = [0, 50, 150, 300, 500, 800, 1200];
