@@ -302,7 +302,11 @@ export default function BattleCryScreen() {
     const rec = recordingRef.current;
     recordingRef.current = null;
 
-    // Reset audio mode before stopping so the file flushes cleanly on Android
+    // Get URI BEFORE unloading — on Android production builds the reference
+    // is lost once stopAndUnloadAsync() is called
+    const uri = rec?.getURI() ?? null;
+
+    // Reset audio mode so playback can take focus immediately after
     await Audio.setAudioModeAsync({
       allowsRecordingIOS: false,
       playsInSilentModeIOS: true,
@@ -310,19 +314,13 @@ export default function BattleCryScreen() {
       playThroughEarpieceAndroid: false,
     }).catch(() => {});
 
-    // Stop first so the file is fully written to disk before getURI()
     try { await rec?.stopAndUnloadAsync(); } catch {}
 
-    let uri = rec?.getURI() || null;
-    if (!uri) {
-      await new Promise(resolve => setTimeout(resolve, 300));
-      uri = rec?.getURI() || null;
-    }
-    console.log("Recording URI after stop:", uri);
     // Android sometimes returns a bare path without file:// scheme
     const finalUri = uri
       ? (uri.startsWith("file://") ? uri : `file://${uri}`)
       : null;
+    console.log("Final recording URI:", finalUri);
 
     setRecordingUri(finalUri);
     setPhase("processing");
