@@ -131,9 +131,15 @@ export default function StoryReader() {
           </Animated.View>
 
           <Animated.View entering={FadeInUp.delay(200).duration(500)}>
-            <Text style={styles.body} testID="story-body">
-              {lang === "hi" ? story.story_hi : story.story_en}
-            </Text>
+            <View style={styles.body} testID="story-body">
+              {(lang === "hi" ? story.story_hi : story.story_en)
+                .split("\n\n")
+                .map((para: string, i: number) => (
+                  <Text key={i} style={styles.storyText}>
+                    {para}
+                  </Text>
+                ))}
+            </View>
           </Animated.View>
 
           {/* Inline What I Learned card */}
@@ -293,9 +299,12 @@ const styles = StyleSheet.create({
   heroName: { color: C.gold, fontSize: 14, fontFamily: FF.bodyBlack, letterSpacing: 1, marginTop: 4 },
   heroTitle: { color: C.white, fontSize: 24, fontFamily: FF.heading, lineHeight: 30, marginTop: 6 },
   body: {
-    fontSize: 17, lineHeight: 28, color: C.text, fontFamily: FF.body,
     backgroundColor: C.white, padding: 20, borderRadius: 20,
     borderWidth: 2, borderColor: C.navy, ...SHADOW,
+  },
+  storyText: {
+    fontSize: 17, lineHeight: 28, color: C.text, fontFamily: FF.body,
+    marginBottom: 16,
   },
   lessonsCard: {
     backgroundColor: "#FFF8E7",
