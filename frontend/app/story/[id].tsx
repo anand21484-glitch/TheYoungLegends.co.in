@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, ImageBackground,
 } from "react-native";
+
+const STORY_BACKGROUNDS: Record<string, any> = {
+  "bhagat-singh": require("../../assets/images/story-backgrounds/bhagat-singh-bg.jpg"),
+  "mahatma-gandhi": require("../../assets/images/story-backgrounds/mahatma-gandhi-bg.jpg"),
+  "rani-lakshmibai": require("../../assets/images/story-backgrounds/rani-lakshmibai-bg.jpg"),
+};
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -83,14 +89,15 @@ export default function StoryReader() {
   }
 
   const lessons: string[] = lang === "hi" ? story.lessons_hi : story.lessons_en;
+  const storyBg = STORY_BACKGROUNDS[story.id];
 
-  return (
-    <View style={[styles.c, { backgroundColor: lightTint(story.color) }]}>
-      {/* Animated decoration background — lotus + sparkles */}
-      <FloatingDecor />
-      {/* Drifting Indian monuments behind the content */}
-      <FloatingMonuments />
-
+  const screenContent = (
+    <>
+      {!storyBg && <FloatingDecor />}
+      {!storyBg && <FloatingMonuments />}
+      {storyBg && (
+        <View style={{ ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.45)" }} />
+      )}
       <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
         <View style={styles.topBar}>
           <TouchableOpacity testID="back-btn" onPress={() => router.back()} style={styles.backBtn}>
@@ -242,6 +249,24 @@ export default function StoryReader() {
           )}
         </ScrollView>
       </SafeAreaView>
+    </>
+  );
+
+  if (storyBg) {
+    return (
+      <ImageBackground
+        source={storyBg}
+        style={[styles.c, { backgroundColor: lightTint(story.color) }]}
+        resizeMode="cover"
+      >
+        {screenContent}
+      </ImageBackground>
+    );
+  }
+
+  return (
+    <View style={[styles.c, { backgroundColor: lightTint(story.color) }]}>
+      {screenContent}
     </View>
   );
 }
