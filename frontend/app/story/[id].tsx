@@ -90,13 +90,14 @@ export default function StoryReader() {
 
   const lessons: string[] = lang === "hi" ? story.lessons_hi : story.lessons_en;
   const storyBg = STORY_BACKGROUNDS[story.id];
+  const isPhotoBg = !!storyBg;
 
   const screenContent = (
     <>
-      {!storyBg && <FloatingDecor />}
-      {!storyBg && <FloatingMonuments />}
-      {storyBg && (
-        <View style={{ ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.45)" }} />
+      {!isPhotoBg && <FloatingDecor />}
+      {!isPhotoBg && <FloatingMonuments />}
+      {isPhotoBg && (
+        <View style={{ ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.15)" }} />
       )}
       <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
         <View style={styles.topBar}>
@@ -122,27 +123,55 @@ export default function StoryReader() {
         </View>
 
         <ScrollView contentContainerStyle={{ padding: 18, paddingBottom: 60 }} testID="story-scroll">
-          {/* Animated monument silhouette */}
-          <Animated.View entering={FadeIn.duration(700)} style={styles.monumentWrap}>
-            <Monument monumentKey={story.monument || "red_fort"} />
-          </Animated.View>
+          {/* Animated monument silhouette — hidden for photo background heroes */}
+          {!isPhotoBg && (
+            <Animated.View entering={FadeIn.duration(700)} style={styles.monumentWrap}>
+              <Monument monumentKey={story.monument || "red_fort"} />
+            </Animated.View>
+          )}
 
           {/* Hero block with portrait */}
-          <Animated.View entering={FadeInUp.duration(500)} style={[styles.heroBlock, { backgroundColor: story.color }]}>
+          <Animated.View
+            entering={FadeInUp.duration(500)}
+            style={[
+              styles.heroBlock,
+              isPhotoBg
+                ? { backgroundColor: "transparent", borderWidth: 0, elevation: 0, shadowOpacity: 0 }
+                : { backgroundColor: story.color },
+            ]}
+          >
             <View style={styles.portraitWrap}>
               <HeroPortrait storyId={story.id} name={story.name} color={story.color} size={140} />
             </View>
             <Text style={styles.heroEra}>{story.era}</Text>
-            <Text style={styles.heroName}>{story.name}</Text>
-            <Text style={styles.heroTitle}>{lang === "hi" ? story.title_hi : story.title_en}</Text>
+            <Text style={[styles.heroName, isPhotoBg && { color: "#FFFFFF" }]}>{story.name}</Text>
+            <Text style={[styles.heroTitle, isPhotoBg && { color: "#FFD700" }]}>{lang === "hi" ? story.title_hi : story.title_en}</Text>
           </Animated.View>
 
           <Animated.View entering={FadeInUp.delay(200).duration(500)}>
-            <View style={styles.body} testID="story-body">
+            <View
+              style={[
+                styles.body,
+                isPhotoBg && { backgroundColor: "transparent", borderWidth: 0, elevation: 0, shadowOpacity: 0 },
+              ]}
+              testID="story-body"
+            >
               {(lang === "hi" ? story.story_hi : story.story_en)
                 .split("\n\n")
                 .map((para: string, i: number) => (
-                  <Text key={i} style={styles.storyText}>
+                  <Text
+                    key={i}
+                    style={[
+                      styles.storyText,
+                      isPhotoBg && {
+                        color: "#000000",
+                        fontWeight: "700" as const,
+                        textShadowColor: "rgba(255,255,255,0.8)",
+                        textShadowOffset: { width: 0, height: 1 },
+                        textShadowRadius: 3,
+                      },
+                    ]}
+                  >
                     {para}
                   </Text>
                 ))}
