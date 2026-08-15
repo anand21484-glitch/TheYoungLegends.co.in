@@ -140,9 +140,11 @@ export default function StoryReader() {
                 : { backgroundColor: story.color },
             ]}
           >
-            <View style={styles.portraitWrap}>
-              <HeroPortrait storyId={story.id} name={story.name} color={story.color} size={140} />
-            </View>
+           {!isPhotoBg && (
+           <View style={styles.portraitWrap}>
+           <HeroPortrait storyId={story.id} name={story.name} color={story.color} size={140} />
+           </View>
+           )}
             <Text style={styles.heroEra}>{story.era}</Text>
             <Text style={[styles.heroName, isPhotoBg && { color: "#FFFFFF" }]}>{story.name}</Text>
             <Text style={[styles.heroTitle, isPhotoBg && { color: "#FFD700" }]}>{lang === "hi" ? story.title_hi : story.title_en}</Text>
