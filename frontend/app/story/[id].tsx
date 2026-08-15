@@ -166,9 +166,9 @@ export default function StoryReader() {
                     style={[
                       styles.storyText,
                       isPhotoBg && {
-                        color: "#000000",
+                        color: "#FFFFFF",
                         fontWeight: "700" as const,
-                        textShadowColor: "rgba(255,255,255,0.8)",
+                        textShadowColor: "rgba(0,0,0,0.8)",
                         textShadowOffset: { width: 0, height: 1 },
                         textShadowRadius: 3,
                       },
