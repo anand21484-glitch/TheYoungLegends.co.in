@@ -7,17 +7,48 @@ const STORY_BACKGROUNDS: Record<string, any> = {
   "bhagat-singh": require("../../assets/images/story-backgrounds/bhagat-singh-bg.jpg"),
   "mahatma-gandhi": require("../../assets/images/story-backgrounds/mahatma-gandhi-bg.jpg"),
   "rani-lakshmibai": require("../../assets/images/story-backgrounds/rani-lakshmibai-bg.jpg"),
+  "chandrashekhar-azad": require("../../assets/images/story-backgrounds/chandrashekhar-azad-bg.jpg"),
+  "subhas-bose": require("../../assets/images/story-backgrounds/subhas-bose-bg.jpg"),
+  "sardar-patel": require("../../assets/images/story-backgrounds/sardar-patel-bg.jpg"),
+  "lala-lajpat-rai": require("../../assets/images/story-backgrounds/lala-lajpat-rai-bg.jpg"),
+  "ram-prasad-bismil": require("../../assets/images/story-backgrounds/ram-prasad-bismil-bg.jpg"),
+  "ashfaqulla-khan": require("../../assets/images/story-backgrounds/ashfaqulla-khan-bg.jpg"),
+  "mangal-pandey": require("../../assets/images/story-backgrounds/mangal-pandey-bg.jpg"),
+  "begum-hazrat-mahal": require("../../assets/images/story-backgrounds/begum-hazrat-mahal-bg.jpg"),
+  "tantia-tope": require("../../assets/images/story-backgrounds/tantia-tope-bg.jpg"),
+  "tilak": require("../../assets/images/story-backgrounds/tilak-bg.jpg"),
+  "shivaji-maharaj": require("../../assets/images/story-backgrounds/shivaji-maharaj-bg.jpg"),
+  "rajguru": require("../../assets/images/story-backgrounds/rajguru-bg.jpg"),
+  "veer-savarkar": require("../../assets/images/story-backgrounds/veer-savarkar-bg.jpg"),
+  "madam-cama": require("../../assets/images/story-backgrounds/madam-cama-bg.jpg"),
+  "kalpana-datta": require("../../assets/images/story-backgrounds/kalpana-datta-bg.jpg"),
+  "aurobindo-ghosh": require("../../assets/images/story-backgrounds/aurobindo-ghosh-bg.jpg"),
+  "matangini-hazra": require("../../assets/images/story-backgrounds/matangini-hazra-bg.jpg"),
+  "khudiram-bose": require("../../assets/images/story-backgrounds/khudiram-bose-bg.jpg"),
+  "surya-sen": require("../../assets/images/story-backgrounds/surya-sen-bg.jpg"),
+  "birsa-munda": require("../../assets/images/story-backgrounds/birsa-munda-bg.jpg"),
+  "kunwar-singh": require("../../assets/images/story-backgrounds/kunwar-singh-bg.jpg"),
+  "aruna-asaf-ali": require("../../assets/images/story-backgrounds/aruna-asaf-ali-bg.jpg"),
+  "sarojini-naidu": require("../../assets/images/story-backgrounds/sarojini-naidu-bg.jpg"),
+  "alluri-sitarama-raju": require("../../assets/images/story-backgrounds/alluri-sitarama-raju-bg.jpg"),
+  "kattabomman": require("../../assets/images/story-backgrounds/kattabomman-bg.jpg"),
+  "puli-thevar": require("../../assets/images/story-backgrounds/puli-thevar-bg.jpg"),
+  "subramania-bharati": require("../../assets/images/story-backgrounds/subramania-bharati-bg.jpg"),
+  "kittur-chennamma": require("../../assets/images/story-backgrounds/kittur-chennamma-bg.jpg"),
+  "abbakka-chowta": require("../../assets/images/story-backgrounds/abbakka-chowta-bg.jpg"),
+  "pazhassi-raja": require("../../assets/images/story-backgrounds/pazhassi-raja-bg.jpg"),
+  "lachit-borphukan": require("../../assets/images/story-backgrounds/lachit-borphukan-bg.jpg"),
+  "kanaklata-barua": require("../../assets/images/story-backgrounds/kanaklata-barua-bg.jpg"),
+  "kushal-konwar": require("../../assets/images/story-backgrounds/kushal-konwar-bg.jpg"),
+  "tilka-manjhi": require("../../assets/images/story-backgrounds/tilka-manjhi-bg.jpg"),
+  "bhimrao-ambedkar": require("../../assets/images/story-backgrounds/bhimrao-ambedkar-bg.jpg"),
 };
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import Animated, { FadeIn, FadeInUp } from "react-native-reanimated";
+import Animated, { FadeInUp } from "react-native-reanimated";
 import { API } from "../../src/api";
 import { C, FF, SHADOW } from "../../src/theme";
-import { Monument } from "../../src/components/Monument";
-import { FloatingDecor } from "../../src/components/FloatingDecor";
-import { FloatingMonuments } from "../../src/components/FloatingMonuments";
-import { HeroPortrait } from "../../src/components/HeroPortrait";
 
 
 export default function StoryReader() {
@@ -90,15 +121,10 @@ export default function StoryReader() {
 
   const lessons: string[] = lang === "hi" ? story.lessons_hi : story.lessons_en;
   const storyBg = STORY_BACKGROUNDS[story.id];
-  const isPhotoBg = !!storyBg;
 
   const screenContent = (
     <>
-      {!isPhotoBg && <FloatingDecor />}
-      {!isPhotoBg && <FloatingMonuments />}
-      {isPhotoBg && (
-        <View style={{ ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.15)" }} />
-      )}
+      <View style={{ ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.15)" }} />
       <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
         <View style={styles.topBar}>
           <TouchableOpacity testID="back-btn" onPress={() => router.back()} style={styles.backBtn}>
@@ -123,22 +149,10 @@ export default function StoryReader() {
         </View>
 
         <ScrollView contentContainerStyle={{ padding: 18, paddingBottom: 60 }} testID="story-scroll">
-          {/* Animated monument silhouette — hidden for photo background heroes */}
-          {!isPhotoBg && (
-            <Animated.View entering={FadeIn.duration(700)} style={styles.monumentWrap}>
-              <Monument monumentKey={story.monument || "red_fort"} />
-            </Animated.View>
-          )}
-
-          {/* Hero block with portrait */}
+          {/* Hero block */}
           <Animated.View
             entering={FadeInUp.duration(500)}
-            style={[
-              styles.heroBlock,
-              isPhotoBg
-                ? { backgroundColor: "transparent", borderWidth: 0, elevation: 0, shadowOpacity: 0 }
-                : { backgroundColor: story.color },
-            ]}
+            style={[styles.heroBlock, { backgroundColor: "transparent", borderWidth: 0, elevation: 0, shadowOpacity: 0 }]}
           >
            {!isPhotoBg && (
            <View style={styles.portraitWrap}>
@@ -146,16 +160,13 @@ export default function StoryReader() {
            </View>
            )}
             <Text style={styles.heroEra}>{story.era}</Text>
-            <Text style={[styles.heroName, isPhotoBg && { color: "#FFFFFF" }]}>{story.name}</Text>
-            <Text style={[styles.heroTitle, isPhotoBg && { color: "#FFD700" }]}>{lang === "hi" ? story.title_hi : story.title_en}</Text>
+            <Text style={[styles.heroName, { color: "#FFFFFF" }]}>{story.name}</Text>
+            <Text style={[styles.heroTitle, { color: "#FFD700" }]}>{lang === "hi" ? story.title_hi : story.title_en}</Text>
           </Animated.View>
 
           <Animated.View entering={FadeInUp.delay(200).duration(500)}>
             <View
-              style={[
-                styles.body,
-                isPhotoBg && { backgroundColor: "transparent", borderWidth: 0, elevation: 0, shadowOpacity: 0 },
-              ]}
+              style={[styles.body, { backgroundColor: "transparent", borderWidth: 0, elevation: 0, shadowOpacity: 0 }]}
               testID="story-body"
             >
               {(lang === "hi" ? story.story_hi : story.story_en)
@@ -285,18 +296,14 @@ export default function StoryReader() {
 
   if (storyBg) {
     return (
-      <ImageBackground
-        source={storyBg}
-        style={[styles.c, { backgroundColor: lightTint(story.color) }]}
-        resizeMode="cover"
-      >
+      <ImageBackground source={storyBg} style={styles.c} resizeMode="cover">
         {screenContent}
       </ImageBackground>
     );
   }
 
   return (
-    <View style={[styles.c, { backgroundColor: lightTint(story.color) }]}>
+    <View style={[styles.c, { backgroundColor: story.color }]}>
       {screenContent}
     </View>
   );
@@ -319,19 +326,6 @@ function lightTint(hex: string): string {
 
 const styles = StyleSheet.create({
   c: { flex: 1, backgroundColor: C.cream },
-  monumentWrap: {
-    height: 140,
-    marginHorizontal: -18,
-    marginTop: -8,
-    marginBottom: 8,
-    overflow: "hidden",
-    borderRadius: 0,
-  },
-  portraitWrap: {
-    alignSelf: "center",
-    marginTop: -10,
-    marginBottom: 14,
-  },
   topBar: {
     flexDirection: "row", justifyContent: "space-between",
     paddingHorizontal: 14, paddingVertical: 8,
