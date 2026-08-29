@@ -121,7 +121,7 @@ export default function StoryReader() {
 
   const lessons: string[] = lang === "hi" ? story.lessons_hi : story.lessons_en;
   const storyBg = STORY_BACKGROUNDS[story.id];
-
+  const isPhotoBg = !!storyBg;
   const screenContent = (
     <>
       <View style={{ ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.15)" }} />
@@ -150,15 +150,10 @@ export default function StoryReader() {
 
         <ScrollView contentContainerStyle={{ padding: 18, paddingBottom: 60 }} testID="story-scroll">
           {/* Hero block */}
-          <Animated.View
+                    <Animated.View
             entering={FadeInUp.duration(500)}
             style={[styles.heroBlock, { backgroundColor: "transparent", borderWidth: 0, elevation: 0, shadowOpacity: 0 }]}
           >
-           {!isPhotoBg && (
-           <View style={styles.portraitWrap}>
-           <HeroPortrait storyId={story.id} name={story.name} color={story.color} size={140} />
-           </View>
-           )}
             <Text style={styles.heroEra}>{story.era}</Text>
             <Text style={[styles.heroName, { color: "#FFFFFF" }]}>{story.name}</Text>
             <Text style={[styles.heroTitle, { color: "#FFD700" }]}>{lang === "hi" ? story.title_hi : story.title_en}</Text>
