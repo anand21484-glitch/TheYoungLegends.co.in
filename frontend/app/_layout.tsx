@@ -13,6 +13,19 @@ import {
 import { View, ActivityIndicator } from "react-native";
 import { C } from "../src/theme";
 import { Local } from "../src/data/localStore";
+import { ErrorBoundary } from "../src/components/ErrorBoundary";
+
+// Catch JS errors thrown outside React's render cycle (inside setTimeout
+// callbacks, animation chains, async functions) so they get logged instead
+// of silently crashing the app. Runs once when this file first loads.
+const g = global as any;
+if (g.ErrorUtils) {
+  const defaultHandler = g.ErrorUtils.getGlobalHandler();
+  g.ErrorUtils.setGlobalHandler((error: Error, isFatal?: boolean) => {
+    console.error("Global JS error:", error, "fatal:", isFatal);
+    defaultHandler(error, isFatal);
+  });
+}
 
 export default function RootLayout() {
   useEffect(() => {
@@ -36,27 +49,29 @@ export default function RootLayout() {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
-        <StatusBar style="dark" />
-        <Stack screenOptions={{ headerShown: false, animation: "fade" }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="parents-message" />
-          <Stack.Screen name="name" />
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="story/[id]" />
-          <Stack.Screen name="quiz/[id]" />
-          <Stack.Screen name="hunts/index" />
-          <Stack.Screen name="hunts/[id]" />
-          <Stack.Screen name="timeline" />
-          <Stack.Screen name="jigsaw/index" />
-          <Stack.Screen name="jigsaw/[id]" />
-          <Stack.Screen name="battlecry/index" />
-          <Stack.Screen name="battlecry/[id]" />
-          <Stack.Screen name="parent-view" />
-          <Stack.Screen name="ask/[id]" options={{ presentation: "modal", animation: "slide_from_bottom" }} />
-        </Stack>
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
+    <ErrorBoundary>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaProvider>
+          <StatusBar style="dark" />
+          <Stack screenOptions={{ headerShown: false, animation: "fade" }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="parents-message" />
+            <Stack.Screen name="name" />
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="story/[id]" />
+            <Stack.Screen name="quiz/[id]" />
+            <Stack.Screen name="hunts/index" />
+            <Stack.Screen name="hunts/[id]" />
+            <Stack.Screen name="timeline" />
+            <Stack.Screen name="jigsaw/index" />
+            <Stack.Screen name="jigsaw/[id]" />
+            <Stack.Screen name="battlecry/index" />
+            <Stack.Screen name="battlecry/[id]" />
+            <Stack.Screen name="parent-view" />
+            <Stack.Screen name="ask/[id]" options={{ presentation: "modal", animation: "slide_from_bottom" }} />
+          </Stack>
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
+    </ErrorBoundary>
   );
 }
