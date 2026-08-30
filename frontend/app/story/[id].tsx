@@ -154,8 +154,7 @@ export default function StoryReader() {
             entering={FadeInUp.duration(500)}
             style={[styles.heroBlock, { backgroundColor: "transparent", borderWidth: 0, elevation: 0, shadowOpacity: 0 }]}
           >
-            <Text style={styles.heroEra}>{story.era}</Text>
-            <Text style={[styles.heroName, { color: "#FFFFFF" }]}>{story.name}</Text>
+                        <Text style={styles.heroEra}>{story.era}</Text>
             <Text style={[styles.heroTitle, { color: "#FFD700" }]}>{lang === "hi" ? story.title_hi : story.title_en}</Text>
           </Animated.View>
 
@@ -321,19 +320,20 @@ function lightTint(hex: string): string {
 
 const styles = StyleSheet.create({
   c: { flex: 1, backgroundColor: C.cream },
-  topBar: {
+    topBar: {
     flexDirection: "row", justifyContent: "space-between",
     paddingHorizontal: 14, paddingVertical: 8,
+    marginTop: 18,
   },
   backBtn: {
     width: 42, height: 42, borderRadius: 21, backgroundColor: C.white,
     borderWidth: 2, borderColor: C.navy, alignItems: "center", justifyContent: "center",
   },
   langSwitch: {
-    flexDirection: "row", borderRadius: 999, borderWidth: 2, borderColor: C.navy,
+    flexDirection: "column", borderRadius: 18, borderWidth: 2, borderColor: C.navy,
     backgroundColor: C.white, overflow: "hidden",
   },
-  langBtn: { paddingHorizontal: 14, paddingVertical: 8 },
+  langBtn: { paddingHorizontal: 12, paddingVertical: 8, alignItems: "center" },
   langActive: { backgroundColor: C.saffron },
   langTxt: { fontWeight: "900", color: C.navy, fontSize: 13 },
   heroBlock: {
