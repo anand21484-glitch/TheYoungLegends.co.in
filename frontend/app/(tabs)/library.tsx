@@ -59,36 +59,6 @@ export default function Library() {
         </View>
       </View>
 
-      {/* State filter bar */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.filterBar}
-        testID="state-filter-bar"
-      >
-        <TouchableOpacity
-          testID="filter-all"
-          style={[styles.filterChip, selectedState === "All" && styles.filterChipActive]}
-          onPress={() => setSelectedState("All")}
-        >
-          <Text style={[styles.filterTxt, selectedState === "All" && styles.filterTxtActive]}>
-            All States
-          </Text>
-        </TouchableOpacity>
-        {uniqueStates.map((state) => (
-          <TouchableOpacity
-            key={state}
-            testID={`filter-${state}`}
-            style={[styles.filterChip, selectedState === state && styles.filterChipActive]}
-            onPress={() => setSelectedState(state)}
-          >
-            <Text style={[styles.filterTxt, selectedState === state && styles.filterTxtActive]}>
-              {state}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-
       <ScrollView contentContainerStyle={{ padding: 18, paddingBottom: 40 }} testID="library-scroll">
         <TouchableOpacity
           testID="library-timeline-cta"
