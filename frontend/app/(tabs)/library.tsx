@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
     borderWidth: 2, borderColor: C.navy, backgroundColor: C.white,
   },
   filterChipActive: { backgroundColor: C.saffron, borderColor: C.saffron },
-  filterTxt: { fontSize: 12, fontWeight: "700", color: C.navy },
+  filterTxt: { fontSize: 13, fontWeight: "900", color: C.navy },
   filterTxtActive: { color: C.white },
 
   card: {
